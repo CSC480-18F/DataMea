@@ -1,7 +1,5 @@
 
 
-import org.apache.log4j.BasicConfigurator;
-
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -19,11 +17,8 @@ import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.trees.*;
 import edu.stanford.nlp.util.*;
 
-/**
- * Class reads emails
- *
- * @author itcuties
- */
+import org.jsoup.*;
+
 public class Main {
 
     // PrinterWriter for output file
@@ -31,7 +26,7 @@ public class Main {
 
     static {
         try {
-            writer = new PrintWriter("/Users/andyvadnais/csc480/output.txt", "UTF-8");
+            writer = new PrintWriter(System.getProperty("user.dir") + "/output.txt", "UTF-8");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
@@ -41,7 +36,7 @@ public class Main {
 
     // File object for sample input file
     final static File sampleFile =
-            new File("/Users/andyvadnais/csc480/sampleEmail.txt");
+            new File(System.getProperty("user.dir") + "/sampleEmail.txt");
 
     // Scanner object for sample input file
     static Scanner sc;
@@ -57,11 +52,12 @@ public class Main {
 
     public static void main(String[] args) throws FileNotFoundException {
 
+        System.out.println(System.getProperty("user.dir"));
         // text file with sample emails or text to run through sentiment analysis
-        while (sc.hasNext()) {
-            analyzeSentiment(sc.nextLine());
-        }
-        BasicConfigurator.configure();
+        //while (sc.hasNext()) {
+        //analyzeSentiment(sc.nextLine());
+        //}
+
         // get user Email address, password
         String password, address, selectedFolder;
         Scanner kb = new Scanner(System.in);
@@ -151,13 +147,23 @@ it appears to be whenever there is a thread of replies
                     System.out.println("From:" + a);
 
                 writer.println("Title: " + message.getSubject());
+                System.out.println("Title: " + message.getSubject());
+
                 writer.println(message.getSentDate());
+                System.out.println(message.getSentDate());
+
                 writer.println();
+                System.out.println();
+
                 String messageText;
                 messageText = getTextFromMessage(message);
                 analyzeSentiment(messageText);
+
                 writer.println(messageText);
+                System.out.println(messageText);
+
                 writer.println("------");
+                System.out.println("------");
 
 
             }
@@ -213,8 +219,10 @@ it appears to be whenever there is a thread of replies
     private static String getTextFromMessage(Message message) throws MessagingException, IOException {
         String result = "";
         if (message.isMimeType("text/plain")) {
+            System.out.println("Message is plain text");
             result = message.getContent().toString();
         } else if (message.isMimeType("multipart/*")) {
+            System.out.print("Message is multipart");
             MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
             result = getTextFromMimeMultipart(mimeMultipart);
         }
@@ -247,4 +255,4 @@ it appears to be whenever there is a thread of replies
         return strDate;
     }
 
-}   
+}
