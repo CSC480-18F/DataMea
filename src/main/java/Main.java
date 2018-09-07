@@ -9,6 +9,8 @@ import java.util.Properties;
 import javax.mail.*;
 import javax.mail.internet.MimeMultipart;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import edu.stanford.nlp.io.*;
 import edu.stanford.nlp.ling.*;
@@ -157,10 +159,8 @@ it appears to be whenever there is a thread of replies
 
                 String messageText;
                 messageText = getTextFromMessage(message);
-                analyzeSentiment(messageText);
 
-                writer.println(messageText);
-                System.out.println(messageText);
+                analyzeSentiment(filter(messageText));
 
                 writer.println("------");
                 System.out.println("------");
@@ -168,7 +168,7 @@ it appears to be whenever there is a thread of replies
 
             }
 
-            writer.println("\nNumber of emails in '" + selectedFolder + "' folder: " + numEmails);
+            System.out.println("\nNumber of emails in '" + selectedFolder + "' folder: " + numEmails);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -206,23 +206,34 @@ it appears to be whenever there is a thread of replies
         props.setProperty("annotators", "tokenize, ssplit, parse, sentiment");
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
 
+        System.out.println("Processing annotation");
+        writer.println("Processing annotation");
         Annotation annotation = pipeline.process(message);
         List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
+
         writer.println("Start Time: " + getCurrentTimeStamp());
+        System.out.println("Start Time: " + getCurrentTimeStamp());
+
         for (CoreMap sentence : sentences) {
             String sentiment = sentence.get(SentimentCoreAnnotations.SentimentClass.class);
             writer.println("Sentiment: " + sentiment + "\t" + sentence);
+            System.out.println("Sentiment: " + sentiment + "\t" + sentence);
         }
+
         writer.println("End Time: " + getCurrentTimeStamp());
+        System.out.println("End Time: " + getCurrentTimeStamp());
     }
 
     private static String getTextFromMessage(Message message) throws MessagingException, IOException {
+        System.out.println("Getting text from message");
         String result = "";
         if (message.isMimeType("text/plain")) {
             System.out.println("Message is plain text");
+            writer.println("Message is plain text");
             result = message.getContent().toString();
         } else if (message.isMimeType("multipart/*")) {
-            System.out.print("Message is multipart");
+            System.out.println("Message is multipart");
+            writer.println("Message is multipart");
             MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
             result = getTextFromMimeMultipart(mimeMultipart);
         }
@@ -234,14 +245,22 @@ it appears to be whenever there is a thread of replies
         String result = "";
         int count = mimeMultipart.getCount();
         for (int i = 0; i < count; i++) {
+            System.out.println("Body Part: " + (i + 1));
+            writer.println("Body Part: " + (i + 1));
             BodyPart bodyPart = mimeMultipart.getBodyPart(i);
             if (bodyPart.isMimeType("text/plain")) {
+                System.out.println("Body part is plain text");
+                writer.println("Body part is plain text");
                 result = result + "\n" + bodyPart.getContent();
                 break; // without break same text appears twice in my tests
             } else if (bodyPart.isMimeType("text/html")) {
+                System.out.println("Body part is HTML");
+                writer.println("Body part is HTML");
                 String html = (String) bodyPart.getContent();
                 result = result + "\n" + org.jsoup.Jsoup.parse(html).text();
             } else if (bodyPart.getContent() instanceof MimeMultipart) {
+                System.out.println("Body part is another MimeMultipart object");
+                writer.println("Body part is another MimeMultipart object");
                 result = result + getTextFromMimeMultipart((MimeMultipart) bodyPart.getContent());
             }
         }
@@ -253,6 +272,14 @@ it appears to be whenever there is a thread of replies
         Date now = new Date();
         String strDate = sdfDate.format(now);
         return strDate;
+    }
+
+    public static String filter(String text){
+        String regex = "[`,~,*,#,^,\\n,\\t]";
+        String newText = text.replaceAll(regex, "");
+        System.out.println("AFTER REGEX FILTER:\n" + newText);
+        writer.println("AFTER REGEX FILTER:\n" + newText);
+        return newText;
     }
 
 }
