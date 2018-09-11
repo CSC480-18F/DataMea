@@ -2,63 +2,42 @@
 
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import javax.mail.*;
 import javax.mail.internet.MimeMultipart;
-import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import edu.stanford.nlp.io.*;
 import edu.stanford.nlp.ling.*;
 import edu.stanford.nlp.pipeline.*;
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
-import edu.stanford.nlp.trees.*;
 import edu.stanford.nlp.util.*;
-
-import org.jsoup.*;
 
 public class Main {
 
-    // PrinterWriter for output file
+
+    static class Sender {
+
+        String address;
+        int count = 1;
+
+        public Sender(String address) {
+            this.address = address;
+        }
+
+        public String toString() {
+            return address + " number of emails sent: " + count;
+        }
+
+    }
+
+
     static PrintWriter writer;
-
-    static {
-        try {
-            writer = new PrintWriter(System.getProperty("user.dir") + "/output.txt", "UTF-8");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // File object for sample input file
-    final static File sampleFile =
-            new File(System.getProperty("user.dir") + "/sampleEmail.txt");
-
-    // Scanner object for sample input file
-    static Scanner sc;
-
-    static {
-        try {
-            sc = new Scanner(sampleFile);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
 
 
     public static void main(String[] args) throws FileNotFoundException {
 
-        System.out.println(System.getProperty("user.dir"));
-        // text file with sample emails or text to run through sentiment analysis
-        //while (sc.hasNext()) {
-        //analyzeSentiment(sc.nextLine());
-        //}
+        writer = new PrintWriter(new File("output.txt"));
+        //Scanner sampleEmailScanner = new Scanner(new File("sampleEmail.txt"));
 
         // get user Email address, password
         String password, address, selectedFolder;
@@ -80,9 +59,7 @@ public class Main {
         long startTime = System.nanoTime();
         //read and print all emails from the selected folder
         readEmails(true, password, address, selectedFolder);
-        long endTime = System.nanoTime();
-        long totalTime = (endTime - startTime) / 1000000000;
-        System.out.println("Total runtime: " + totalTime + " seconds");
+        endTimer(startTime);
     }
 
 
@@ -113,6 +90,8 @@ it appears to be whenever there is a thread of replies
         // Create the session
         Session session = Session.getDefaultInstance(connectionProperties, null);
 
+        ArrayList<Sender> senders = new ArrayList<>();
+
         try {
             System.out.print("Connecting to the IMAP server...");
             // Connecting to the server
@@ -139,15 +118,28 @@ it appears to be whenever there is a thread of replies
             System.out.println("Reading messages...");
 
             int numEmails = 0;
-            int emailIndex = 1; // running total of emails
 
             // Display the messages
             for (Message message : messages) {
                 numEmails++;
-                writer.println("Email #" + emailIndex);
-                for (Address a : message.getFrom())
+                writer.println("Email #" + numEmails);
+                for (Address a : message.getFrom()) {
                     System.out.println("From:" + a);
 
+
+                    boolean found = false;
+                    for (Sender s : senders) {
+                        if (s.address.equals(a.toString())) {
+                            s.count++;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        senders.add(new Sender(a.toString()));
+                    }
+
+                }
                 writer.println("Title: " + message.getSubject());
                 System.out.println("Title: " + message.getSubject());
 
@@ -169,6 +161,10 @@ it appears to be whenever there is a thread of replies
             }
 
             System.out.println("\nNumber of emails in '" + selectedFolder + "' folder: " + numEmails);
+            System.out.println("summary of sender: ");
+            for (Sender s: senders) {
+                System.out.println(s.toString());
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -280,6 +276,12 @@ it appears to be whenever there is a thread of replies
         System.out.println("AFTER REGEX FILTER:\n" + newText);
         writer.println("AFTER REGEX FILTER:\n" + newText);
         return newText;
+    }
+
+    public static void endTimer(long startTime) {
+        long endTime = System.nanoTime();
+        long totalTime = (endTime - startTime) / 1000000000;
+        System.out.println("Total runtime: " + totalTime + " seconds");
     }
 
 }
