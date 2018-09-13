@@ -1,396 +1,0 @@
-Email #1
-Title: Re: One question and AP scores sent
-Fri Jul 08 11:23:46 EDT 2016
-
-Message is multipart
-Body Part: 1
-Body part is plain text
-AFTER REGEX FILTER:
-CedricJust send your transcripts for all courses - college and AP - and they willdetermine what courses fit here.  If there is a question in the futureregarding that course you should have a syllabus to show the mathdepartment and ask them to evaluate the course.Glad that you sent all to Oswego now and have a great weekend!SueOn Fri Jul 8 2016 at 11:21 AM Cedric Hansen <chansen@oswego.edu> wrote:> Hi Ms Witmer>> I have one more questions regarding classes and credits. Will I get credit> for linear algebra that I took at Carleton this past year? I looked through> the course catalog at Oswego and it's exactly what's described in matrix> algebra.> Also I just sent my AP scores to Oswego and they should be there within> the next week or two.>> Best> Cedric>>>> Sent from my iPhone
-Processing annotation
-Start Time: 2018-09-10 20:47:54
-Sentiment: Neutral	CedricJust send your transcripts for all courses - college and AP - and they willdetermine what courses fit here.
-Sentiment: Negative	If there is a question in the futureregarding that course you should have a syllabus to show the mathdepartment and ask them to evaluate the course.
-Sentiment: Positive	Glad that you sent all to Oswego now and have a great weekend!
-Sentiment: Negative	SueOn Fri Jul 8 2016 at 11:21 AM Cedric Hansen <chansen@oswego.edu> wrote:> Hi Ms Witmer>> I have one more questions regarding classes and credits.
-Sentiment: Negative	Will I get credit> for linear algebra that I took at Carleton this past year?
-Sentiment: Negative	I looked through> the course catalog at Oswego and it's exactly what's described in matrix> algebra.>
-Sentiment: Negative	Also I just sent my AP scores to Oswego and they should be there within> the next week or two.>>
-Sentiment: Neutral	Best> Cedric>>>> Sent from my iPhone
-End Time: 2018-09-10 20:47:54
-------
-Email #2
-Title: One question and AP scores sent
-Fri Jul 08 11:21:37 EDT 2016
-
-Message is plain text
-AFTER REGEX FILTER:
-Hi Ms WitmerI have one more questions regarding classes and credits. Will I get credit for linear algebra that I took at Carleton this past year? I looked through the course catalog at Oswego and it's exactly what's described in matrix algebra. Also I just sent my AP scores to Oswego and they should be there within the next week or two. BestCedricSent from my iPhone
-Processing annotation
-Start Time: 2018-09-10 20:47:55
-Sentiment: Negative	Hi Ms WitmerI have one more questions regarding classes and credits.
-Sentiment: Neutral	Will I get credit for linear algebra that I took at Carleton this past year?
-Sentiment: Negative	I looked through the course catalog at Oswego and it's exactly what's described in matrix algebra.
-Sentiment: Negative	Also I just sent my AP scores to Oswego and they should be there within the next week or two.
-Sentiment: Neutral	BestCedricSent from my iPhone
-End Time: 2018-09-10 20:47:55
-------
-Email #3
-Title: myOswego LakerNetID Authentication
-Tue Jun 28 15:09:57 EDT 2016
-
-Message is plain text
-AFTER REGEX FILTER:
-Dear Cedric Hansen    Thank you for using your LakerNetID to log on to myOswego. For your convenience and security please continue to use your LakerNetID credentials for future logins to this service. Your campus ID and PIN can no longer be used to access myOswego.  Please remember that you should never share your LakerNetID login credentials with anyone and that Campus Technology Services will never ask you to provide us with your LakerNetID credentials via email.
-Processing annotation
-Start Time: 2018-09-10 20:47:56
-Sentiment: Negative	Dear Cedric Hansen    Thank you for using your LakerNetID to log on to myOswego.
-Sentiment: Positive	For your convenience and security please continue to use your LakerNetID credentials for future logins to this service.
-Sentiment: Negative	Your campus ID and PIN can no longer be used to access myOswego.
-Sentiment: Negative	Please remember that you should never share your LakerNetID login credentials with anyone and that Campus Technology Services will never ask you to provide us with your LakerNetID credentials via email.
-End Time: 2018-09-10 20:47:56
-------
-Email #4
-Title: SUNY Oswego Math placement for Computer Science and Software Engineering
-Wed Jun 22 18:50:23 EDT 2016
-
-Message is plain text
-AFTER REGEX FILTER:
-Dear incoming majorWelcome to the SUNY Oswego Computer Science department! Most of the information you need to attend Oswego will come from the Summer Orientation program and Admissions office. But here's a note on how Oswego Math placement policies impact Computer Science (CS) and Software Engineering (SE) majors.These programs include math requirements reflecting their role in analysis (understanding how and why software works) in support of construction (designing and programming software). There are three categories of math requirements:1. Continuous math: MAT210 (calculus I) and MAT220 (calculus II) that extend ideas from algebra and geometry to dynamic systems.2. Discrete math: MAT215 (discrete) and CSC221 (foundations) that cover logic proofs (MAT215) sets graphs and automata (CSC221).3. Probability and statistics: MAT318 (statistics for sciences) or MAT354 (math statistics) -- optional in CS-BA program required in CS-BS and SE-BS.The ALEKS placement exam (or incoming course credit or waivers) applies to the first Continuous math category. The first two computer science department major courses (CSC212 and CSC241) do not require calculus as prerequisites. Depending on your interests in computing you may or may not not apply continuous math a lot but in any case when you need it you need it. We've found over the years that entering CS and SE students who take MAT210 and/or MAT220 during their first year are more successful. There are additional optional math courses with MAT210 prerequisites; for example Matrix Algebra is a prerequisite for the Computer Graphics course. Also calculus is a pre- or co-requisite for other STEM courses that you may need or want to take including PHY112 required in the SE-BS major.To give you a better idea how these fit in with other major requirements here's an ideal course sequence for the shared core requirements across CS and SE programs. It is possible to complete these in four semesters (leaving electives and SE major or CS track requirements from there on) but some students spread them out further sometimes taking electives they are eligible for before completing core. (Transfer students usually take courses in about the same order adjusting for accepted incoming credit.)  Normally students also take one math course per semester during the the first four semesters but the details depend on initial placement that may impact decisions about which CS courses to take.1. CSC212 (CS 1)2. CSC241 (CS 2) CSC221 (Foundations)3. CSC344 (Programming languages) CSC365 (Algorithms)4. CSC380 (Intro SE) either CSC322 (Systems) or CSC222 (Computer Organization)F you have not taken the ALEKS placement exam or arranged for course credit or waivers please do so as soon as you can. Otherwise you might not get assigned to courses that allow smooth progress through your major.If you placed in a lower-level math course than you expected please take advantage of the online modules that allow you to catch up on topics you might have forgotten or missed learning and then retake the exam (up to 3 times). Putting in some time now may avoid being a semester behind where you want to be in meeting requirements. See https://www.oswego.edu/advisement/math-placement-1 for details about course sequences for given initial scores and placements. If you become unsure about committing to a CS or SE major because of placement results please talk to advisors during Summer Orientation.ALEKS testing and placement are handled by the Summer Orientation program not by the Computer Science department. For more information please click on the "New Student Menu" at https://www.oswego.edu/myoswego/ . But if you have further questions that they cannot help with please contact me and I'll make sure you find answers.SincerelyDoug LeaChair Computer Science Department
-Processing annotation
-Start Time: 2018-09-10 20:48:01
-Sentiment: Negative	Dear incoming majorWelcome to the SUNY Oswego Computer Science department!
-Sentiment: Neutral	Most of the information you need to attend Oswego will come from the Summer Orientation program and Admissions office.
-Sentiment: Negative	But here's a note on how Oswego Math placement policies impact Computer Science (CS) and Software Engineering (SE) majors.
-Sentiment: Negative	These programs include math requirements reflecting their role in analysis (understanding how and why software works) in support of construction (designing and programming software).
-Sentiment: Negative	There are three categories of math requirements:1.
-Sentiment: Negative	Continuous math: MAT210 (calculus I) and MAT220 (calculus II) that extend ideas from algebra and geometry to dynamic systems.
-Sentiment: Neutral	2.
-Sentiment: Negative	Discrete math: MAT215 (discrete) and CSC221 (foundations) that cover logic proofs (MAT215) sets graphs and automata (CSC221).
-Sentiment: Neutral	3.
-Sentiment: Negative	Probability and statistics: MAT318 (statistics for sciences) or MAT354 (math statistics) -- optional in CS-BA program required in CS-BS and SE-BS.
-Sentiment: Negative	The ALEKS placement exam (or incoming course credit or waivers) applies to the first Continuous math category.
-Sentiment: Negative	The first two computer science department major courses (CSC212 and CSC241) do not require calculus as prerequisites.
-Sentiment: Negative	Depending on your interests in computing you may or may not not apply continuous math a lot but in any case when you need it you need it.
-Sentiment: Negative	We've found over the years that entering CS and SE students who take MAT210 and/or MAT220 during their first year are more successful.
-Sentiment: Negative	There are additional optional math courses with MAT210 prerequisites; for example Matrix Algebra is a prerequisite for the Computer Graphics course.
-Sentiment: Negative	Also calculus is a pre- or co-requisite for other STEM courses that you may need or want to take including PHY112 required in the SE-BS major.
-Sentiment: Positive	To give you a better idea how these fit in with other major requirements here's an ideal course sequence for the shared core requirements across CS and SE programs.
-Sentiment: Negative	It is possible to complete these in four semesters (leaving electives and SE major or CS track requirements from there on) but some students spread them out further sometimes taking electives they are eligible for before completing core.
-Sentiment: Negative	(Transfer students usually take courses in about the same order adjusting for accepted incoming credit.)
-Sentiment: Neutral	Normally students also take one math course per semester during the the first four semesters but the details depend on initial placement that may impact decisions about which CS courses to take.
-Sentiment: Neutral	1.
-Sentiment: Neutral	CSC212 (CS 1)2.
-Sentiment: Negative	CSC241 (CS 2) CSC221 (Foundations)3.
-Sentiment: Negative	CSC344 (Programming languages) CSC365 (Algorithms)4.
-Sentiment: Negative	CSC380 (Intro SE) either CSC322 (Systems) or CSC222 (Computer Organization)F you have not taken the ALEKS placement exam or arranged for course credit or waivers please do so as soon as you can.
-Sentiment: Negative	Otherwise you might not get assigned to courses that allow smooth progress through your major.
-Sentiment: Negative	If you placed in a lower-level math course than you expected please take advantage of the online modules that allow you to catch up on topics you might have forgotten or missed learning and then retake the exam (up to 3 times).
-Sentiment: Negative	Putting in some time now may avoid being a semester behind where you want to be in meeting requirements.
-Sentiment: Positive	See https://www.oswego.edu/advisement/math-placement-1 for details about course sequences for given initial scores and placements.
-Sentiment: Negative	If you become unsure about committing to a CS or SE major because of placement results please talk to advisors during Summer Orientation.
-Sentiment: Negative	ALEKS testing and placement are handled by the Summer Orientation program not by the Computer Science department.
-Sentiment: Neutral	For more information please click on the "New Student Menu" at https://www.oswego.edu/myoswego/ .
-Sentiment: Negative	But if you have further questions that they cannot help with please contact me and I'll make sure you find answers.
-Sentiment: Neutral	SincerelyDoug LeaChair Computer Science Department
-End Time: 2018-09-10 20:48:01
-------
-Email #5
-Title: Re: Immunization forms- Cedric Hansen (804982274)
-Mon Jun 13 13:54:57 EDT 2016
-
-Message is multipart
-Body Part: 1
-Body part is another MimeMultipart object
-Body Part: 1
-Body part is another MimeMultipart object
-Body Part: 1
-Body part is plain text
-Body Part: 2
-Body Part: 2
-AFTER REGEX FILTER:
-I just converted it into pdf and have attached the file.If you could please confirm this is the right file it would be greatlyappriciated.ThanksCedricOn Mon Jun 13 2016 at 1:31 PM Walker Health Center <whealth@oswego.edu>wrote:> needs to be in pdf in order to print and scan into your account>> On Mon Jun 13 2016 at 12:13 PM Cedric Hansen <chansen@oswego.edu>> wrote:>>> Hi again>>>> Please regard my earlier email. The file format I was using was not>> working. Please let me know if this file works.>>>> [image: image1.JPG]>>>> Cedric>>>> Sent from my iPhone>>>> On Jun 13 2016 at 10:05 AM Walker Health Center <whealth@oswego.edu>>> wrote:>>>> no attachment to open>>>> On Sun Jun 12 2016 at 4:00 PM Cedric Hansen <chansen@oswego.edu>>> wrote:>>>>> Good Afternoon>>>>>> Copied below is a scanned copy of my immunization form which was>>> obtained from public health. I should have all of the required vaccines. If>>> there is anything else I need to send in please let me know so I can send>>> it to you as fast as possible.>>>>>> Best>>>>>> Cedric>>>>>>>>
-Processing annotation
-Start Time: 2018-09-10 20:48:08
-Sentiment: Negative	I just converted it into pdf and have attached the file.
-Sentiment: Positive	If you could please confirm this is the right file it would be greatlyappriciated.
-Sentiment: Negative	ThanksCedricOn Mon Jun 13 2016 at 1:31 PM Walker Health Center <whealth@oswego.edu>wrote:> needs to be in pdf in order to print and scan into your account>> On Mon Jun 13 2016 at 12:13 PM Cedric Hansen <chansen@oswego.edu>> wrote:>>> Hi again>>>> Please regard my earlier email.
-Sentiment: Negative	The file format I was using was not>> working.
-Sentiment: Negative	Please let me know if this file works.
-Sentiment: Very negative	>>>> [image: image1.JPG]>>>> Cedric>>>> Sent from my iPhone>>>> On Jun 13 2016 at 10:05 AM Walker Health Center <whealth@oswego.edu>>> wrote:>>>> no attachment to open>>>> On Sun Jun 12 2016 at 4:00 PM Cedric Hansen <chansen@oswego.edu>>> wrote:>>>>> Good Afternoon>>>>>> Copied below is a scanned copy of my immunization form which was>>> obtained from public health.
-Sentiment: Negative	I should have all of the required vaccines.
-Sentiment: Negative	If>>> there is anything else I need to send in please let me know so I can send>>> it to you as fast as possible.
-Sentiment: Negative	>>>>>> Best>>>>>> Cedric>>>>>>>>
-End Time: 2018-09-10 20:48:08
-------
-Email #6
-Title: Re: Immunization forms- Cedric Hansen (804982274)
-Mon Jun 13 13:31:46 EDT 2016
-
-Message is multipart
-Body Part: 1
-Body part is another MimeMultipart object
-Body Part: 1
-Body part is plain text
-Body Part: 2
-AFTER REGEX FILTER:
-needs to be in pdf in order to print and scan into your accountOn Mon Jun 13 2016 at 12:13 PM Cedric Hansen <chansen@oswego.edu> wrote:> Hi again>> Please regard my earlier email. The file format I was using was not> working. Please let me know if this file works.>> [image: image1.JPG]>> Cedric>> Sent from my iPhone>> On Jun 13 2016 at 10:05 AM Walker Health Center <whealth@oswego.edu>> wrote:>> no attachment to open>> On Sun Jun 12 2016 at 4:00 PM Cedric Hansen <chansen@oswego.edu> wrote:>>> Good Afternoon>>>> Copied below is a scanned copy of my immunization form which was obtained>> from public health. I should have all of the required vaccines. If there is>> anything else I need to send in please let me know so I can send it to you>> as fast as possible.>>>> Best>>>> Cedric>>>>
-Processing annotation
-Start Time: 2018-09-10 20:48:13
-Sentiment: Negative	needs to be in pdf in order to print and scan into your accountOn Mon Jun 13 2016 at 12:13 PM Cedric Hansen <chansen@oswego.edu> wrote:> Hi again>> Please regard my earlier email.
-Sentiment: Negative	The file format I was using was not> working.
-Sentiment: Negative	Please let me know if this file works.>>
-Sentiment: Very negative	[image: image1.JPG]>> Cedric>> Sent from my iPhone>> On Jun 13 2016 at 10:05 AM Walker Health Center <whealth@oswego.edu>> wrote:>> no attachment to open>> On Sun Jun 12 2016 at 4:00 PM Cedric Hansen <chansen@oswego.edu> wrote:>>> Good Afternoon>>>> Copied below is a scanned copy of my immunization form which was obtained>> from public health.
-Sentiment: Negative	I should have all of the required vaccines.
-Sentiment: Negative	If there is>> anything else I need to send in please let me know so I can send it to you>> as fast as possible.
-Sentiment: Neutral	>>>> Best>>>> Cedric>>>>
-End Time: 2018-09-10 20:48:13
-------
-Email #7
-Title: Re: Immunization forms- Cedric Hansen (804982274)
-Mon Jun 13 12:13:09 EDT 2016
-
-Message is multipart
-Body Part: 1
-Body part is plain text
-AFTER REGEX FILTER:
-Hi againPlease regard my earlier email. The file format I was using was not working. Please let me know if this file works.CedricSent from my iPhone> On Jun 13 2016 at 10:05 AM Walker Health Center <whealth@oswego.edu> wrote:> > no attachment to open> >> On Sun Jun 12 2016 at 4:00 PM Cedric Hansen <chansen@oswego.edu> wrote:>> Good Afternoon>> >> Copied below is a scanned copy of my immunization form which was obtained from public health. I should have all of the required vaccines. If there is anything else I need to send in please let me know so I can send it to you as fast as possible.>> >> Best>> >> Cedric>> > 
-Processing annotation
-Start Time: 2018-09-10 20:48:15
-Sentiment: Negative	Hi againPlease regard my earlier email.
-Sentiment: Negative	The file format I was using was not working.
-Sentiment: Negative	Please let me know if this file works.
-Sentiment: Very negative	CedricSent from my iPhone> On Jun 13 2016 at 10:05 AM Walker Health Center <whealth@oswego.edu> wrote:> > no attachment to open> >> On Sun Jun 12 2016 at 4:00 PM Cedric Hansen <chansen@oswego.edu> wrote:>> Good Afternoon>> >> Copied below is a scanned copy of my immunization form which was obtained from public health.
-Sentiment: Negative	I should have all of the required vaccines.
-Sentiment: Negative	If there is anything else I need to send in please let me know so I can send it to you as fast as possible.
-Sentiment: Neutral	>> >> Best>> >> Cedric>> >
-End Time: 2018-09-10 20:48:15
-------
-Email #8
-Title: Re: Immunization forms- Cedric Hansen (804982274)
-Mon Jun 13 12:11:22 EDT 2016
-
-Message is multipart
-Body Part: 1
-Body part is plain text
-AFTER REGEX FILTER:
-HiI apologize the image didn't get copied onto the message. It should now becopied right below.If any more issues arise please let me knowCedricOn Mon Jun 13 2016 at 10:05 AM Walker Health Center <whealth@oswego.edu>wrote:> no attachment to open>> On Sun Jun 12 2016 at 4:00 PM Cedric Hansen <chansen@oswego.edu> wrote:>>> Good Afternoon>>>> Copied below is a scanned copy of my immunization form which was obtained>> from public health. I should have all of the required vaccines. If there is>> anything else I need to send in please let me know so I can send it to you>> as fast as possible.>>>> Best>>>> Cedric>>>>
-Processing annotation
-Start Time: 2018-09-10 20:48:18
-Sentiment: Negative	HiI apologize the image didn't get copied onto the message.
-Sentiment: Neutral	It should now becopied right below.
-Sentiment: Very negative	If any more issues arise please let me knowCedricOn Mon Jun 13 2016 at 10:05 AM Walker Health Center <whealth@oswego.edu>wrote:> no attachment to open>> On Sun Jun 12 2016 at 4:00 PM Cedric Hansen <chansen@oswego.edu> wrote:>>> Good Afternoon>>>> Copied below is a scanned copy of my immunization form which was obtained>> from public health.
-Sentiment: Negative	I should have all of the required vaccines.
-Sentiment: Negative	If there is>> anything else I need to send in please let me know so I can send it to you>> as fast as possible.
-Sentiment: Neutral	>>>> Best>>>> Cedric>>>>
-End Time: 2018-09-10 20:48:18
-------
-Email #9
-Title: Re: Immunization forms- Cedric Hansen (804982274)
-Mon Jun 13 10:05:52 EDT 2016
-
-Message is multipart
-Body Part: 1
-Body part is plain text
-AFTER REGEX FILTER:
-no attachment to openOn Sun Jun 12 2016 at 4:00 PM Cedric Hansen <chansen@oswego.edu> wrote:> Good Afternoon>> Copied below is a scanned copy of my immunization form which was obtained> from public health. I should have all of the required vaccines. If there is> anything else I need to send in please let me know so I can send it to you> as fast as possible.>> Best>> Cedric>
-Processing annotation
-Start Time: 2018-09-10 20:48:19
-Sentiment: Negative	no attachment to openOn Sun Jun 12 2016 at 4:00 PM Cedric Hansen <chansen@oswego.edu> wrote:> Good Afternoon>> Copied below is a scanned copy of my immunization form which was obtained> from public health.
-Sentiment: Negative	I should have all of the required vaccines.
-Sentiment: Negative	If there is> anything else I need to send in please let me know so I can send it to you> as fast as possible.>>
-Sentiment: Neutral	Best>> Cedric>
-End Time: 2018-09-10 20:48:19
-------
-Email #10
-Title: Immunization forms- Cedric Hansen (804982274)
-Sun Jun 12 16:00:39 EDT 2016
-
-Message is multipart
-Body Part: 1
-Body part is plain text
-AFTER REGEX FILTER:
-Good AfternoonCopied below is a scanned copy of my immunization form which was obtainedfrom public health. I should have all of the required vaccines. If there isanything else I need to send in please let me know so I can send it to youas fast as possible.BestCedric
-Processing annotation
-Start Time: 2018-09-10 20:48:20
-Sentiment: Negative	Good AfternoonCopied below is a scanned copy of my immunization form which was obtainedfrom public health.
-Sentiment: Negative	I should have all of the required vaccines.
-Sentiment: Negative	If there isanything else I need to send in please let me know so I can send it to youas fast as possible.
-Sentiment: Neutral	BestCedric
-End Time: 2018-09-10 20:48:20
-------
-Email #11
-Title: Re: PLEASE READ: Missing Documents
-Thu Jun 09 13:02:32 EDT 2016
-
-Message is multipart
-Body Part: 1
-Body part is plain text
-AFTER REGEX FILTER:
-Send the copy of what o gave you and send the medical that we filled out and let them know the remainder will be completed by your physician July 4You are 19 and should be able to deal with thisSent from my iPhone> On Jun 9 2016 at 11:16 AM Cedric Hansen <chansen@oswego.edu> wrote:> > We need to get this done > > Sent from my iPhone> > Begin forwarded message:> >> From: "International Educ. & Programs" <isss@oswego.edu>>> Date: June 9 2016 at 10:19:08 AM EDT>> To: Ceddy Hansen <CEDDY29@YAHOO.CA> Cedric Hansen <chansen@oswego.edu>>> Subject: PLEASE READ: Missing Documents>> Dear Cedric >> >> Hope you are doing well. I'm contacting you to ask you to complete the steps from the document attached as soon as possible. You are missing the following and you MUST complete it ASAP>> 1. Heath History Status >> 2. MMR Compliance Status (https://www.oswego.edu/walker-health-center/pre-orientation-health-history-immunization-form)>> 3. Meningitis Survey Status>> >> You could find how to complete these documents in the document I have attached. If you have any questions please do not hesitate to contact me back.>> >> Thank you.>> >> Best>> Austin Joseph>> >> International Student And Scholar Services>> 102 Sheldon Hall>> SUNY OSWEGO Oswego NY 13126 USA>> T: +1 315-312-5775>> Like us on Facebook> <R U READY Fall 2016.docx>
-Processing annotation
-Start Time: 2018-09-10 20:48:25
-Sentiment: Negative	Send the copy of what o gave you and send the medical that we filled out and let them know the remainder will be completed by your physician July 4You are 19 and should be able to deal with thisSent from my iPhone> On Jun 9 2016 at 11:16 AM Cedric Hansen <chansen@oswego.edu> wrote:> > We need to get this done > > Sent from my iPhone> > Begin forwarded message:> >> From: "International Educ.
-Sentiment: Negative	& Programs" <isss@oswego.edu>>> Date: June 9 2016 at 10:19:08 AM EDT>> To: Ceddy Hansen <CEDDY29@YAHOO.CA> Cedric Hansen <chansen@oswego.edu>>> Subject: PLEASE READ: Missing Documents>> Dear Cedric >> >> Hope you are doing well.
-Sentiment: Negative	I'm contacting you to ask you to complete the steps from the document attached as soon as possible.
-Sentiment: Negative	You are missing the following and you MUST complete it ASAP>> 1.
-Sentiment: Neutral	Heath History Status >> 2.
-Sentiment: Negative	MMR Compliance Status (https://www.oswego.edu/walker-health-center/pre-orientation-health-history-immunization-form)>> 3.
-Sentiment: Negative	Meningitis Survey Status>> >> You could find how to complete these documents in the document I have attached.
-Sentiment: Negative	If you have any questions please do not hesitate to contact me back.
-Sentiment: Positive	>> >> Thank you.
-Sentiment: Negative	>> >> Best>> Austin Joseph>> >> International Student And Scholar Services>> 102 Sheldon Hall>> SUNY OSWEGO Oswego NY 13126 USA>> T: +1 315-312-5775>> Like us on Facebook> <R U READY Fall 2016.
-Sentiment: Neutral	docx>
-End Time: 2018-09-10 20:48:25
-------
-Email #12
-Title: Fwd: PLEASE READ: Missing Documents
-Thu Jun 09 11:16:38 EDT 2016
-
-Message is multipart
-Body Part: 1
-Body part is plain text
-AFTER REGEX FILTER:
-We need to get this done Sent from my iPhoneBegin forwarded message:> From: "International Educ. & Programs" <isss@oswego.edu>> Date: June 9 2016 at 10:19:08 AM EDT> To: Ceddy Hansen <CEDDY29@YAHOO.CA> Cedric Hansen <chansen@oswego.edu>> Subject: PLEASE READ: Missing Documents> > Dear Cedric > > Hope you are doing well. I'm contacting you to ask you to complete the steps from the document attached as soon as possible. You are missing the following and you MUST complete it ASAP> 1. Heath History Status > 2. MMR Compliance Status (https://www.oswego.edu/walker-health-center/pre-orientation-health-history-immunization-form)> 3. Meningitis Survey Status> > You could find how to complete these documents in the document I have attached. If you have any questions please do not hesitate to contact me back.> > Thank you.> > Best> Austin Joseph> > International Student And Scholar Services> 102 Sheldon Hall> SUNY OSWEGO Oswego NY 13126 USA> T: +1 315-312-5775> Like us on Facebook
-Processing annotation
-Start Time: 2018-09-10 20:48:27
-Sentiment: Negative	We need to get this done Sent from my iPhoneBegin forwarded message:> From: "International Educ.
-Sentiment: Negative	& Programs" <isss@oswego.edu>> Date: June 9 2016 at 10:19:08 AM EDT> To: Ceddy Hansen <CEDDY29@YAHOO.CA> Cedric Hansen <chansen@oswego.edu>> Subject: PLEASE READ: Missing Documents> > Dear Cedric > > Hope you are doing well.
-Sentiment: Negative	I'm contacting you to ask you to complete the steps from the document attached as soon as possible.
-Sentiment: Negative	You are missing the following and you MUST complete it ASAP> 1.
-Sentiment: Neutral	Heath History Status > 2.
-Sentiment: Negative	MMR Compliance Status (https://www.oswego.edu/walker-health-center/pre-orientation-health-history-immunization-form)> 3.
-Sentiment: Negative	Meningitis Survey Status> > You could find how to complete these documents in the document I have attached.
-Sentiment: Negative	If you have any questions please do not hesitate to contact me back.> >
-Sentiment: Positive	Thank you.> >
-Sentiment: Negative	Best> Austin Joseph> > International Student And Scholar Services> 102 Sheldon Hall> SUNY OSWEGO Oswego NY 13126 USA> T: +1 315-312-5775> Like us on Facebook
-End Time: 2018-09-10 20:48:27
-------
-Email #13
-Title: PLEASE READ: Missing Documents
-Thu Jun 09 10:19:08 EDT 2016
-
-Message is multipart
-Body Part: 1
-Body part is another MimeMultipart object
-Body Part: 1
-Body part is plain text
-Body Part: 2
-AFTER REGEX FILTER:
-Dear CedricHope you are doing well. I'm contacting you to ask you to complete the stepsfrom the document attached as soon as possible. You are missing thefollowing and you MUST complete it ASAP1. Heath History Status2. MMR Compliance Status (https://www.oswego.edu/walker-health-center/pre-orientation-health-history-immunization-form)3. Meningitis Survey StatusYou could find how to complete these documents in the document I haveattached. If you have any questions please do not hesitate to contact meback.Thank you.BestAustin JosephInternational Student And Scholar Services102 Sheldon HallSUNY OSWEGO Oswego NY 13126 USAT: +1 315-312-5775Like us on Facebook <https://www.facebook.com/SUNYOswego/?fref=ts&ref=br_tf>
-Processing annotation
-Start Time: 2018-09-10 20:48:28
-Sentiment: Negative	Dear CedricHope you are doing well.
-Sentiment: Negative	I'm contacting you to ask you to complete the stepsfrom the document attached as soon as possible.
-Sentiment: Negative	You are missing thefollowing and you MUST complete it ASAP1.
-Sentiment: Neutral	Heath History Status2.
-Sentiment: Negative	MMR Compliance Status (https://www.oswego.edu/walker-health-center/pre-orientation-health-history-immunization-form)3.
-Sentiment: Negative	Meningitis Survey StatusYou could find how to complete these documents in the document I haveattached.
-Sentiment: Negative	If you have any questions please do not hesitate to contact meback.
-Sentiment: Positive	Thank you.
-Sentiment: Negative	BestAustin JosephInternational Student And Scholar Services102 Sheldon HallSUNY OSWEGO Oswego NY 13126 USAT: +1 315-312-5775Like us on Facebook <https://www.facebook.com/SUNYOswego/?fref=ts&ref=br_tf>
-End Time: 2018-09-10 20:48:28
-------
-Email #14
-Title: Fwd: International student health insurance
-Thu Jun 02 12:49:40 EDT 2016
-
-Message is multipart
-Body Part: 1
-Body part is plain text
-AFTER REGEX FILTER:
-I'm not 100% sure what this means but maybe you have a better idea Sent from my iPhoneBegin forwarded message:> From: Jo Richardson <jo.richardson@oswego.edu>> Date: June 2 2016 at 11:26:13 AM EDT> To: Cedric Hansen <chansen@oswego.edu>> Subject: Re: International student health insurance> > Hi Cedric> > I heard back from the Athletic department and they are considering purchasing> a rider after the first $1500. for sports injury. The HTH Student insurance will> cover the first $1500 and after that the rider would pay the> remainder of the balance> owed if a student is injured.> > Best regards> > Ms. Jo Ann Richardson> International Student and Scholar Services> 102 Sheldon Hall> State University of New York at Oswego> (SUNY Oswego) Oswego NY 13126 USA> Mon-Fri 8:00AM - 4:00PM (lunch 12-1)> (315)-312-5775> > >> On Sun May 29 2016 at 10:05 AM Cedric Hansen <chansen@oswego.edu> wrote:>> Good morning Mrs Richardson>> >> I was just wondering if you had the opportunity to look into any additional health insurance for athletes at Oswego.>> >> Look forward to hearing back from you as soon as you have more information.>> >> Cedric>> >> Sent from my iPhone>> >>> On May 9 2016 at 9:33 AM Jo Richardson <jo.richardson@oswego.edu> wrote:>>> >>> Hi Cedric>>> >>> The health insurance is included in the tuition & fees on your I-20.>>> The cost is $ 542.50 for the semester.>>> >>> In the past athletes did have additional insurance but let me>>> look into it.>>> >>> Thank you>>> >>> >>> >>> Ms. Jo Ann Richardson>>> International Student and Scholar Services>>> 102 Sheldon Hall>>> State University of New York at Oswego>>> (SUNY Oswego) Oswego NY 13126 USA>>> Mon-Fri 8:00AM - 4:00PM (lunch 12-1)>>> (315)-312-5775>>> >>> >>>> On Sun May 8 2016 at 11:13 AM Cedric Hansen <chansen@oswego.edu> wrote:>>>> Hi Mrs. Richardson>>>> >>>> Can you tell me if the tuition for international students includes health>>>> insurance?>>>> >>>> Do you also know if there is any additional insurance for athletes?>>>> >>>> Thanks>>>> >>>> Cedric
-Processing annotation
-Start Time: 2018-09-10 20:48:52
-Sentiment: Very negative	I'm not 100% sure what this means but maybe you have a better idea Sent from my iPhoneBegin forwarded message:> From: Jo Richardson <jo.richardson@oswego.edu>> Date: June 2 2016 at 11:26:13 AM EDT> To: Cedric Hansen <chansen@oswego.edu>> Subject: Re: International student health insurance> > Hi Cedric> > I heard back from the Athletic department and they are considering purchasing> a rider after the first $1500.
-Sentiment: Neutral	for sports injury.
-Sentiment: Negative	The HTH Student insurance will> cover the first $1500 and after that the rider would pay the> remainder of the balance> owed if a student is injured.> >
-Sentiment: Very negative	Best regards> > Ms. Jo Ann Richardson> International Student and Scholar Services> 102 Sheldon Hall> State University of New York at Oswego> (SUNY Oswego) Oswego NY 13126 USA> Mon-Fri 8:00AM - 4:00PM (lunch 12-1)> (315)-312-5775> > >> On Sun May 29 2016 at 10:05 AM Cedric Hansen <chansen@oswego.edu> wrote:>> Good morning Mrs Richardson>> >> I was just wondering if you had the opportunity to look into any additional health insurance for athletes at Oswego.
-Sentiment: Positive	>> >> Look forward to hearing back from you as soon as you have more information.
-Sentiment: Very negative	>> >> Cedric>> >> Sent from my iPhone>> >>> On May 9 2016 at 9:33 AM Jo Richardson <jo.richardson@oswego.edu> wrote:>>> >>> Hi Cedric>>> >>> The health insurance is included in the tuition & fees on your I-20.
-Sentiment: Negative	>>> The cost is $ 542.50 for the semester.
-Sentiment: Negative	>>> >>> In the past athletes did have additional insurance but let me>>> look into it.
-Sentiment: Very negative	>>> >>> Thank you>>> >>> >>> >>> Ms. Jo Ann Richardson>>> International Student and Scholar Services>>> 102 Sheldon Hall>>> State University of New York at Oswego>>> (SUNY Oswego) Oswego NY 13126 USA>>> Mon-Fri 8:00AM - 4:00PM (lunch 12-1)>>> (315)-312-5775>>> >>> >>>> On Sun May 8 2016 at 11:13 AM Cedric Hansen <chansen@oswego.edu> wrote:>>>> Hi Mrs. Richardson>>>> >>>> Can you tell me if the tuition for international students includes health>>>> insurance?
-Sentiment: Negative	>>>> >>>> Do you also know if there is any additional insurance for athletes?
-Sentiment: Negative	>>>> >>>> Thanks>>>> >>>> Cedric
-End Time: 2018-09-10 20:48:52
-------
-Email #15
-Title: Re: International student health insurance
-Thu Jun 02 11:26:13 EDT 2016
-
-Message is plain text
-AFTER REGEX FILTER:
-Hi CedricI heard back from the Athletic department and they are considering purchasinga rider after the first $1500. for sports injury. The HTH Student insurance willcover the first $1500 and after that the rider would pay theremainder of the balanceowed if a student is injured.Best regardsMs. Jo Ann RichardsonInternational Student and Scholar Services102 Sheldon HallState University of New York at Oswego(SUNY Oswego) Oswego NY 13126 USAMon-Fri 8:00AM - 4:00PM (lunch 12-1)(315)-312-5775On Sun May 29 2016 at 10:05 AM Cedric Hansen <chansen@oswego.edu> wrote:> Good morning Mrs Richardson>> I was just wondering if you had the opportunity to look into any additional health insurance for athletes at Oswego.>> Look forward to hearing back from you as soon as you have more information.>> Cedric>> Sent from my iPhone>>> On May 9 2016 at 9:33 AM Jo Richardson <jo.richardson@oswego.edu> wrote:>>>> Hi Cedric>>>> The health insurance is included in the tuition & fees on your I-20.>> The cost is $ 542.50 for the semester.>>>> In the past athletes did have additional insurance but let me>> look into it.>>>> Thank you>>>>>>>> Ms. Jo Ann Richardson>> International Student and Scholar Services>> 102 Sheldon Hall>> State University of New York at Oswego>> (SUNY Oswego) Oswego NY 13126 USA>> Mon-Fri 8:00AM - 4:00PM (lunch 12-1)>> (315)-312-5775>>>>>>> On Sun May 8 2016 at 11:13 AM Cedric Hansen <chansen@oswego.edu> wrote:>>> Hi Mrs. Richardson>>>>>> Can you tell me if the tuition for international students includes health>>> insurance?>>>>>> Do you also know if there is any additional insurance for athletes?>>>>>> Thanks>>>>>> Cedric
-Processing annotation
-Start Time: 2018-09-10 20:49:05
-Sentiment: Negative	Hi CedricI heard back from the Athletic department and they are considering purchasinga rider after the first $1500.
-Sentiment: Neutral	for sports injury.
-Sentiment: Negative	The HTH Student insurance willcover the first $1500 and after that the rider would pay theremainder of the balanceowed if a student is injured.
-Sentiment: Negative	Best regardsMs. Jo Ann RichardsonInternational Student and Scholar Services102 Sheldon HallState University of New York at Oswego(SUNY Oswego) Oswego NY 13126 USAMon-Fri 8:00AM - 4:00PM (lunch 12-1)(315)-312-5775On Sun May 29 2016 at 10:05 AM Cedric Hansen <chansen@oswego.edu> wrote:> Good morning Mrs Richardson>> I was just wondering if you had the opportunity to look into any additional health insurance for athletes at Oswego.>>
-Sentiment: Neutral	Look forward to hearing back from you as soon as you have more information.>>
-Sentiment: Negative	Cedric>> Sent from my iPhone>>> On May 9 2016 at 9:33 AM Jo Richardson <jo.richardson@oswego.edu> wrote:>>>> Hi Cedric>>>> The health insurance is included in the tuition & fees on your I-20.
-Sentiment: Neutral	>> The cost is $ 542.50 for the semester.
-Sentiment: Negative	>>>> In the past athletes did have additional insurance but let me>> look into it.
-Sentiment: Negative	>>>> Thank you>>>>>>>> Ms. Jo Ann Richardson>> International Student and Scholar Services>> 102 Sheldon Hall>> State University of New York at Oswego>> (SUNY Oswego) Oswego NY 13126 USA>> Mon-Fri 8:00AM - 4:00PM (lunch 12-1)>> (315)-312-5775>>>>>>> On Sun May 8 2016 at 11:13 AM Cedric Hansen <chansen@oswego.edu> wrote:>>> Hi Mrs. Richardson>>>>>> Can you tell me if the tuition for international students includes health>>> insurance?
-Sentiment: Negative	>>>>>> Do you also know if there is any additional insurance for athletes?
-Sentiment: Negative	>>>>>> Thanks>>>>>> Cedric
-End Time: 2018-09-10 20:49:05
-------
-Email #16
-Title: Fwd: International student health insurance
-Thu Jun 02 10:02:14 EDT 2016
-
-Message is multipart
-Body Part: 1
-Body part is plain text
-AFTER REGEX FILTER:
-Sent from my iPhoneBegin forwarded message:> From: Jo Richardson <jo.richardson@oswego.edu>> Date: June 1 2016 at 3:54:51 PM EDT> To: Cedric Hansen <chansen@oswego.edu>> Subject: Re: International student health insurance> > Hi Cedric> > I haven't heard back from the director yet but> I will let you know when I do.> > Thank you> > Ms. Jo Ann Richardson> International Student and Scholar Services> 102 Sheldon Hall> State University of New York at Oswego> (SUNY Oswego) Oswego NY 13126 USA> Mon-Fri 8:00AM - 4:00PM (lunch 12-1)> (315)-312-5775> > >> On Sun May 29 2016 at 10:05 AM Cedric Hansen <chansen@oswego.edu> wrote:>> Good morning Mrs Richardson>> >> I was just wondering if you had the opportunity to look into any additional health insurance for athletes at Oswego.>> >> Look forward to hearing back from you as soon as you have more information.>> >> Cedric>> >> Sent from my iPhone>> >>> On May 9 2016 at 9:33 AM Jo Richardson <jo.richardson@oswego.edu> wrote:>>> >>> Hi Cedric>>> >>> The health insurance is included in the tuition & fees on your I-20.>>> The cost is $ 542.50 for the semester.>>> >>> In the past athletes did have additional insurance but let me>>> look into it.>>> >>> Thank you>>> >>> >>> >>> Ms. Jo Ann Richardson>>> International Student and Scholar Services>>> 102 Sheldon Hall>>> State University of New York at Oswego>>> (SUNY Oswego) Oswego NY 13126 USA>>> Mon-Fri 8:00AM - 4:00PM (lunch 12-1)>>> (315)-312-5775>>> >>> >>>> On Sun May 8 2016 at 11:13 AM Cedric Hansen <chansen@oswego.edu> wrote:>>>> Hi Mrs. Richardson>>>> >>>> Can you tell me if the tuition for international students includes health>>>> insurance?>>>> >>>> Do you also know if there is any additional insurance for athletes?>>>> >>>> Thanks>>>> >>>> Cedric
-Processing annotation
-Start Time: 2018-09-10 20:49:27
-Sentiment: Negative	Sent from my iPhoneBegin forwarded message:> From: Jo Richardson <jo.richardson@oswego.edu>> Date: June 1 2016 at 3:54:51 PM EDT> To: Cedric Hansen <chansen@oswego.edu>> Subject: Re: International student health insurance> > Hi Cedric> > I haven't heard back from the director yet but> I will let you know when I do.> >
-Sentiment: Negative	Thank you> > Ms. Jo Ann Richardson> International Student and Scholar Services> 102 Sheldon Hall> State University of New York at Oswego> (SUNY Oswego) Oswego NY 13126 USA> Mon-Fri 8:00AM - 4:00PM (lunch 12-1)> (315)-312-5775> > >> On Sun May 29 2016 at 10:05 AM Cedric Hansen <chansen@oswego.edu> wrote:>> Good morning Mrs Richardson>> >> I was just wondering if you had the opportunity to look into any additional health insurance for athletes at Oswego.
-Sentiment: Positive	>> >> Look forward to hearing back from you as soon as you have more information.
-Sentiment: Very negative	>> >> Cedric>> >> Sent from my iPhone>> >>> On May 9 2016 at 9:33 AM Jo Richardson <jo.richardson@oswego.edu> wrote:>>> >>> Hi Cedric>>> >>> The health insurance is included in the tuition & fees on your I-20.
-Sentiment: Negative	>>> The cost is $ 542.50 for the semester.
-Sentiment: Negative	>>> >>> In the past athletes did have additional insurance but let me>>> look into it.
-Sentiment: Very negative	>>> >>> Thank you>>> >>> >>> >>> Ms. Jo Ann Richardson>>> International Student and Scholar Services>>> 102 Sheldon Hall>>> State University of New York at Oswego>>> (SUNY Oswego) Oswego NY 13126 USA>>> Mon-Fri 8:00AM - 4:00PM (lunch 12-1)>>> (315)-312-5775>>> >>> >>>> On Sun May 8 2016 at 11:13 AM Cedric Hansen <chansen@oswego.edu> wrote:>>>> Hi Mrs. Richardson>>>> >>>> Can you tell me if the tuition for international students includes health>>>> insurance?
-Sentiment: Negative	>>>> >>>> Do you also know if there is any additional insurance for athletes?
-Sentiment: Negative	>>>> >>>> Thanks>>>> >>>> Cedric
-End Time: 2018-09-10 20:49:27
-------
-Email #17
-Title: Re: International student health insurance
-Wed Jun 01 15:54:51 EDT 2016
-
-Message is plain text
-AFTER REGEX FILTER:
-Hi CedricI haven't heard back from the director yet butI will let you know when I do.Thank youMs. Jo Ann RichardsonInternational Student and Scholar Services102 Sheldon HallState University of New York at Oswego(SUNY Oswego) Oswego NY 13126 USAMon-Fri 8:00AM - 4:00PM (lunch 12-1)(315)-312-5775On Sun May 29 2016 at 10:05 AM Cedric Hansen <chansen@oswego.edu> wrote:> Good morning Mrs Richardson>> I was just wondering if you had the opportunity to look into any additional health insurance for athletes at Oswego.>> Look forward to hearing back from you as soon as you have more information.>> Cedric>> Sent from my iPhone>>> On May 9 2016 at 9:33 AM Jo Richardson <jo.richardson@oswego.edu> wrote:>>>> Hi Cedric>>>> The health insurance is included in the tuition & fees on your I-20.>> The cost is $ 542.50 for the semester.>>>> In the past athletes did have additional insurance but let me>> look into it.>>>> Thank you>>>>>>>> Ms. Jo Ann Richardson>> International Student and Scholar Services>> 102 Sheldon Hall>> State University of New York at Oswego>> (SUNY Oswego) Oswego NY 13126 USA>> Mon-Fri 8:00AM - 4:00PM (lunch 12-1)>> (315)-312-5775>>>>>>> On Sun May 8 2016 at 11:13 AM Cedric Hansen <chansen@oswego.edu> wrote:>>> Hi Mrs. Richardson>>>>>> Can you tell me if the tuition for international students includes health>>> insurance?>>>>>> Do you also know if there is any additional insurance for athletes?>>>>>> Thanks>>>>>> Cedric
-Processing annotation
-Start Time: 2018-09-10 20:49:41
-Sentiment: Negative	Hi CedricI haven't heard back from the director yet butI will let you know when I do.
-Sentiment: Very negative	Thank youMs. Jo Ann RichardsonInternational Student and Scholar Services102 Sheldon HallState University of New York at Oswego(SUNY Oswego) Oswego NY 13126 USAMon-Fri 8:00AM - 4:00PM (lunch 12-1)(315)-312-5775On Sun May 29 2016 at 10:05 AM Cedric Hansen <chansen@oswego.edu> wrote:> Good morning Mrs Richardson>> I was just wondering if you had the opportunity to look into any additional health insurance for athletes at Oswego.>>
-Sentiment: Neutral	Look forward to hearing back from you as soon as you have more information.>>
-Sentiment: Negative	Cedric>> Sent from my iPhone>>> On May 9 2016 at 9:33 AM Jo Richardson <jo.richardson@oswego.edu> wrote:>>>> Hi Cedric>>>> The health insurance is included in the tuition & fees on your I-20.
-Sentiment: Neutral	>> The cost is $ 542.50 for the semester.
-Sentiment: Negative	>>>> In the past athletes did have additional insurance but let me>> look into it.
-Sentiment: Negative	>>>> Thank you>>>>>>>> Ms. Jo Ann Richardson>> International Student and Scholar Services>> 102 Sheldon Hall>> State University of New York at Oswego>> (SUNY Oswego) Oswego NY 13126 USA>> Mon-Fri 8:00AM - 4:00PM (lunch 12-1)>> (315)-312-5775>>>>>>> On Sun May 8 2016 at 11:13 AM Cedric Hansen <chansen@oswego.edu> wrote:>>> Hi Mrs. Richardson>>>>>> Can you tell me if the tuition for international students includes health>>> insurance?
-Sentiment: Negative	>>>>>> Do you also know if there is any additional insurance for athletes?
-Sentiment: Negative	>>>>>> Thanks>>>>>> Cedric
-End Time: 2018-09-10 20:49:41
-------
-Email #18
-Title: Re: International student health insurance
-Sun May 29 10:05:17 EDT 2016
-
-Message is plain text
-AFTER REGEX FILTER:
-Good morning Mrs RichardsonI was just wondering if you had the opportunity to look into any additional health insurance for athletes at Oswego. Look forward to hearing back from you as soon as you have more information. CedricSent from my iPhone> On May 9 2016 at 9:33 AM Jo Richardson <jo.richardson@oswego.edu> wrote:> > Hi Cedric> > The health insurance is included in the tuition & fees on your I-20.> The cost is $ 542.50 for the semester.> > In the past athletes did have additional insurance but let me> look into it.> > Thank you> > > > Ms. Jo Ann Richardson> International Student and Scholar Services> 102 Sheldon Hall> State University of New York at Oswego> (SUNY Oswego) Oswego NY 13126 USA> Mon-Fri 8:00AM - 4:00PM (lunch 12-1)> (315)-312-5775> > >> On Sun May 8 2016 at 11:13 AM Cedric Hansen <chansen@oswego.edu> wrote:>> Hi Mrs. Richardson>> >> Can you tell me if the tuition for international students includes health>> insurance?>> >> Do you also know if there is any additional insurance for athletes?>> >> Thanks>> >> Cedric
-Processing annotation
-Start Time: 2018-09-10 20:49:48
-Sentiment: Positive	Good morning Mrs RichardsonI was just wondering if you had the opportunity to look into any additional health insurance for athletes at Oswego.
-Sentiment: Positive	Look forward to hearing back from you as soon as you have more information.
-Sentiment: Negative	CedricSent from my iPhone> On May 9 2016 at 9:33 AM Jo Richardson <jo.richardson@oswego.edu> wrote:> > Hi Cedric> > The health insurance is included in the tuition & fees on your I-20.>
-Sentiment: Negative	The cost is $ 542.50 for the semester.> >
-Sentiment: Negative	In the past athletes did have additional insurance but let me> look into it.> >
-Sentiment: Negative	Thank you> > > > Ms. Jo Ann Richardson> International Stu

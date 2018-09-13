@@ -31,13 +31,7 @@ public class Main {
     }
 
 
-    static PrintWriter writer;
-
-
     public static void main(String[] args) throws FileNotFoundException {
-
-        writer = new PrintWriter(new File("output.txt"));
-        //Scanner sampleEmailScanner = new Scanner(new File("sampleEmail.txt"));
 
         // get user Email address, password
         String password, address, selectedFolder;
@@ -58,7 +52,7 @@ public class Main {
 
         long startTime = System.nanoTime();
         //read and print all emails from the selected folder
-        readEmails(true, password, address, selectedFolder);
+        readEmails(password, address, selectedFolder);
         endTimer(startTime);
     }
 
@@ -67,7 +61,7 @@ public class Main {
 
 /*
 
-ALL CREDIT FOR THIS FUNCTION (readEmails) GOES TO itscuties from the site below
+This function was modified from an existing function by ItsCuties from the site below
 
 http://www.itcuties.com/java/javamail-read-email/
 
@@ -79,12 +73,7 @@ it appears to be whenever there is a thread of replies
 
  */
 
-    /**
-     * Method reads emails from the IMAP or POP3 server.
-     *
-     * @param isImap - if true then we are reading messages from the IMAP server, if no then read from the POP3 server.
-     */
-    private static void readEmails(boolean isImap, String password, String address, String selectedFolder) {
+    private static void readEmails(String password, String address, String selectedFolder) {
         // Create all the needed properties - empty!
         Properties connectionProperties = new Properties();
         // Create the session
@@ -96,11 +85,11 @@ it appears to be whenever there is a thread of replies
             System.out.print("Connecting to the IMAP server...");
             // Connecting to the server
             // Set the store depending on the parameter flag value
-            String storeName = isImap ? "imaps" : "pop3";
+            String storeName = "imaps";
             Store store = session.getStore(storeName);
 
             // Set the server depending on the parameter flag value
-            String server = isImap ? "imap.gmail.com" : "pop.gmail.com";
+            String server =  "imap.gmail.com";
             store.connect(server, address, password);
 
             System.out.println("Connected!");
@@ -122,7 +111,6 @@ it appears to be whenever there is a thread of replies
             // Display the messages
             for (Message message : messages) {
                 numEmails++;
-                writer.println("Email #" + numEmails);
                 for (Address a : message.getFrom()) {
                     System.out.println("From:" + a);
 
@@ -140,13 +128,10 @@ it appears to be whenever there is a thread of replies
                     }
 
                 }
-                writer.println("Title: " + message.getSubject());
                 System.out.println("Title: " + message.getSubject());
 
-                writer.println(message.getSentDate());
                 System.out.println(message.getSentDate());
 
-                writer.println();
                 System.out.println();
 
                 String messageText;
@@ -154,14 +139,13 @@ it appears to be whenever there is a thread of replies
 
                 analyzeSentiment(filter(messageText));
 
-                writer.println("------");
                 System.out.println("------");
 
 
             }
 
             System.out.println("\nNumber of emails in '" + selectedFolder + "' folder: " + numEmails);
-            System.out.println("summary of sender: ");
+            System.out.println("\nsummary of senders: \n");
             for (Sender s: senders) {
                 System.out.println(s.toString());
             }
@@ -203,20 +187,16 @@ it appears to be whenever there is a thread of replies
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
 
         System.out.println("Processing annotation");
-        writer.println("Processing annotation");
         Annotation annotation = pipeline.process(message);
         List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
 
-        writer.println("Start Time: " + getCurrentTimeStamp());
         System.out.println("Start Time: " + getCurrentTimeStamp());
 
         for (CoreMap sentence : sentences) {
             String sentiment = sentence.get(SentimentCoreAnnotations.SentimentClass.class);
-            writer.println("Sentiment: " + sentiment + "\t" + sentence);
             System.out.println("Sentiment: " + sentiment + "\t" + sentence);
         }
 
-        writer.println("End Time: " + getCurrentTimeStamp());
         System.out.println("End Time: " + getCurrentTimeStamp());
     }
 
@@ -225,11 +205,9 @@ it appears to be whenever there is a thread of replies
         String result = "";
         if (message.isMimeType("text/plain")) {
             System.out.println("Message is plain text");
-            writer.println("Message is plain text");
             result = message.getContent().toString();
         } else if (message.isMimeType("multipart/*")) {
             System.out.println("Message is multipart");
-            writer.println("Message is multipart");
             MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
             result = getTextFromMimeMultipart(mimeMultipart);
         }
@@ -242,21 +220,17 @@ it appears to be whenever there is a thread of replies
         int count = mimeMultipart.getCount();
         for (int i = 0; i < count; i++) {
             System.out.println("Body Part: " + (i + 1));
-            writer.println("Body Part: " + (i + 1));
             BodyPart bodyPart = mimeMultipart.getBodyPart(i);
             if (bodyPart.isMimeType("text/plain")) {
                 System.out.println("Body part is plain text");
-                writer.println("Body part is plain text");
                 result = result + "\n" + bodyPart.getContent();
                 break; // without break same text appears twice in my tests
             } else if (bodyPart.isMimeType("text/html")) {
                 System.out.println("Body part is HTML");
-                writer.println("Body part is HTML");
                 String html = (String) bodyPart.getContent();
                 result = result + "\n" + org.jsoup.Jsoup.parse(html).text();
             } else if (bodyPart.getContent() instanceof MimeMultipart) {
                 System.out.println("Body part is another MimeMultipart object");
-                writer.println("Body part is another MimeMultipart object");
                 result = result + getTextFromMimeMultipart((MimeMultipart) bodyPart.getContent());
             }
         }
@@ -274,7 +248,6 @@ it appears to be whenever there is a thread of replies
         String regex = "[`,~,*,#,^,\\n,\\t]";
         String newText = text.replaceAll(regex, "");
         System.out.println("AFTER REGEX FILTER:\n" + newText);
-        writer.println("AFTER REGEX FILTER:\n" + newText);
         return newText;
     }
 
