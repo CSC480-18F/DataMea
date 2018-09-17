@@ -36,25 +36,31 @@ public class Main {
     static class Email {
 
         Message message;
-        int [] sentiementScores;
+        int [] sentimentScores;
         String content, title;
         Date date;
         Sender sender;
+        Flags flags;
 
         public Email(Message m) {
+
             message = m;
+
             try{
-                content = m.getContent().toString();
+                content = getTextFromMessage(m);
                 title = m.getSubject();
                 sender = new Sender(m.getFrom()[0].toString());
                 date = m.getSentDate();
+                flags = m.getFlags();
+
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (MessagingException e) {
                 e.printStackTrace();
             }
-            
-            sentiementScores = new int [5];
+
+
+            sentimentScores = new int [5];
         }
 
 
@@ -109,6 +115,7 @@ it appears to be whenever there is a thread of replies
         Session session = Session.getDefaultInstance(connectionProperties, null);
 
         ArrayList<Sender> senders = new ArrayList<>();
+        ArrayList<Email> emails = new ArrayList<>();
 
         String selectedFolderAsString = selectedFolder.toString();
 
@@ -159,7 +166,10 @@ it appears to be whenever there is a thread of replies
 
             // Display the messages
             for (Message message : messages) {
-                numEmails++;
+
+                emails.add(new Email(message));
+
+
                 for (Address a : message.getFrom()) {
                     System.out.println("From:" + a);
 
@@ -191,9 +201,12 @@ it appears to be whenever there is a thread of replies
                 System.out.println("------");
 
 
+
+
+
             }
 
-            System.out.println("\nNumber of emails in '" + selectedFolderAsString + "' folder: " + numEmails);
+            System.out.println("\nNumber of emails in '" + selectedFolderAsString + "' folder: " + emails.size());
             System.out.println("\nsummary of senders: \n");
             for (Sender s: senders) {
                 System.out.println(s.toString());
