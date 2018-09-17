@@ -1,0 +1,153 @@
+Index: src/main/java/Main.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\n\nimport java.io.*;\nimport java.text.SimpleDateFormat;\nimport java.util.*;\n\nimport javax.mail.*;\nimport javax.mail.internet.MimeMultipart;\nimport javax.mail.search.FlagTerm;\n\nimport edu.stanford.nlp.ling.*;\nimport edu.stanford.nlp.pipeline.*;\nimport edu.stanford.nlp.sentiment.SentimentCoreAnnotations;\nimport edu.stanford.nlp.util.*;\n\npublic class Main {\n\n\n    static class Sender {\n\n        String address;\n        int count = 1;\n\n        public Sender(String address) {\n            this.address = address;\n        }\n\n        public String toString() {\n            return address + \" number of emails sent: \" + count;\n        }\n\n    }\n\n\n\n    static class Email {\n\n        Message message;\n        int [] sentimentScores;\n        String content, title;\n        Date date;\n        Sender sender;\n        Flags flags;\n\n        public Email(Message m, Sender s) {\n\n            message = m;\n\n            try{\n                content = getTextFromMessage(m);\n                title = m.getSubject();\n                sender = new Sender(s.toString());\n                date = m.getSentDate();\n                flags = m.getFlags();\n\n            } catch (IOException e) {\n                e.printStackTrace();\n            } catch (MessagingException e) {\n                e.printStackTrace();\n            }\n\n\n            sentimentScores = new int [5];\n        }\n\n\n    }\n\n\n    public static void main(String[] args) throws FileNotFoundException {\n\n        // get user Email address, password\n        String password, address, selectedFolderAsString;\n        Scanner kb = new Scanner(System.in);\n        System.out.println(\"Enter email address\");\n        address = kb.nextLine();\n        System.out.println(\"Enter password for \" + address);\n        password = kb.nextLine();\n\n        //recover the list of folders in the users email account\n        Folder[] folders = printFolders(address, password);\n\n        System.out.println(\"Select which folder to get emails from (type 0-\" + (folders.length - 1) + \")\");\n\n        //grab selected folder from user\n        Folder selectedFolder = folders[Integer.parseInt(kb.nextLine())];\n\n        long startTime = System.nanoTime();\n        //read and print all emails from the selected folder\n        readEmails(password, address, selectedFolder);\n        endTimer(startTime);\n    }\n\n\n\n\n/*\n\nThis function was modified from an existing function by ItsCuties from the site below\n\nhttp://www.itcuties.com/java/javamail-read-email/\n\nSome additional notes:\n-whenever something like javax.mail.internet.MimeMultipart@396f6598 appears as the message content,\nit appears to be whenever there is a thread of replies\n\n-anything (from what i've checked) that is html, is a mass email\n\n */\n\n    private static void readEmails(String password, String address, Folder selectedFolder) {\n        // Create all the needed properties - empty!\n        Properties connectionProperties = new Properties();\n        // Create the session\n        Session session = Session.getDefaultInstance(connectionProperties, null);\n\n        ArrayList<Sender> senders = new ArrayList<>();\n        ArrayList<Email> emails = new ArrayList<>();\n\n        String selectedFolderAsString = selectedFolder.toString();\n\n        try {\n            System.out.print(\"Connecting to the IMAP server...\");\n            String storeName = \"imaps\";\n            Store store = session.getStore(storeName);\n\n            // Set the server depending on the parameter flag value\n            String server =  \"imap.gmail.com\";\n            store.connect(server, address, password);\n\n            System.out.println(\"Connected!\");\n\n\n            // Set the mode to the read-only mode\n            selectedFolder.open(Folder.READ_ONLY);\n\n            // Get messages\n            Message messages[] = selectedFolder.getMessages();\n\n            System.out.println(\"Reading messages...\");\n\n            // Display the messages\n            for (Message message : messages) {\n\n                Sender current = null;\n\n                for (Address a : message.getFrom()) {\n                    current = null;\n                    boolean found = false;\n                    for (Sender s : senders) {\n                        if (s.address.equals(a.toString())) {\n                            s.count++;\n                            found = true;\n                            current = s;\n                            break;\n                        }\n                    }\n                    if (!found) {\n                        current = new Sender(a.toString());\n                        senders.add(current);\n                    }\n\n                }\n\n\n                emails.add(new Email(message, current));\n\n            }\n\n            System.out.println(\"\\nNumber of emails in '\" + selectedFolderAsString + \"' folder: \" + emails.size());\n            System.out.println(\"\\nsummary of senders: \\n\");\n            for (Sender s: senders) {\n                System.out.println(s.toString());\n            }\n\n        } catch (Exception e) {\n            e.printStackTrace();\n        }\n\n    }\n\n\n    public static Folder[] printFolders(String address, String password) {\n\n        try {\n            Properties props = System.getProperties();\n            props.setProperty(\"mail.store.protocol\", \"imaps\");\n            Session session = Session.getDefaultInstance(props, null);\n            Store store = session.getStore(\"imaps\");\n            store.connect(\"imap.gmail.com\", address, password);\n            System.out.println(store);\n\n            Folder[] folders = store.getDefaultFolder().list();\n            for (int i = 0; i < folders.length; i++) {\n                System.out.println(i + \" \" + folders[i].getName());\n            }\n            return folders;\n\n        } catch (javax.mail.MessagingException e) {\n            e.printStackTrace();\n            return null;\n        }\n\n    }\n\n    private static void analyzeSentiment(String message) {\n\n        Properties props = new Properties();\n        props.setProperty(\"annotators\", \"tokenize, ssplit, parse, sentiment\");\n        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);\n\n        System.out.println(\"Processing annotation\");\n        Annotation annotation = pipeline.process(message);\n        List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);\n\n        System.out.println(\"Start Time: \" + getCurrentTimeStamp());\n\n        for (CoreMap sentence : sentences) {\n            String sentiment = sentence.get(SentimentCoreAnnotations.SentimentClass.class);\n            System.out.println(\"Sentiment: \" + sentiment + \"\\t\" + sentence);\n        }\n\n        System.out.println(\"End Time: \" + getCurrentTimeStamp());\n    }\n\n    private static String getTextFromMessage(Message message) throws MessagingException, IOException {\n        System.out.println(\"Getting text from message\");\n        String result = \"\";\n        if (message.isMimeType(\"text/plain\")) {\n            System.out.println(\"Message is plain text\");\n            result = message.getContent().toString();\n        } else if (message.isMimeType(\"multipart/*\")) {\n            System.out.println(\"Message is multipart\");\n            MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();\n            result = getTextFromMimeMultipart(mimeMultipart);\n        }\n        return result;\n    }\n\n    private static String getTextFromMimeMultipart(\n            MimeMultipart mimeMultipart) throws MessagingException, IOException {\n        String result = \"\";\n        int count = mimeMultipart.getCount();\n        for (int i = 0; i < count; i++) {\n            System.out.println(\"Body Part: \" + (i + 1));\n            BodyPart bodyPart = mimeMultipart.getBodyPart(i);\n            if (bodyPart.isMimeType(\"text/plain\")) {\n                System.out.println(\"Body part is plain text\");\n                result = result + \"\\n\" + bodyPart.getContent();\n                break; // without break same text appears twice in my tests\n            } else if (bodyPart.isMimeType(\"text/html\")) {\n                System.out.println(\"Body part is HTML\");\n                String html = (String) bodyPart.getContent();\n                result = result + \"\\n\" + org.jsoup.Jsoup.parse(html).text();\n            } else if (bodyPart.getContent() instanceof MimeMultipart) {\n                System.out.println(\"Body part is another MimeMultipart object\");\n                result = result + getTextFromMimeMultipart((MimeMultipart) bodyPart.getContent());\n            }\n        }\n        return result;\n    }\n\n    public static String getCurrentTimeStamp() {\n        SimpleDateFormat sdfDate = new SimpleDateFormat(\"yyyy-MM-dd HH:mm:ss\"); //dd/MM/yyyy\n        Date now = new Date();\n        String strDate = sdfDate.format(now);\n        return strDate;\n    }\n\n    public static String filter(String text){\n        String regex = \"[`,~,*,#,^,\\\\n,\\\\t]\";\n        String newText = text.replaceAll(regex, \"\");\n        System.out.println(\"AFTER REGEX FILTER:\\n\" + newText);\n        return newText;\n    }\n\n    public static void endTimer(long startTime) {\n        long endTime = System.nanoTime();\n        long totalTime = (endTime - startTime) / 1000000000;\n        System.out.println(\"Total runtime: \" + totalTime + \" seconds\");\n    }\n\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/Main.java	(revision c12d92bb41c79f716891bf0c8f6746b12221dab8)
++++ src/main/java/Main.java	(date 1537147294000)
+@@ -12,6 +12,7 @@
+ import edu.stanford.nlp.pipeline.*;
+ import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
+ import edu.stanford.nlp.util.*;
++import org.apache.xpath.operations.Bool;
+ 
+ public class Main {
+ 
+@@ -37,12 +38,13 @@
+ 
+         Message message;
+         int [] sentimentScores;
++        int overallSentiment;
+         String content, title;
+         Date date;
+         Sender sender;
+         Flags flags;
+ 
+-        public Email(Message m, Sender s) {
++        public Email(Message m, Sender s, Boolean runSentiment) {
+ 
+             message = m;
+ 
+@@ -61,6 +63,13 @@
+ 
+ 
+             sentimentScores = new int [5];
++
++
++            if(runSentiment){
++                sentimentScores = analyzeSentiment(filter(content));
++                //TODO create constants and/or Sentiment object
++                overallSentiment = sentimentScores[4] * 3 + sentimentScores[3] - sentimentScores[1] - sentimentScores[0] * 3;
++            }
+         }
+ 
+ 
+@@ -163,7 +172,9 @@
+                 }
+ 
+ 
+-                emails.add(new Email(message, current));
++                emails.add(new Email(message, current, true));
++
++                System.out.println("Email sentiment score: " + emails.get(emails.size() - 1).overallSentiment);
+ 
+             }
+ 
+@@ -203,34 +214,56 @@
+ 
+     }
+ 
+-    private static void analyzeSentiment(String message) {
++    private static int[] analyzeSentiment(String message) {
++
++        System.out.println("Start Time: " + getCurrentTimeStamp());
++
++        int[] score = new int[5];
+ 
+         Properties props = new Properties();
+         props.setProperty("annotators", "tokenize, ssplit, parse, sentiment");
+         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+ 
+-        System.out.println("Processing annotation");
++        //System.out.println("Processing annotation");
+         Annotation annotation = pipeline.process(message);
+         List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
+ 
+-        System.out.println("Start Time: " + getCurrentTimeStamp());
+ 
+         for (CoreMap sentence : sentences) {
+             String sentiment = sentence.get(SentimentCoreAnnotations.SentimentClass.class);
+-            System.out.println("Sentiment: " + sentiment + "\t" + sentence);
++            //System.out.println("Sentiment: " + sentiment + "\t" + sentence);
++            switch (sentiment){
++                case "Very Negative":
++                    score[0]++;
++                    break;
++                case "Negative":
++                    score[1]++;
++                    break;
++                case "Neutral":
++                    score[2]++;
++                    break;
++                case "Positive":
++                    score[3]++;
++                    break;
++                case "Very Positive":
++                    score[4]++;
++                    break;
++            }
+         }
+ 
+         System.out.println("End Time: " + getCurrentTimeStamp());
++
++        return score;
+     }
+ 
+     private static String getTextFromMessage(Message message) throws MessagingException, IOException {
+-        System.out.println("Getting text from message");
++        //System.out.println("Getting text from message");
+         String result = "";
+         if (message.isMimeType("text/plain")) {
+-            System.out.println("Message is plain text");
++            //System.out.println("Message is plain text");
+             result = message.getContent().toString();
+         } else if (message.isMimeType("multipart/*")) {
+-            System.out.println("Message is multipart");
++            //System.out.println("Message is multipart");
+             MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
+             result = getTextFromMimeMultipart(mimeMultipart);
+         }
+@@ -242,18 +275,18 @@
+         String result = "";
+         int count = mimeMultipart.getCount();
+         for (int i = 0; i < count; i++) {
+-            System.out.println("Body Part: " + (i + 1));
++            //System.out.println("Body Part: " + (i + 1));
+             BodyPart bodyPart = mimeMultipart.getBodyPart(i);
+             if (bodyPart.isMimeType("text/plain")) {
+-                System.out.println("Body part is plain text");
++                //System.out.println("Body part is plain text");
+                 result = result + "\n" + bodyPart.getContent();
+                 break; // without break same text appears twice in my tests
+             } else if (bodyPart.isMimeType("text/html")) {
+-                System.out.println("Body part is HTML");
++                //System.out.println("Body part is HTML");
+                 String html = (String) bodyPart.getContent();
+                 result = result + "\n" + org.jsoup.Jsoup.parse(html).text();
+             } else if (bodyPart.getContent() instanceof MimeMultipart) {
+-                System.out.println("Body part is another MimeMultipart object");
++                //System.out.println("Body part is another MimeMultipart object");
+                 result = result + getTextFromMimeMultipart((MimeMultipart) bodyPart.getContent());
+             }
+         }
+@@ -270,7 +303,7 @@
+     public static String filter(String text){
+         String regex = "[`,~,*,#,^,\\n,\\t]";
+         String newText = text.replaceAll(regex, "");
+-        System.out.println("AFTER REGEX FILTER:\n" + newText);
++        //System.out.println("AFTER REGEX FILTER:\n" + newText);
+         return newText;
+     }
+ 

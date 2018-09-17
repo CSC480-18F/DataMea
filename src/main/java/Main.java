@@ -12,6 +12,7 @@ import edu.stanford.nlp.ling.*;
 import edu.stanford.nlp.pipeline.*;
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.util.*;
+import org.apache.xpath.operations.Bool;
 
 public class Main {
 
@@ -37,12 +38,13 @@ public class Main {
 
         Message message;
         int [] sentimentScores;
+        int overallSentiment;
         String content, title;
         Date date;
         Sender sender;
         Flags flags;
 
-        public Email(Message m, Sender s) {
+        public Email(Message m, Sender s, Boolean runSentiment) {
 
             message = m;
 
@@ -61,6 +63,13 @@ public class Main {
 
 
             sentimentScores = new int [5];
+
+
+            if(runSentiment){
+                sentimentScores = analyzeSentiment(filter(content));
+                //TODO create constants and/or Sentiment object
+                overallSentiment = sentimentScores[4] * 3 + sentimentScores[3] - sentimentScores[1] - sentimentScores[0] * 3;
+            }
         }
 
 
@@ -171,7 +180,9 @@ it appears to be whenever there is a thread of replies
                 }
 
 
-                emails.add(new Email(message, current));
+                emails.add(new Email(message, current, true));
+
+                System.out.println("Email sentiment score: " + emails.get(emails.size() - 1).overallSentiment);
 
             }
 
@@ -211,34 +222,56 @@ it appears to be whenever there is a thread of replies
 
     }
 
-    private static void analyzeSentiment(String message) {
+    private static int[] analyzeSentiment(String message) {
+
+        System.out.println("Start Time: " + getCurrentTimeStamp());
+
+        int[] score = new int[5];
 
         Properties props = new Properties();
         props.setProperty("annotators", "tokenize, ssplit, parse, sentiment");
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
 
-        System.out.println("Processing annotation");
+        //System.out.println("Processing annotation");
         Annotation annotation = pipeline.process(message);
         List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
 
-        System.out.println("Start Time: " + getCurrentTimeStamp());
 
         for (CoreMap sentence : sentences) {
             String sentiment = sentence.get(SentimentCoreAnnotations.SentimentClass.class);
-            System.out.println("Sentiment: " + sentiment + "\t" + sentence);
+            //System.out.println("Sentiment: " + sentiment + "\t" + sentence);
+            switch (sentiment){
+                case "Very Negative":
+                    score[0]++;
+                    break;
+                case "Negative":
+                    score[1]++;
+                    break;
+                case "Neutral":
+                    score[2]++;
+                    break;
+                case "Positive":
+                    score[3]++;
+                    break;
+                case "Very Positive":
+                    score[4]++;
+                    break;
+            }
         }
 
         System.out.println("End Time: " + getCurrentTimeStamp());
+
+        return score;
     }
 
     private static String getTextFromMessage(Message message) throws MessagingException, IOException {
-        System.out.println("Getting text from message");
+        //System.out.println("Getting text from message");
         String result = "";
         if (message.isMimeType("text/plain")) {
-            System.out.println("Message is plain text");
+            //System.out.println("Message is plain text");
             result = message.getContent().toString();
         } else if (message.isMimeType("multipart/*")) {
-            System.out.println("Message is multipart");
+            //System.out.println("Message is multipart");
             MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
             result = getTextFromMimeMultipart(mimeMultipart);
         }
@@ -250,18 +283,18 @@ it appears to be whenever there is a thread of replies
         String result = "";
         int count = mimeMultipart.getCount();
         for (int i = 0; i < count; i++) {
-            System.out.println("Body Part: " + (i + 1));
+            //System.out.println("Body Part: " + (i + 1));
             BodyPart bodyPart = mimeMultipart.getBodyPart(i);
             if (bodyPart.isMimeType("text/plain")) {
-                System.out.println("Body part is plain text");
+                //System.out.println("Body part is plain text");
                 result = result + "\n" + bodyPart.getContent();
                 break; // without break same text appears twice in my tests
             } else if (bodyPart.isMimeType("text/html")) {
-                System.out.println("Body part is HTML");
+                //System.out.println("Body part is HTML");
                 String html = (String) bodyPart.getContent();
                 result = result + "\n" + org.jsoup.Jsoup.parse(html).text();
             } else if (bodyPart.getContent() instanceof MimeMultipart) {
-                System.out.println("Body part is another MimeMultipart object");
+                //System.out.println("Body part is another MimeMultipart object");
                 result = result + getTextFromMimeMultipart((MimeMultipart) bodyPart.getContent());
             }
         }
@@ -278,7 +311,7 @@ it appears to be whenever there is a thread of replies
     public static String filter(String text){
         String regex = "[`,~,*,#,^,\\n,\\t]";
         String newText = text.replaceAll(regex, "");
-        System.out.println("AFTER REGEX FILTER:\n" + newText);
+        //System.out.println("AFTER REGEX FILTER:\n" + newText);
         return newText;
     }
 
