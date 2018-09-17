@@ -32,6 +32,35 @@ public class Main {
     }
 
 
+
+    static class Email {
+
+        Message message;
+        int [] sentiementScores;
+        String content, title;
+        Date date;
+        Sender sender;
+
+        public Email(Message m) {
+            message = m;
+            try{
+                content = m.getContent().toString();
+                title = m.getSubject();
+                sender = new Sender(m.getFrom()[0].toString());
+                date = m.getSentDate();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (MessagingException e) {
+                e.printStackTrace();
+            }
+            
+            sentiementScores = new int [5];
+        }
+
+
+    }
+
+
     public static void main(String[] args) throws FileNotFoundException {
 
         // get user Email address, password
