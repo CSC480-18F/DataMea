@@ -64,6 +64,14 @@ public class Main {
         }
 
 
+
+
+        public String toString() {
+            return "From: " + this.sender + "\nTitle:" + this.title + "\nDate: " + date + "\nFlags: " + flags.toString()
+                    + "\n" + content;
+        }
+
+
     }
 
 
