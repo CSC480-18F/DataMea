@@ -6,6 +6,7 @@ import java.util.*;
 
 import javax.mail.*;
 import javax.mail.internet.MimeMultipart;
+import javax.mail.search.FlagTerm;
 
 import edu.stanford.nlp.ling.*;
 import edu.stanford.nlp.pipeline.*;
@@ -34,7 +35,7 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
 
         // get user Email address, password
-        String password, address, selectedFolder;
+        String password, address, selectedFolderAsString;
         Scanner kb = new Scanner(System.in);
         System.out.println("Enter email address");
         address = kb.nextLine();
@@ -47,8 +48,7 @@ public class Main {
         System.out.println("Select which folder to get emails from (type 0-" + (folders.length - 1) + ")");
 
         //grab selected folder from user
-        selectedFolder = folders[Integer.parseInt(kb.nextLine())].toString();
-
+        Folder selectedFolder = folders[Integer.parseInt(kb.nextLine())];
 
         long startTime = System.nanoTime();
         //read and print all emails from the selected folder
@@ -73,13 +73,26 @@ it appears to be whenever there is a thread of replies
 
  */
 
-    private static void readEmails(String password, String address, String selectedFolder) {
+    private static void readEmails(String password, String address, Folder selectedFolder) {
         // Create all the needed properties - empty!
         Properties connectionProperties = new Properties();
         // Create the session
         Session session = Session.getDefaultInstance(connectionProperties, null);
 
         ArrayList<Sender> senders = new ArrayList<>();
+
+        String selectedFolderAsString = selectedFolder.toString();
+
+        Flags seen = new Flags(Flags.Flag.SEEN);
+        FlagTerm unseenFlagTerm = new FlagTerm(seen, false);
+        Message unreadMessages[] = new Message[0];
+
+
+        Flags answered = new Flags(Flags.Flag.ANSWERED);
+        FlagTerm answeredFlagTerm = new FlagTerm(answered, false);
+        Message answeredMessages[] = new Message[0];
+
+
 
         try {
             System.out.print("Connecting to the IMAP server...");
@@ -95,14 +108,21 @@ it appears to be whenever there is a thread of replies
             System.out.println("Connected!");
 
             // Get the Inbox folder
-            //Folder folder = store.getFolder("Inbox");
-            Folder folder = store.getFolder(selectedFolder);
 
             // Set the mode to the read-only mode
-            folder.open(Folder.READ_ONLY);
+            selectedFolder.open(Folder.READ_ONLY);
 
             // Get messages
-            Message messages[] = folder.getMessages();
+            Message messages[] = selectedFolder.getMessages();
+
+            unreadMessages = selectedFolder.search(unseenFlagTerm);
+            answeredMessages = selectedFolder.search(answeredFlagTerm);
+
+            if (unreadMessages.length == 0) System.out.println("No unread messages in " + selectedFolderAsString);
+            else System.out.println("You have " + unreadMessages.length + " unread messages in " + selectedFolderAsString);
+
+            if (answeredMessages.length == 0) System.out.println("You haven't answered any messages");
+            else System.out.println("You have answered " + answeredMessages.length + " from " + selectedFolderAsString);
 
             System.out.println("Reading messages...");
 
@@ -144,7 +164,7 @@ it appears to be whenever there is a thread of replies
 
             }
 
-            System.out.println("\nNumber of emails in '" + selectedFolder + "' folder: " + numEmails);
+            System.out.println("\nNumber of emails in '" + selectedFolderAsString + "' folder: " + numEmails);
             System.out.println("\nsummary of senders: \n");
             for (Sender s: senders) {
                 System.out.println(s.toString());

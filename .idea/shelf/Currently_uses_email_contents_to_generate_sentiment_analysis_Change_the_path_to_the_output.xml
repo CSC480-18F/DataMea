@@ -1,0 +1,9 @@
+<changelist name="Currently_uses_email_contents_to_generate_sentiment_analysis_Change_the_path_to_the_output" date="1536853837639" recycled="false">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Currently_uses_email_contents_to_generate_sentiment_analysis_Change_the_path_to_the_output/shelved.patch" />
+  <option name="DESCRIPTION" value="Currently uses email contents to generate sentiment analysis Change the path to the output.txt file and sample input files if testing locally." />
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/Main.class" />
+    <option name="AFTER_PATH" value="target/classes/Main.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Currently_uses_email_contents_to_generate_sentiment_analysis_Change_the_path_to_the_output/Main.class" />
+  </binary>
+</changelist>
