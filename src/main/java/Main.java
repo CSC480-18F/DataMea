@@ -43,6 +43,12 @@ public class Main {
         Date date;
         Sender sender;
         Flags flags;
+        int VNEG = 0;
+        int NEG = 1;
+        int NEU = 2;
+        int POS = 3;
+        int VPOS = 4;
+        int VMULT = 3;
 
         public Email(Message m, Sender s, Boolean runSentiment) {
 
@@ -62,13 +68,10 @@ public class Main {
             }
 
 
-            sentimentScores = new int [5];
-
-
             if(runSentiment){
                 sentimentScores = analyzeSentiment(filter(content));
-                //TODO create constants and/or Sentiment object
-                overallSentiment = sentimentScores[4] * 3 + sentimentScores[3] - sentimentScores[1] - sentimentScores[0] * 3;
+                overallSentiment = sentimentScores[VPOS] * VMULT + sentimentScores[POS] -
+                        sentimentScores[NEG] - sentimentScores[VNEG] * VMULT;
             }
         }
 
