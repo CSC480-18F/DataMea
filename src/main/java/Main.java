@@ -42,14 +42,14 @@ public class Main {
         Sender sender;
         Flags flags;
 
-        public Email(Message m) {
+        public Email(Message m, Sender s) {
 
             message = m;
 
             try{
                 content = getTextFromMessage(m);
                 title = m.getSubject();
-                sender = new Sender(m.getFrom()[0].toString());
+                sender = new Sender(s.toString());
                 date = m.getSentDate();
                 flags = m.getFlags();
 
@@ -119,21 +119,8 @@ it appears to be whenever there is a thread of replies
 
         String selectedFolderAsString = selectedFolder.toString();
 
-        Flags seen = new Flags(Flags.Flag.SEEN);
-        FlagTerm unseenFlagTerm = new FlagTerm(seen, false);
-        Message unreadMessages[] = new Message[0];
-
-
-        Flags answered = new Flags(Flags.Flag.ANSWERED);
-        FlagTerm answeredFlagTerm = new FlagTerm(answered, false);
-        Message answeredMessages[] = new Message[0];
-
-
-
         try {
             System.out.print("Connecting to the IMAP server...");
-            // Connecting to the server
-            // Set the store depending on the parameter flag value
             String storeName = "imaps";
             Store store = session.getStore(storeName);
 
@@ -143,7 +130,6 @@ it appears to be whenever there is a thread of replies
 
             System.out.println("Connected!");
 
-            // Get the Inbox folder
 
             // Set the mode to the read-only mode
             selectedFolder.open(Folder.READ_ONLY);
@@ -151,58 +137,33 @@ it appears to be whenever there is a thread of replies
             // Get messages
             Message messages[] = selectedFolder.getMessages();
 
-            unreadMessages = selectedFolder.search(unseenFlagTerm);
-            answeredMessages = selectedFolder.search(answeredFlagTerm);
-
-            if (unreadMessages.length == 0) System.out.println("No unread messages in " + selectedFolderAsString);
-            else System.out.println("You have " + unreadMessages.length + " unread messages in " + selectedFolderAsString);
-
-            if (answeredMessages.length == 0) System.out.println("You haven't answered any messages");
-            else System.out.println("You have answered " + answeredMessages.length + " from " + selectedFolderAsString);
-
             System.out.println("Reading messages...");
-
-            int numEmails = 0;
 
             // Display the messages
             for (Message message : messages) {
 
-                emails.add(new Email(message));
-
+                Sender current = null;
 
                 for (Address a : message.getFrom()) {
-                    System.out.println("From:" + a);
-
-
+                    current = null;
                     boolean found = false;
                     for (Sender s : senders) {
                         if (s.address.equals(a.toString())) {
                             s.count++;
                             found = true;
+                            current = s;
                             break;
                         }
                     }
                     if (!found) {
-                        senders.add(new Sender(a.toString()));
+                        current = new Sender(a.toString());
+                        senders.add(current);
                     }
 
                 }
-                System.out.println("Title: " + message.getSubject());
-
-                System.out.println(message.getSentDate());
-
-                System.out.println();
-
-                String messageText;
-                messageText = getTextFromMessage(message);
-
-                analyzeSentiment(filter(messageText));
-
-                System.out.println("------");
 
 
-
-
+                emails.add(new Email(message, current));
 
             }
 
