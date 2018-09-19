@@ -19,24 +19,25 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
 
         // get user Email address, password
-        String password, address;
+
         Scanner kb = new Scanner(System.in);
         System.out.println("Enter email address");
-        address = kb.nextLine();
+        String address = kb.nextLine();
         System.out.println("Enter password for " + address);
-        password = kb.nextLine();
+        String password = kb.nextLine();
 
-        //recover the list of folders in the users email account
-        Folder[] folders = Email.printFolders(address, password);
+        User currentUser = new User(address, password);
 
-        System.out.println("Select which folder to get emails from (type 0-" + (folders.length - 1) + ")");
+
+        System.out.println("Select which folder to get emails from (type 0-" + (currentUser.getFolders().length - 1) + ")");
 
         //grab selected folder from user
-        Folder selectedFolder = folders[Integer.parseInt(kb.nextLine())];
+        //Folder selectedFolder = folders[Integer.parseInt(kb.nextLine())];
+        Folder selectedFolder = currentUser.getFolders()[Integer.parseInt(kb.nextLine())];
 
         long startTime = System.nanoTime();
         //read and print all emails from the selected folder
-        ArrayList<Email> emailList = Email.readEmails(password, address, selectedFolder);
+        ArrayList<Sender> senderList = currentUser.readFolder(selectedFolder, false);
         endTimer(startTime);
     }
 

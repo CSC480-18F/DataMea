@@ -56,28 +56,7 @@ class Email {
 
 
 
-    public static Folder[] printFolders(String address, String password) {
 
-        try {
-            Properties props = System.getProperties();
-            props.setProperty("mail.store.protocol", "imaps");
-            Session session = Session.getDefaultInstance(props, null);
-            Store store = session.getStore("imaps");
-            store.connect("imap.gmail.com", address, password);
-            System.out.println(store);
-
-            Folder[] folders = store.getDefaultFolder().list();
-            for (int i = 0; i < folders.length; i++) {
-                System.out.println(i + " " + folders[i].getName());
-            }
-            return folders;
-
-        } catch (javax.mail.MessagingException e) {
-            e.printStackTrace();
-            return null;
-        }
-
-    }
 
 
 
@@ -95,79 +74,7 @@ it appears to be whenever there is a thread of replies
 
  */
 
-    public static ArrayList<Email> readEmails(String password, String address, Folder selectedFolder) {
-        // Create all the needed properties - empty!
-        Properties connectionProperties = new Properties();
-        // Create the session
-        Session session = Session.getDefaultInstance(connectionProperties, null);
 
-        ArrayList<Sender> senders = new ArrayList<>();
-        ArrayList<Email> emails = new ArrayList<>();
-
-        String selectedFolderAsString = selectedFolder.toString();
-
-        try {
-            System.out.print("Connecting to the IMAP server...");
-            String storeName = "imaps";
-            Store store = session.getStore(storeName);
-
-            // Set the server depending on the parameter flag value
-            String server =  "imap.gmail.com";
-            store.connect(server, address, password);
-
-            System.out.println("Connected!");
-
-
-            // Set the mode to the read-only mode
-            selectedFolder.open(Folder.READ_ONLY);
-
-            // Get messages
-            Message messages[] = selectedFolder.getMessages();
-
-            System.out.println("Reading messages...");
-
-            // Display the messages
-            for (Message message : messages) {
-
-                Sender current = null;
-
-                for (Address a : message.getFrom()) {
-                    current = null;
-                    boolean found = false;
-                    for (Sender s : senders) {
-                        if (s.address.equals(a.toString())) {
-                            s.count++;
-                            found = true;
-                            current = s;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        current = new Sender(a.toString());
-                        senders.add(current);
-                    }
-
-                }
-
-
-                emails.add(new Email(message, current, true));
-
-                System.out.println("Email sentiment score: " + emails.get(emails.size() - 1).overallSentiment);
-
-            }
-
-            System.out.println("\nNumber of emails in '" + selectedFolderAsString + "' folder: " + emails.size());
-            System.out.println("\nsummary of senders: \n");
-            for (Sender s: senders) {
-                System.out.println(s.toString());
-            }
-            return emails;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-
-    }
 
 
     String getTextFromMessage(Message message) throws MessagingException, IOException {
