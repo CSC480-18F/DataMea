@@ -26,26 +26,21 @@ public class Main {
         System.out.println("Enter password for " + address);
         String password = kb.nextLine();
 
-        User currentUser = new User(address, password);
-
-
-        System.out.println("Select which folder to get emails from (type 0-" + (currentUser.getFolders().length - 1) + ")");
-
-        //grab selected folder from user
-        //Folder selectedFolder = folders[Integer.parseInt(kb.nextLine())];
-        Folder selectedFolder = currentUser.getFolders()[Integer.parseInt(kb.nextLine())];
-
         long startTime = System.nanoTime();
-        //read and print all emails from the selected folder
-        ArrayList<Sender> senderList = currentUser.readFolder(selectedFolder, false);
+        User currentUser = new User(address, password, false);
         endTimer(startTime);
+
+        System.out.println("\n\nSelect which folder to get emails from (type 0-" + (currentUser.getFolders().size() - 1) + ")");
+        currentUser.printFolders();
+
+        int folderNum = Integer.parseInt(kb.nextLine());
+        UserFolder selectedFolder = currentUser.getFolders().get(folderNum);
+
+
+        //read and print all emails from the selected folder
+        ArrayList<Sender> senderList = currentUser.getFolders().get(folderNum).getSenders();
+        System.out.println("Done!");
     }
-
-
-
-
-
-
 
 
 
