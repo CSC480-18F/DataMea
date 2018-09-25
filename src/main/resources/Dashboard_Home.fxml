@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXDrawer?>
+<?import com.jfoenix.controls.JFXHamburger?>
+<?import com.jfoenix.controls.JFXMasonryPane?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.DashboardController">
+   <children>
+      <VBox fx:id="mainVbox" alignment="TOP_CENTER" depthTest="DISABLE" fillWidth="false" pickOnBounds="false" snapToPixel="false" style="-fx-spacing: 10;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <AnchorPane fx:id="topBar" blendMode="SRC_ATOP" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="1000.0" style="-fx-background-color: #2f3640;" VBox.vgrow="ALWAYS">
+               <effect>
+                  <DropShadow height="5.0" radius="0.75" spread="0.25" width="0.0" />
+               </effect>
+               <children>
+                  <ImageView fx:id="logo" fitHeight="40.0" fitWidth="120.0" layoutX="190.0" layoutY="5.0" pickOnBounds="true" preserveRatio="true" x="250.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="440.0" AnchorPane.rightAnchor="440.0" AnchorPane.topAnchor="5.0">
+                     <image>
+                        <Image url="@DataMea2.png" />
+                     </image>
+                  </ImageView>
+               </children>
+            </AnchorPane>
+            <JFXMasonryPane fx:id="masonryPane" HSpacing="20.0" VSpacing="50.0" cellHeight="25.0" cellWidth="25.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="550.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" VBox.vgrow="ALWAYS">
+               <children>
+                  <Pane>
+                     <children>
+                        <ImageView fitHeight="186.0" fitWidth="360.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@example_piechart.jpg" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </Pane>
+                  <Pane prefWidth="281.0">
+                     <children>
+                        <ImageView fitHeight="210.0" fitWidth="305.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@Screenshot_20180831-151555__01.jpg" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </Pane>
+                  <Pane>
+                     <children>
+                        <ImageView fitHeight="285.0" fitWidth="363.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@Bar-Graph1.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </Pane>
+                  <Pane prefHeight="212.0" prefWidth="381.0">
+                     <children>
+                        <ImageView fitHeight="227.0" fitWidth="386.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </Pane>
+               </children>
+            </JFXMasonryPane>
+         </children>
+      </VBox>
+      <JFXDrawer fx:id="drawer" defaultDrawerSize="200.0" prefHeight="600.0" prefWidth="200.0">
+         <effect>
+            <DropShadow height="2.5" radius="1.375" spread="0.25" width="5.0" />
+         </effect>
+      </JFXDrawer>
+      <JFXHamburger fx:id="hamburger" layoutX="12.5" layoutY="12.5" prefHeight="25.0" prefWidth="25.0" stylesheets="@Dashboard_css.css">
+         <effect>
+            <DropShadow color="#0000007f" height="5.0" radius="2.0" spread="0.25" width="5.0" />
+         </effect>
+      </JFXHamburger>
+   </children>
+</AnchorPane>
