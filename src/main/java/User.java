@@ -25,11 +25,19 @@ public class User {
     private long lastLogin;
 
 
-    User (String email, String password, Boolean runSentimentAnalysis) throws IOException{
+    User (String email, String password, Boolean runSentimentAnalysis){
         this.email = email;
         this.password = password;
-        folders = fetchFolders(runSentimentAnalysis);
-        serializeUser();
+
+        try {
+            serializeUser();
+            folders = fetchFolders(runSentimentAnalysis);
+        } catch (IOException e){
+            e.printStackTrace();
+        } catch (javax.mail.MessagingException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void printFolders(){
@@ -89,7 +97,7 @@ public class User {
 
 
 
-    public void serializeUser() throws IOException{
+    public void serializeUser() throws IOException, javax.mail.MessagingException{
         /*  We need to include the users email address, along with the last log in
          *  ex. (without the info being scrambled/encrypted)
          *  chansen@oswego.edu 2018-09-25T21:01:04.894
@@ -181,7 +189,58 @@ public class User {
 
         bw.close();
 
+        createSerializedUserFolder();
+        updateSerializedFolders();
+
+
+
     }
+
+    public void createSerializedUserFolder() throws IOException {
+        File temp = new File ("TextFiles/" + this.hashCode());
+        boolean exists = temp.exists();
+
+        if (!exists) {
+            File dir = new File("TextFiles/" + this.hashCode());
+            dir.mkdir();
+        }
+    }
+
+
+    public void updateSerializedFolders() throws javax.mail.MessagingException {
+        /*
+         *
+         * look at the folders the user has in their account, and add the folders to their list of folders under their
+         * hashed id folder (if necessary)
+         *
+         */
+        Properties props = System.getProperties();
+        props.setProperty("mail.store.protocol", "imaps");
+        Session session = Session.getDefaultInstance(props, null);
+        Store store = session.getStore("imaps");
+        store.connect("imap.gmail.com", this.getEmail(), this.getPassword());
+        System.out.println(store);
+
+        Folder[] folders = store.getDefaultFolder().list();
+        store.close();
+
+        File temp;
+        boolean exists;
+
+        for (int i = 0; i<folders.length; i++) {
+            String dirName = "TextFiles/" + this.hashCode() +"/" + folders[i].getName().hashCode();
+            temp = new File(dirName);
+            exists = temp.exists();
+            if (!exists) {
+                File dir = new File(dirName);
+                dir.mkdir();
+            }
+
+        }
+
+    }
+
+
 
 
     public String getEmail() {
