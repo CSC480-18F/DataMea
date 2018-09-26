@@ -16,7 +16,7 @@ public class Main {
         String password = kb.nextLine();
 
         long startTime = System.nanoTime();
-        User currentUser = new User(address, password, true);
+        User currentUser = new User(address, password, false);
         endTimer(startTime);
 
         System.out.println("\n\nSelect which folder to get emails from (type 0-" + (currentUser.getFolders().size() - 1) + ")");
