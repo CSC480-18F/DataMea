@@ -1,7 +1,10 @@
 import edu.stanford.nlp.ling.CoreAnnotations;
+import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
+import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 
 import javax.mail.*;
@@ -15,8 +18,13 @@ import java.util.Properties;
 
 class Email {
 
+    double VNEGTHRESH = .8;
+    double NEGTHRESH = .7;
+    double NEUTHRESH = .5;
+    double POSTHRESH = .3;
+    ArrayList<String> sentences;
     Message message;
-    int [] sentimentScores;
+    int[] sentimentScores = new int[5];
     int overallSentiment;
     String content, title;
     Date date;
@@ -33,8 +41,8 @@ class Email {
 
         message = m;
 
-        try{
-            content = getTextFromMessage(m);
+        try {
+            sentences = getSentences(m);
             title = m.getSubject();
             sender = new Sender(s.toString());
             date = m.getSentDate();
@@ -46,13 +54,75 @@ class Email {
             e.printStackTrace();
         }
 
+        int sentenceScore;
+        double probability;
+        Sentiment sentenceSentiment;
 
-        if(runSentiment){
-            sentimentScores = analyzeSentiment(filter(content));
+        if (runSentiment) {
+
+            if(sentences != null) {
+                for (String sentence : sentences) {
+                    System.out.println("\n" + sentence);
+                    sentenceSentiment = analyzeSentiment(sentence);
+                    sentenceScore = sentenceSentiment.score;
+                    probability = sentenceSentiment.probability;
+                    switch (sentenceScore) {
+                        case 0:
+                            System.out.println(probability + " chance it is Very Negative");
+                            if (probability > VNEGTHRESH) {
+                                this.sentimentScores[VNEG]++;
+                                System.out.println("Incrementing Very Negative");
+                            } else {
+                                this.sentimentScores[NEG]++;
+                                System.out.println("Incrementing Negative");
+                            }
+                            break;
+                        case 1:
+                            System.out.println(probability + " chance it is Negative");
+                            if (probability > NEGTHRESH) {
+                                this.sentimentScores[NEG]++;
+                                System.out.println("Incrementing Negative");
+                            } else {
+                                this.sentimentScores[NEU]++;
+                                System.out.println("Incrementing Neutral");
+                            }
+                            break;
+                        case 2:
+                            System.out.println(probability + " chance it is Neutral");
+                            if (probability > NEUTHRESH) {
+                                this.sentimentScores[NEU]++;
+                                System.out.println("Incrementing Neutral");
+                            } else {
+                                this.sentimentScores[POS]++;
+                                System.out.println("Incrementing Positive");
+                            }
+                            break;
+                        case 3:
+                            System.out.println(probability + " chance it is Positive");
+                            if (probability > POSTHRESH) {
+                                this.sentimentScores[POS]++;
+                                System.out.println("Incrementing Positive");
+                            } else {
+                                this.sentimentScores[VPOS]++;
+                                System.out.println("Incrementing Very Positive");
+                            }
+                            break;
+                        case 4:
+                            System.out.println(probability + " chance it is Very Positive");
+                            this.sentimentScores[4]++;
+                            System.out.println("Incrementing Very Positive");
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
             overallSentiment = sentimentScores[VPOS] * VMULT + sentimentScores[POS] -
                     sentimentScores[NEG] - sentimentScores[VNEG] * VMULT;
         }
     }
+
 
 
 
@@ -75,25 +145,41 @@ it appears to be whenever there is a thread of replies
  */
 
 
-
-
-    String getTextFromMessage(Message message) throws MessagingException, IOException {
+    private ArrayList<String> getSentences(Message message) throws MessagingException, IOException {
         //System.out.println("Getting text from message");
         String result = "";
         if (message.isMimeType("text/plain")) {
             //System.out.println("Message is plain text");
             result = message.getContent().toString();
+            return _getSentences(result);
         } else if (message.isMimeType("multipart/*")) {
             //System.out.println("Message is multipart");
             MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
-            result = getTextFromMimeMultipart(mimeMultipart);
+            return getTextFromMimeMultipart(mimeMultipart, false);
         }
-        return result;
+        return null;
+    }
+
+    private ArrayList<String> _getSentences(String result) {
+        result = filter(result);
+        ArrayList<String> sentences = new ArrayList<String>();
+        String[] split = result.split("~");
+        for (String s : split) {
+            if(s.length() > 0) {
+                String trimmed = s.trim();
+                char[] c = trimmed.toCharArray();
+                if(c.length > 0) {
+                    if (c[0] >= 65 && c[0] <= 90) //checking if first letter is uppercase via ascii value
+                        sentences.add(trimmed);
+                }
+            }
+        }
+        return sentences;
     }
 
 
-    public String getTextFromMimeMultipart(
-            MimeMultipart mimeMultipart) throws MessagingException, IOException {
+    public ArrayList<String> getTextFromMimeMultipart(
+            MimeMultipart mimeMultipart, Boolean isRecursing) throws MessagingException, IOException {
         String result = "";
         int count = mimeMultipart.getCount();
         for (int i = 0; i < count; i++) {
@@ -102,27 +188,29 @@ it appears to be whenever there is a thread of replies
             if (bodyPart.isMimeType("text/plain")) {
                 //System.out.println("Body part is plain text");
                 result = result + "\n" + bodyPart.getContent();
-                break; // without break same text appears twice in my tests
+                return _getSentences(result);
             } else if (bodyPart.isMimeType("text/html")) {
                 //System.out.println("Body part is HTML");
                 String html = (String) bodyPart.getContent();
                 result = result + "\n" + org.jsoup.Jsoup.parse(html).text();
+                return _getSentences(result);
             } else if (bodyPart.getContent() instanceof MimeMultipart) {
                 //System.out.println("Body part is another MimeMultipart object");
-                result = result + getTextFromMimeMultipart((MimeMultipart) bodyPart.getContent());
+                result = result + getTextFromMimeMultipart((MimeMultipart) bodyPart.getContent(), true).get(0);
             }
+
+
         }
-        return result;
+        if(isRecursing){
+            ArrayList<String> temp = new ArrayList<String>();
+            temp.add(result);
+            return temp;
+        }
+        else return _getSentences(result);
     }
 
 
-
-
-    static int[] analyzeSentiment(String message) {
-
-        System.out.println("Start Time: " + getCurrentTimeStamp());
-
-        int[] score = new int[5];
+    static Sentiment analyzeSentiment(String message) {
 
         Properties props = new Properties();
         props.setProperty("annotators", "tokenize, ssplit, parse, sentiment");
@@ -130,34 +218,21 @@ it appears to be whenever there is a thread of replies
 
         //System.out.println("Processing annotation");
         Annotation annotation = pipeline.process(message);
-        List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
+        List<CoreMap> sentence = annotation.get(CoreAnnotations.SentencesAnnotation.class);
 
+        int sentimentScore = -1;
+        double probability = -1;
 
-        for (CoreMap sentence : sentences) {
-            String sentiment = sentence.get(SentimentCoreAnnotations.SentimentClass.class);
-            //System.out.println("Sentiment: " + sentiment + "\t" + sentence);
-            switch (sentiment){
-                case "Very Negative":
-                    score[0]++;
-                    break;
-                case "Negative":
-                    score[1]++;
-                    break;
-                case "Neutral":
-                    score[2]++;
-                    break;
-                case "Positive":
-                    score[3]++;
-                    break;
-                case "Very Positive":
-                    score[4]++;
-                    break;
-            }
+        for (CoreMap s : sentence) {
+            Tree tree = s.get(SentimentCoreAnnotations.SentimentAnnotatedTree.class);
+            sentimentScore = RNNCoreAnnotations.getPredictedClass(new CoreLabel(tree.label()));
+            probability = RNNCoreAnnotations.getPredictedClassProb(new CoreLabel(tree.label()));
         }
 
-        System.out.println("End Time: " + getCurrentTimeStamp());
 
-        return score;
+        Sentiment sentiment = new Sentiment(sentimentScore, probability);
+
+        return sentiment;
     }
 
 
@@ -168,13 +243,16 @@ it appears to be whenever there is a thread of replies
         return strDate;
     }
 
-    public static String filter(String text){
-        String regex = "[`,~,*,#,^,\\n,\\t]";
+    public static String filter(String text) {
+        String regex = "[`,~,*,#,^,>,\\n,\\t]";
         String newText = text.replaceAll(regex, "");
+        newText = newText.replaceAll("\\.", ".~");
+        newText = newText.replaceAll("\\?", "?~");
+        newText = newText.replaceAll("\\!", "!~");
+        newText = newText.replaceAll("\\r", " ");
         //System.out.println("AFTER REGEX FILTER:\n" + newText);
         return newText;
     }
-
 
 
     public String toString() {
