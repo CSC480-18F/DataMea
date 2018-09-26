@@ -115,6 +115,10 @@ public class User {
          */
 
         File f = new File(USERNAME_FILE);
+        boolean found = f.exists();
+        if (!found) {
+            f.createNewFile();
+        }
 
         BufferedReader br = new BufferedReader(new FileReader(f));
         int numAccounts;
