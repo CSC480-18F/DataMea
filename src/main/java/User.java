@@ -1,21 +1,35 @@
 import javax.mail.*;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.lang.reflect.Array;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
+import java.io.*;
+import java.util.Date.*;
+import java.util.Calendar;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class User {
-
+    private String USERNAME_FILE = "TextFiles/userNames.txt";
+    private int USER_SIZE = 512;
 
     private String email, password;
     private ArrayList<UserFolder> folders;
     private ArrayList<Email> sentMail;
+    private long lastLogin;
 
 
-    User (String email, String password, Boolean runSentimentAnalysis){
+    User (String email, String password, Boolean runSentimentAnalysis) throws IOException{
         this.email = email;
         this.password = password;
         folders = fetchFolders(runSentimentAnalysis);
+        serializeUser();
     }
 
     public void printFolders(){
@@ -61,6 +75,113 @@ public class User {
     }
 
 
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        char [] c = this.getEmail().toCharArray();
+        for (int i = 0; i<c.length; i++) {
+            hash = (hash * 137)  + c[i];
+        }
+        return hash;
+    }
+
+
+
+
+
+    public void serializeUser() throws IOException{
+        /*  We need to include the users email address, along with the last log in
+         *  ex. (without the info being scrambled/encrypted)
+         *  chansen@oswego.edu 2018-09-25T21:01:04.894
+         *  After encryption, will look like
+         *  2384798278923 2018-09-25T21:01:04.894
+         *
+         *  if it is a new user, add the actual user hash and login date, and increment the number of accounts
+         *  else, just update the last login date for that specific users hash
+         *
+         *  example output in the text file:
+         *  3
+            2080537423 2018-09-25T21:01:04.894
+            -949398889 2018-09-25T20:59:54.483
+            -1323952787 2018-09-25T21:01:49.573
+         */
+
+        File f = new File(USERNAME_FILE);
+
+        BufferedReader br = new BufferedReader(new FileReader(f));
+        int numAccounts;
+
+        String numString = br.readLine();
+        Integer existingAccountIndex = null;
+        String[] lines = new String[0];
+        int hash = this.hashCode();
+        long lastLoginDate = 0;
+        if (numString == null) {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+            bw.write("0");
+            bw.close();
+            numAccounts = 0;
+        } else {
+            //look for existing user index
+            numAccounts = Integer.parseInt(numString);
+            lines = new String[numAccounts];
+            int[] accountHashes = new int[numAccounts];
+            String s;
+            int i = 0;
+
+            while ((s = br.readLine()) != null) {
+                lines[i] = s;
+                String[] stuff = s.split(" ");
+                accountHashes[i] = Integer.parseInt(stuff[0]);
+                if (accountHashes[i] == hash) {
+                    existingAccountIndex = i;
+                    lastLoginDate = Long.parseLong(stuff[1]);
+                    this.lastLogin = lastLoginDate;
+                }
+                i++;
+            }
+
+            br.close();
+        }
+
+
+        BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+
+        //user does not exists
+        if (existingAccountIndex == null) {
+            //one account has been created. Increase number of accounts, and add the new user to the end of list
+            numAccounts = numAccounts+1;
+            String [] newAccounts = new String[numAccounts];
+            String numAccountString = Integer.toString(numAccounts);
+            for (int j = 0; j<numAccounts-1; j++){
+                newAccounts[j] = lines[j];
+            }
+
+            newAccounts[numAccounts-1] = hash + " " + System.currentTimeMillis();
+            this.lastLogin = 0;
+            bw.write(numAccountString);
+            bw.newLine();
+            for (int k = 0; k<newAccounts.length; k++) {
+                bw.write(newAccounts[k]);
+                bw.newLine();
+            }
+        } else {
+            //user exists. simply update last login time
+            lines[existingAccountIndex] = hash + " "  + System.currentTimeMillis();
+            String n = Integer.toString(numAccounts);
+            bw.write(n);
+            bw.newLine();
+            this.lastLogin = lastLoginDate;
+            for (int q = 0; q<numAccounts; q++) {
+                bw.write(lines[q]);
+                bw.newLine();
+            }
+
+        }
+
+        bw.close();
+
+    }
 
 
     public String getEmail() {
@@ -83,8 +204,7 @@ public class User {
         return folders;
     }
 
-    public void setFolders(ArrayList<UserFolder> folders)
-    {
+    public void setFolders(ArrayList<UserFolder> folders) {
         this.folders = folders;
     }
 

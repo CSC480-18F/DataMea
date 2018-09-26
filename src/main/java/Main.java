@@ -1,22 +1,11 @@
 
 
 import java.io.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
-
-import javax.mail.*;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.search.FlagTerm;
-
-import edu.stanford.nlp.ling.*;
-import edu.stanford.nlp.pipeline.*;
-import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
-import edu.stanford.nlp.util.*;
-import org.apache.xpath.operations.Bool;
 
 public class Main {
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws FileNotFoundException, IOException {
 
         // get user Email address, password
 
@@ -40,6 +29,7 @@ public class Main {
         //read and print all emails from the selected folder
         ArrayList<Sender> senderList = currentUser.getFolders().get(folderNum).getSenders();
         System.out.println("Done!");
+
     }
 
 
