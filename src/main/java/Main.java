@@ -25,7 +25,7 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) throws FileNotFoundException, IOException {
-        launch(args);
+        //launch(args);
 
         // get user Email address, password
 
@@ -39,16 +39,21 @@ public class Main extends Application {
         User currentUser = new User(address, password, false);
         endTimer(startTime);
 
-        System.out.println("\n\nSelect which folder to get emails from (type 0-" + (currentUser.getFolders().size() - 1) + ")");
-        currentUser.printFolders();
+        //System.out.println("\n\nSelect which folder to get emails from (type 0-" + (currentUser.getFolders().size() - 1) + ")");
+        //currentUser.printFolders();
 
-        int folderNum = Integer.parseInt(kb.nextLine());
-        UserFolder selectedFolder = currentUser.getFolders().get(folderNum);
+        //int folderNum = Integer.parseInt(kb.nextLine());
+        //UserFolder selectedFolder = currentUser.getFolders().get(folderNum);
 
 
         //read and print all emails from the selected folder
-        ArrayList<Sender> senderList = currentUser.getFolders().get(folderNum).getSenders();
-        System.out.println("Done!");
+        //ArrayList<Sender> senderList = currentUser.getFolders().get(folderNum).getSenders();
+        //System.out.println("Done!");
+
+        ArrayList<Sender> topSenders = currentUser.getFolders().get(0).readFolder(false);
+
+        launch(args);
+
 
     }
 
