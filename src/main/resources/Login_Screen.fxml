@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXPasswordField?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.DashboardController">
+   <children>
+      <ImageView fitHeight="160.0" fitWidth="274.0" layoutX="363.0" layoutY="140.0" pickOnBounds="true">
+         <image>
+            <Image url="@DataMeaLogo.png" />
+         </image>
+         <effect>
+            <DropShadow color="#00000040" height="20.0" radius="9.5" width="20.0" />
+         </effect>
+      </ImageView>
+      <JFXTextField fx:id="searchField" focusColor="#d4313300" layoutX="300.0" layoutY="300.0" onAction="#search" prefHeight="36.0" prefWidth="400.0" promptText="Email" style="-fx-background-color: #dfe6e9; -fx-border-color: #b2bec3; -fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10;" unFocusColor="#4d4d4d00">
+         <effect>
+            <DropShadow color="#00000026" spread="0.25" />
+         </effect>
+      </JFXTextField>
+      <JFXButton fx:id="searchButton" alignment="CENTER" contentDisplay="RIGHT" layoutX="455.0" layoutY="426.0" onAction="#search" prefHeight="39.0" prefWidth="90.0" ripplerFill="#d43133" style="-fx-background-color: #f1f2f6; -fx-padding: 10; -fx-border-color: #a4b0be; -fx-border-radius: 5; -fx-background-radius: 5;" text="Login">
+         <graphic>
+            <FontAwesomeIconView glyphName="SIGN_IN" opacity="0.6" />
+         </graphic>
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
+      </JFXButton>
+      <JFXPasswordField focusColor="#d4333500" layoutX="300.0" layoutY="365.0" prefHeight="39.0" prefWidth="400.0" promptText="Password" style="-fx-background-color: #dfe6e9; -fx-border-color: #b2bec3; -fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10;" unFocusColor="#4d4d4d00">
+         <effect>
+            <DropShadow color="#00000040" spread="0.25" />
+         </effect>
+      </JFXPasswordField>
+   </children>
+</AnchorPane>

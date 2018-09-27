@@ -1,11 +1,31 @@
-
-
 import java.io.*;
 import java.util.*;
+import javax.mail.*;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.search.FlagTerm;
+import edu.stanford.nlp.ling.*;
+import edu.stanford.nlp.pipeline.*;
+import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
+import edu.stanford.nlp.util.*;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import org.apache.xpath.operations.Bool;
 
-public class Main {
+public class Main extends Application {
+
+    @Override
+    public void start(Stage primaryStage) throws Exception{
+        primaryStage.setTitle("Data Mea");
+        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("Dashboard_Home.fxml"));
+        primaryStage.setScene(new Scene(root));
+        primaryStage.show();
+    }
 
     public static void main(String[] args) throws FileNotFoundException, IOException {
+        launch(args);
 
         // get user Email address, password
 
