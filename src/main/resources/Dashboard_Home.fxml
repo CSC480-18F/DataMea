@@ -14,7 +14,7 @@
    <children>
       <VBox fx:id="mainVbox" alignment="TOP_CENTER" depthTest="DISABLE" fillWidth="false" pickOnBounds="false" snapToPixel="false" style="-fx-spacing: 10;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <AnchorPane fx:id="topBar" blendMode="SRC_ATOP" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="1000.0" style="-fx-background-color: #2f3640;" VBox.vgrow="ALWAYS">
+            <AnchorPane fx:id="topBar" blendMode="SRC_ATOP" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" style="-fx-background-color: #2f3640;" VBox.vgrow="ALWAYS">
                <effect>
                   <DropShadow height="5.0" radius="0.75" spread="0.25" width="0.0" />
                </effect>
@@ -26,7 +26,7 @@
                   </ImageView>
                </children>
             </AnchorPane>
-            <JFXMasonryPane fx:id="masonryPane" HSpacing="20.0" VSpacing="50.0" cellHeight="25.0" cellWidth="25.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="550.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" VBox.vgrow="ALWAYS">
+            <JFXMasonryPane fx:id="masonryPane" HSpacing="20.0" VSpacing="50.0" cellHeight="25.0" cellWidth="25.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="540.0" prefWidth="995.0" style="-fx-background-color: #353b48;" VBox.vgrow="ALWAYS">
                <children>
                   <Pane>
                      <children>

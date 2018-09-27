@@ -39,7 +39,7 @@ public class DashboardController implements Initializable {
     AnchorPane anchorPane;
 
     private DashboardDrawer dashboardDrawer;
-    
+
 
     @Override
     public void initialize(URL url, ResourceBundle rb){
