@@ -114,6 +114,10 @@ public class User {
             -1323952787 2018-09-25T21:01:49.573
          */
 
+
+
+        /// need to authenticate user credentials before everything below is done
+
         File f = new File(USERNAME_FILE);
         boolean found = f.exists();
         if (!found) {
@@ -196,8 +200,6 @@ public class User {
         createSerializedUserFolder();
         updateSerializedFolders();
 
-
-
     }
 
     public void createSerializedUserFolder() throws IOException {
@@ -245,7 +247,13 @@ public class User {
     }
 
 
+    public long getLastLogin() {
+        return lastLogin;
+    }
 
+    public void setLastLogin(long lastLogin) {
+        this.lastLogin = lastLogin;
+    }
 
     public String getEmail() {
         return email;
