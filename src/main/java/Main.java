@@ -36,7 +36,7 @@ public class Main extends Application {
         String password = kb.nextLine();
 
         long startTime = System.nanoTime();
-        User currentUser = new User(address, password, false);
+        User currentUser = new User(address, password, true);
         endTimer(startTime);
 
         //System.out.println("\n\nSelect which folder to get emails from (type 0-" + (currentUser.getFolders().size() - 1) + ")");
@@ -50,7 +50,7 @@ public class Main extends Application {
         //ArrayList<Sender> senderList = currentUser.getFolders().get(folderNum).getSenders();
         //System.out.println("Done!");
 
-        ArrayList<Sender> topSenders = currentUser.getFolders().get(0).readFolder(false);
+        //ArrayList<Sender> topSenders = currentUser.getFolders().get(0).readFolder(false);
 
         launch(args);
 

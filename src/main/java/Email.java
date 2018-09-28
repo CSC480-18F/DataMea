@@ -60,60 +60,62 @@ class Email {
 
         if (runSentiment) {
 
-            if(sentences != null) {
+            if (sentences != null) {
                 for (String sentence : sentences) {
-                    System.out.println("\n" + sentence);
-                    sentenceSentiment = analyzeSentiment(sentence);
-                    sentenceScore = sentenceSentiment.score;
-                    probability = sentenceSentiment.probability;
-                    switch (sentenceScore) {
-                        case 0:
-                            System.out.println(probability + " chance it is Very Negative");
-                            if (probability > VNEGTHRESH) {
-                                this.sentimentScores[VNEG]++;
-                                System.out.println("Incrementing Very Negative");
-                            } else {
-                                this.sentimentScores[NEG]++;
-                                System.out.println("Incrementing Negative");
-                            }
-                            break;
-                        case 1:
-                            System.out.println(probability + " chance it is Negative");
-                            if (probability > NEGTHRESH) {
-                                this.sentimentScores[NEG]++;
-                                System.out.println("Incrementing Negative");
-                            } else {
-                                this.sentimentScores[NEU]++;
-                                System.out.println("Incrementing Neutral");
-                            }
-                            break;
-                        case 2:
-                            System.out.println(probability + " chance it is Neutral");
-                            if (probability > NEUTHRESH) {
-                                this.sentimentScores[NEU]++;
-                                System.out.println("Incrementing Neutral");
-                            } else {
-                                this.sentimentScores[POS]++;
-                                System.out.println("Incrementing Positive");
-                            }
-                            break;
-                        case 3:
-                            System.out.println(probability + " chance it is Positive");
-                            if (probability > POSTHRESH) {
-                                this.sentimentScores[POS]++;
-                                System.out.println("Incrementing Positive");
-                            } else {
-                                this.sentimentScores[VPOS]++;
+                    if (sentence.endsWith(".") || sentence.endsWith("!") || sentence.endsWith("?")) {
+                        System.out.println("\n" + sentence);
+                        sentenceSentiment = analyzeSentiment(sentence);
+                        sentenceScore = sentenceSentiment.score;
+                        probability = sentenceSentiment.probability;
+                        switch (sentenceScore) {
+                            case 0:
+                                System.out.println(probability + " chance it is Very Negative");
+                                if (probability > VNEGTHRESH) {
+                                    this.sentimentScores[VNEG]++;
+                                    System.out.println("Incrementing Very Negative");
+                                } else {
+                                    this.sentimentScores[NEG]++;
+                                    System.out.println("Incrementing Negative");
+                                }
+                                break;
+                            case 1:
+                                System.out.println(probability + " chance it is Negative");
+                                if (probability > NEGTHRESH) {
+                                    this.sentimentScores[NEG]++;
+                                    System.out.println("Incrementing Negative");
+                                } else {
+                                    this.sentimentScores[NEU]++;
+                                    System.out.println("Incrementing Neutral");
+                                }
+                                break;
+                            case 2:
+                                System.out.println(probability + " chance it is Neutral");
+                                if (probability > NEUTHRESH) {
+                                    this.sentimentScores[NEU]++;
+                                    System.out.println("Incrementing Neutral");
+                                } else {
+                                    this.sentimentScores[POS]++;
+                                    System.out.println("Incrementing Positive");
+                                }
+                                break;
+                            case 3:
+                                System.out.println(probability + " chance it is Positive");
+                                if (probability > POSTHRESH) {
+                                    this.sentimentScores[POS]++;
+                                    System.out.println("Incrementing Positive");
+                                } else {
+                                    this.sentimentScores[VPOS]++;
+                                    System.out.println("Incrementing Very Positive");
+                                }
+                                break;
+                            case 4:
+                                System.out.println(probability + " chance it is Very Positive");
+                                this.sentimentScores[4]++;
                                 System.out.println("Incrementing Very Positive");
-                            }
-                            break;
-                        case 4:
-                            System.out.println(probability + " chance it is Very Positive");
-                            this.sentimentScores[4]++;
-                            System.out.println("Incrementing Very Positive");
-                            break;
-                        default:
-                            break;
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
             }
@@ -162,13 +164,14 @@ it appears to be whenever there is a thread of replies
 
     private ArrayList<String> _getSentences(String result) {
         result = filter(result);
+        //System.out.println("After filter:\n" + result);
         ArrayList<String> sentences = new ArrayList<String>();
-        String[] split = result.split("~");
+        String[] split = result.split("~|\\n");
         for (String s : split) {
-            if(s.length() > 0) {
+            if (s.length() > 0) {
                 String trimmed = s.trim();
                 char[] c = trimmed.toCharArray();
-                if(c.length > 0) {
+                if (c.length > 0) {
                     if (c[0] >= 65 && c[0] <= 90) //checking if first letter is uppercase via ascii value
                         sentences.add(trimmed);
                 }
@@ -185,6 +188,7 @@ it appears to be whenever there is a thread of replies
         for (int i = 0; i < count; i++) {
             //System.out.println("Body Part: " + (i + 1));
             BodyPart bodyPart = mimeMultipart.getBodyPart(i);
+            //System.out.println("bodyPart " + i + "\n" + bodyPart.getContent());
             if (bodyPart.isMimeType("text/plain")) {
                 //System.out.println("Body part is plain text");
                 result = result + "\n" + bodyPart.getContent();
@@ -201,12 +205,11 @@ it appears to be whenever there is a thread of replies
 
 
         }
-        if(isRecursing){
+        if (isRecursing) {
             ArrayList<String> temp = new ArrayList<String>();
             temp.add(result);
             return temp;
-        }
-        else return _getSentences(result);
+        } else return _getSentences(result);
     }
 
 
@@ -244,13 +247,37 @@ it appears to be whenever there is a thread of replies
     }
 
     public static String filter(String text) {
-        String regex = "[`,~,*,#,^,>,\\n,\\t]";
-        String newText = text.replaceAll(regex, "");
+
+        int ABBR = 14;
+        String newText = text;
+
+        String[][] abbreviations = {{"(^|-)(d|D)r\\.", "(^|-)(M|m)r\\.", "(^|-)(M|m)rs\\.", "(^|-)(P|p)rof\\.",
+                "^(J|j)an\\.", "^(F|f)eb\\.", "^(M|m)ar\\.", "^(A|a)pr\\.", "^(J|j)un\\.",
+                "^(A|a)ug\\.", "^(S|s)ep\\.", "^(O|o)ct\\.", "^(N|n)ov\\.", "^(D|d)ec\\."},
+                {"Dr", "Mr", "Mrs", "Professor", "January", "Februrary", "March", "April", "June", "August",
+                "September", "October", "November", "December"}};
+
+        for (int i = 0; i < ABBR; i++) {
+            newText = newText.replaceAll(abbreviations[0][i], abbreviations[1][i]);
+        }
+
+        String url = "(http|https|ftp|ftps)\\:\\/\\/[a-zA-Z0-9\\-\\.]+\\.[a-zA-Z]{2,3}(\\/\\S*)?";
+        newText = newText.replaceAll(url, "");
+
+        String email = "^([a-z0-9_\\.-]+)@(?!domain.com)([\\da-z\\.-]+)\\.([a-z\\.]{2,6})$";
+        newText = newText.replaceAll(email, "");
+
+        String punctuation = "[`,~,*,#,^,>,\\-,\\n,\\t]";
+        newText = newText.replaceAll(punctuation, "");
+
+        String breakline = "[\\n]";
+        newText = newText.replaceAll(breakline, "\n~");
+
         newText = newText.replaceAll("\\.", ".~");
         newText = newText.replaceAll("\\?", "?~");
         newText = newText.replaceAll("\\!", "!~");
         newText = newText.replaceAll("\\r", " ");
-        //System.out.println("AFTER REGEX FILTER:\n" + newText);
+
         return newText;
     }
 
