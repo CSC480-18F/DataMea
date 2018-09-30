@@ -64,7 +64,7 @@ public class User {
                 Folder f = folders[i];
 
                 //Ignore reading inbox for now because it is the biggest folder and the invalid [Gmail] folder
-                if (!(f.getName().equalsIgnoreCase("[Gmail]") || f.getName().equalsIgnoreCase("Inbox")) ) {
+                if (!(f.getName().equalsIgnoreCase("[Gmail]") /*|| f.getName().equalsIgnoreCase("Inbox")*/)  ) {
                     UserFolder uf = new UserFolder(f, this, runSentimentAnalysis );
                     userFolders.add(uf);
                     //System.out.println(numEmails + " " +  userFolders.get(numEmails).folderName);
@@ -234,12 +234,14 @@ public class User {
         boolean exists;
 
         for (int i = 0; i<folders.length; i++) {
-            String dirName = "TextFiles/" + this.hashCode() +"/" + folders[i].getName().hashCode();
-            temp = new File(dirName);
-            exists = temp.exists();
-            if (!exists) {
-                File dir = new File(dirName);
-                dir.mkdir();
+            if (!folders[i].getName().equalsIgnoreCase("[Gmail]")){
+                String dirName = "TextFiles/" + this.hashCode() +"/" + folders[i].getName().hashCode();
+                temp = new File(dirName);
+                exists = temp.exists();
+                if (!exists) {
+                    File dir = new File(dirName);
+                    dir.mkdir();
+                }
             }
 
         }

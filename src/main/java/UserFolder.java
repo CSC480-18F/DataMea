@@ -78,8 +78,9 @@ public class UserFolder {
                 //Only read the emails that have been sent since the last time the user logged in
                 Date rDate = message.getReceivedDate();
                 Long receivedDate = rDate.getTime();
+                Email e = new Email(message, current, runSentiment);
                 if (this.user.getLastLogin() < receivedDate) {
-                    newEmails.add(new Email(message, current, runSentiment));
+                    newEmails.add(e);
                     numEmails++;
                     if (!containsSender(newSenders, current.getAddress())) {
                         newSenders.add(current);
@@ -89,12 +90,15 @@ public class UserFolder {
                 }
                 //
 
-                Email e = new Email(message, current, runSentiment);
-                current.addEmail(e);
+                try {
+                    current.addEmail(e);
+                    System.out.println("Email sentiment score: " + e.overallSentiment);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
 
 
 
-                System.out.println("Email sentiment score: " + e.overallSentiment);
 
             }
 
