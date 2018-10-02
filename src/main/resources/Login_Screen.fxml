@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.DashboardController">
+<AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.DashboardLogin">
    <children>
       <ImageView fitHeight="160.0" fitWidth="274.0" layoutX="363.0" layoutY="120.0" pickOnBounds="true">
          <image>
@@ -29,17 +29,17 @@
       </Pane>
       <VBox alignment="CENTER" layoutX="300.0" layoutY="300.0" style="-fx-spacing: 20;">
          <children>
-            <JFXTextField fx:id="searchField" focusColor="#d4313300" onAction="#search" prefHeight="35.0" prefWidth="400.0" promptText="Email" style="-fx-background-color: #ecf0f1; -fx-border-color: #b2bec3; -fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10;" unFocusColor="#4d4d4d00">
+            <JFXTextField fx:id="emailField" focusColor="#d4313300" onKeyReleased="#getEmail" prefHeight="35.0" prefWidth="400.0" promptText="Email" style="-fx-background-color: #ecf0f1; -fx-border-color: #b2bec3; -fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10;" unFocusColor="#4d4d4d00">
                <effect>
                   <DropShadow color="#0000004d" spread="0.25" />
                </effect>
             </JFXTextField>
-            <JFXPasswordField focusColor="#d4333500" prefHeight="35.0" prefWidth="400.0" promptText="Password" style="-fx-background-color: #ecf0f1; -fx-border-color: #b2bec3; -fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10;" unFocusColor="#4d4d4d00">
+            <JFXPasswordField fx:id="passwordField" focusColor="#d4333500" onAction="#login" onKeyReleased="#getPassword" prefHeight="35.0" prefWidth="400.0" promptText="Password" style="-fx-background-color: #ecf0f1; -fx-border-color: #b2bec3; -fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10;" unFocusColor="#4d4d4d00">
                <effect>
                   <DropShadow color="#0000004d" spread="0.25" />
                </effect>
             </JFXPasswordField>
-            <JFXButton fx:id="searchButton" alignment="CENTER" contentDisplay="RIGHT" onAction="#search" prefHeight="35.0" prefWidth="125.0" ripplerFill="#ff931e" style="-fx-background-color: #f5f6fa; -fx-padding: 5; -fx-border-color: #a4b0be; -fx-border-radius: 5; -fx-background-radius: 5;" text="Login with">
+            <JFXButton fx:id="searchButton" alignment="CENTER" contentDisplay="RIGHT" onAction="#login" prefHeight="35.0" prefWidth="125.0" ripplerFill="#ff931e" style="-fx-background-color: #f5f6fa; -fx-padding: 5; -fx-border-color: #a4b0be; -fx-border-radius: 5; -fx-background-radius: 5;" text="Login with">
                <graphic>
                   <FontAwesomeIconView glyphName="GOOGLE" opacity="0.6" />
                </graphic>

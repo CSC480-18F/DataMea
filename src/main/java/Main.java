@@ -19,7 +19,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         primaryStage.setTitle("Data Mea");
-        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("Dashboard_Home.fxml"));
+        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource(".fxml"));
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
     }
@@ -29,7 +29,7 @@ public class Main extends Application {
 
         // get user Email address, password
 
-        Scanner kb = new Scanner(System.in);
+        /*Scanner kb = new Scanner(System.in);
         System.out.println("Enter email address");
         String address = kb.nextLine();
         System.out.println("Enter password for " + address);
@@ -37,7 +37,7 @@ public class Main extends Application {
 
         long startTime = System.nanoTime();
         User currentUser = new User(address, password, true);
-        endTimer(startTime);
+        endTimer(startTime);*/
 
         //System.out.println("\n\nSelect which folder to get emails from (type 0-" + (currentUser.getFolders().size() - 1) + ")");
         //currentUser.printFolders();
