@@ -1,3 +1,5 @@
+package Engine;
+
 import javax.mail.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,7 +75,7 @@ public class UserFolder {
                 Email e = new Email(message, current, runSentiment);
                 current.addEmail(e);
 
-                System.out.println("Email sentiment score: " + e.overallSentiment);
+                System.out.println("Engine.Email sentiment score: " + e.overallSentiment);
 
             }
 

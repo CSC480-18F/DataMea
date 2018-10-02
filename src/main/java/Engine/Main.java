@@ -1,53 +1,50 @@
+package Engine;
+
 import java.io.*;
 import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.search.FlagTerm;
-import edu.stanford.nlp.ling.*;
-import edu.stanford.nlp.pipeline.*;
-import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
-import edu.stanford.nlp.util.*;
+
+import Controllers.DashboardLogin;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.apache.xpath.operations.Bool;
 
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
         primaryStage.setTitle("Data Mea");
-        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource(".fxml"));
+        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("Login_Screen.fxml"));
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
+        DashboardLogin.setStage(primaryStage);
     }
 
     public static void main(String[] args) throws FileNotFoundException, IOException {
         //launch(args);
 
-        // get user Email address, password
+        // get user Engine.Email address, password
 
-        /*Scanner kb = new Scanner(System.in);
-        System.out.println("Enter email address");
-        String address = kb.nextLine();
-        System.out.println("Enter password for " + address);
-        String password = kb.nextLine();
+        //Scanner kb = new Scanner(System.in);
+        //System.out.println("Enter email address");
+        //String address = kb.nextLine();
+        //System.out.println("Enter password for " + address);
+        //String password = kb.nextLine();
 
-        long startTime = System.nanoTime();
-        User currentUser = new User(address, password, true);
-        endTimer(startTime);*/
+        //long startTime = System.nanoTime();
+        //User currentUser = new User(DashboardLogin.getEmail(), DashboardLogin.getEmail(), true);
+        //endTimer(startTime);
 
         //System.out.println("\n\nSelect which folder to get emails from (type 0-" + (currentUser.getFolders().size() - 1) + ")");
         //currentUser.printFolders();
 
         //int folderNum = Integer.parseInt(kb.nextLine());
-        //UserFolder selectedFolder = currentUser.getFolders().get(folderNum);
+        //Engine.UserFolder selectedFolder = currentUser.getFolders().get(folderNum);
 
 
         //read and print all emails from the selected folder
-        //ArrayList<Sender> senderList = currentUser.getFolders().get(folderNum).getSenders();
+        //ArrayList<Engine.Sender> senderList = currentUser.getFolders().get(folderNum).getSenders();
         //System.out.println("Done!");
 
         //ArrayList<Sender> topSenders = currentUser.getFolders().get(0).readFolder(false);

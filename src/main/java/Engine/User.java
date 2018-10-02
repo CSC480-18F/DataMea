@@ -1,19 +1,10 @@
+package Engine;
+
 import javax.mail.*;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.lang.reflect.Array;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Properties;
 import java.io.*;
-import java.util.Date.*;
-import java.util.Calendar;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class User {
     private String USERNAME_FILE = "TextFiles/userNames.txt";
@@ -25,7 +16,7 @@ public class User {
     private long lastLogin;
 
 
-    User (String email, String password, Boolean runSentimentAnalysis){
+    public User (String email, String password, Boolean runSentimentAnalysis){
         this.email = email;
         this.password = password;
 

@@ -1,3 +1,5 @@
+package Engine;
+
 public class Sentiment {
 
     int score;
