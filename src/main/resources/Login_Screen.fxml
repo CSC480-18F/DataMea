@@ -11,9 +11,9 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-
-<StackPane fx:controller="Controllers.DashboardLogin" fx:id="stackPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
+<StackPane fx:id="stackPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.DashboardLogin">
    <children>
       <VBox alignment="CENTER" style="-fx-spacing: 20;" StackPane.alignment="CENTER">
          <children>
@@ -31,11 +31,17 @@
                      <effect>
                         <DropShadow color="#0000004d" spread="0.25" />
                      </effect>
+                     <font>
+                        <Font size="14.0" />
+                     </font>
                   </JFXTextField>
                   <JFXPasswordField fx:id="passwordField" focusColor="#d4333500" onAction="#login" onKeyReleased="#getPasswordField" prefHeight="35.0" prefWidth="400.0" promptText="Password" style="-fx-background-color: #ecf0f1; -fx-border-color: #b2bec3; -fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10;" unFocusColor="#4d4d4d00">
                      <effect>
                         <DropShadow color="#0000004d" spread="0.25" />
                      </effect>
+                     <font>
+                        <Font size="14.0" />
+                     </font>
                   </JFXPasswordField>
                   <Pane prefHeight="121.0" prefWidth="500.0">
                      <children>

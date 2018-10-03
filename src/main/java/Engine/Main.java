@@ -53,6 +53,7 @@ public class Main extends Application {
                         Pane homeScreen = FXMLLoader.load(getClass().getClassLoader().getResource("Dashboard_Home.fxml"));
 
                         task.setOnSucceeded(e -> {
+                            DashboardLoading.setStopVideoToTrue();
                             Scene home = new Scene(homeScreen, 1000, 600);
                             primaryStage.setScene(home);
                             homeScreen.requestFocus();

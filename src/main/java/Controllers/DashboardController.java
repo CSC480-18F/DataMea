@@ -8,9 +8,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -34,19 +32,34 @@ public class DashboardController implements Initializable {
     private JFXMasonryPane masonryPane;
 
     @FXML
-    private AnchorPane topBar;
+    private AnchorPane anchorPane;
 
     @FXML
-    private AnchorPane anchorPane;
+    private GridPane topBarGridPane;
+
+    @FXML
+    private ColumnConstraints gridPaneLeft;
+
+    @FXML
+    private ColumnConstraints gridPaneRight;
+
+    @FXML
+    private ColumnConstraints centerColumn;
 
     private DashboardDrawer dashboardDrawer;
 
     @Override
     public void initialize(URL url, ResourceBundle rb){
+        //Resizing crap, this took way to long to figure out thanks javafx
         mainVbox.setVgrow(masonryPane, Priority.ALWAYS);
-        topBar.prefWidthProperty().bind(anchorPane.widthProperty());
+        mainVbox.prefWidthProperty().bind(anchorPane.widthProperty());
+        topBarGridPane.prefWidthProperty().bind(mainVbox.widthProperty());
+        centerColumn.maxWidthProperty().bind(topBarGridPane.widthProperty());
+        gridPaneLeft.maxWidthProperty().bind(topBarGridPane.widthProperty());
+        gridPaneRight.maxWidthProperty().bind(topBarGridPane.widthProperty());
+
         drawer.setVisible(false);
-        //Allows you to click through the drawer if it's not visible (so we set it invisible when it's not open)
+        //Allows you to click through fthe drawer if it's not visible (so we set it invisible when it's not open)
         drawer.setPickOnBounds(false);
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("Dashboard_Drawer.fxml"));
