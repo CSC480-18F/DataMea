@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXCheckBox?>
+<?import com.jfoenix.controls.JFXProgressBar?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.web.WebView?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600.0" minWidth="400.0" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.DashboardLoading">
+   <children>
+      <VBox alignment="CENTER" layoutX="300.0" layoutY="40.0" style="-fx-spacing: 20;" AnchorPane.bottomAnchor="37.0" AnchorPane.leftAnchor="300.0" AnchorPane.rightAnchor="299.0" AnchorPane.topAnchor="40.0">
+         <children>
+            <ImageView fitHeight="160.0" fitWidth="274.0" pickOnBounds="true">
+               <image>
+                  <Image url="@DataMeaLogo.png" />
+               </image>
+               <effect>
+                  <DropShadow color="#00000040" height="20.0" radius="9.5" width="20.0" />
+               </effect>
+            </ImageView>
+            <WebView fx:id="tutorialVideo" maxHeight="200.0" maxWidth="400.0" minHeight="200.0" minWidth="400.0" prefHeight="200.0" prefWidth="400.0" />
+            <Text fill="#ebe5e5" strokeType="OUTSIDE" strokeWidth="0.0" text="This is your first time opening DataMea, welcome! Your first time loading may take a while, please do not close the window.." textAlignment="CENTER" wrappingWidth="400.0000059604645">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Text>
+            <JFXCheckBox fx:id="emailNotify" checkedColor="#ff931e" text="Notify me by email when it's done" textFill="#ebe5e5" unCheckedColor="#e0e0e0" />
+            <JFXProgressBar fx:id="progressBar" prefHeight="5.0" prefWidth="400.0" stylesheets="@Dashboard_css.css" />
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

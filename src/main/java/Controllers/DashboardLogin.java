@@ -1,7 +1,7 @@
 package Controllers;
 
+import Engine.Main;
 import com.jfoenix.controls.*;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -35,7 +35,6 @@ public class DashboardLogin implements Initializable {
     @FXML
     StackPane stackPane;
 
-
     private static String email, password;
     private static Stage myStage;
     private BooleanProperty loginSuccessful = new SimpleBooleanProperty(false);
@@ -63,6 +62,7 @@ public class DashboardLogin implements Initializable {
     }
 
     public void login(ActionEvent event) throws IOException {
+        DashboardLoading.setStage(myStage);
         Platform.runLater(() -> {
             try{
                 Properties props = System.getProperties();
@@ -73,6 +73,7 @@ public class DashboardLogin implements Initializable {
                 store.connect("imap.gmail.com", this.getEmail(), this.getPassword());
                 //User currentUser = new User(DashboardLogin.getEmail(), DashboardLogin.getPassword(), true);
                 loginSuccessful.setValue(true);
+                Main.setStartLoadingToTrue();
             }
             catch(javax.mail.AuthenticationFailedException  e)
             {
@@ -89,7 +90,6 @@ public class DashboardLogin implements Initializable {
                 });
                 content.setActions(button);
                 wrongInfo.show();
-                //System.out.println("Sorry your credentials are incorrect, please try again");
             }catch(javax.mail.NoSuchProviderException f){
                 f.printStackTrace();
             }catch(javax.mail.MessagingException g){
@@ -101,7 +101,7 @@ public class DashboardLogin implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         try {
-            Parent homePageParent = FXMLLoader.load(getClass().getClassLoader().getResource("Dashboard_Home.fxml"));
+            Parent homePageParent = FXMLLoader.load(getClass().getClassLoader().getResource("Loading_Screen.fxml"));
             Scene homePage = new Scene(homePageParent);
 
             loginSuccessful.addListener(new ChangeListener<Boolean>() {

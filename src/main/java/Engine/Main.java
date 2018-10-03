@@ -3,14 +3,38 @@ package Engine;
 import java.io.*;
 import java.util.*;
 
+import Controllers.DashboardLoading;
 import Controllers.DashboardLogin;
 import javafx.application.Application;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 public class Main extends Application {
+
+    private static User currentUser;
+    private Main.ResourceLoadingTask task = new Main.ResourceLoadingTask();
+    private static BooleanProperty startLoading = new SimpleBooleanProperty(false);
+
+    public static void setStartLoadingToTrue(){
+        startLoading.setValue(true);
+    }
+
+    public class ResourceLoadingTask extends Task<Void> {
+        @Override
+        protected Void call() throws Exception {
+            currentUser = new User(DashboardLogin.getEmail(), DashboardLogin.getPassword(), false);
+            System.out.println("Data Loaded");
+            return null;
+        }
+    }
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -19,6 +43,27 @@ public class Main extends Application {
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
         DashboardLogin.setStage(primaryStage);
+
+        startLoading.addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+                    try {
+                        Thread t = new Thread(task);
+                        Pane homeScreen = FXMLLoader.load(getClass().getClassLoader().getResource("Dashboard_Home.fxml"));
+
+                        task.setOnSucceeded(e -> {
+                            Scene home = new Scene(homeScreen, 1000, 600);
+                            primaryStage.setScene(home);
+                            homeScreen.requestFocus();
+                        });
+                        t.start();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 
     public static void main(String[] args) throws FileNotFoundException, IOException {
@@ -54,13 +99,9 @@ public class Main extends Application {
 
     }
 
-
-
-
     public static void endTimer(long startTime) {
         long endTime = System.nanoTime();
         long totalTime = (endTime - startTime) / 1000000000;
         System.out.println("Total runtime: " + totalTime + " seconds");
     }
-
 }

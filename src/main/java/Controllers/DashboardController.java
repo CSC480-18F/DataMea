@@ -33,13 +33,13 @@ public class DashboardController implements Initializable {
     @FXML
     private JFXMasonryPane masonryPane;
 
-    @FXML AnchorPane topBar;
+    @FXML
+    private AnchorPane topBar;
 
     @FXML
-    AnchorPane anchorPane;
+    private AnchorPane anchorPane;
 
     private DashboardDrawer dashboardDrawer;
-
 
     @Override
     public void initialize(URL url, ResourceBundle rb){
@@ -79,7 +79,6 @@ public class DashboardController implements Initializable {
             } else {
                 drawer.setVisible(true);
                 drawer.open();
-
                 dashboardDrawer.expandListView();
             }
         });
