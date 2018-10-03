@@ -9,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -49,7 +50,7 @@ public class DashboardController implements Initializable {
     private DashboardDrawer dashboardDrawer;
 
     @Override
-    public void initialize(URL url, ResourceBundle rb){
+    public void initialize(URL url, ResourceBundle rb) {
         //Resizing crap, this took way to long to figure out thanks javafx
         mainVbox.setVgrow(masonryPane, Priority.ALWAYS);
         mainVbox.prefWidthProperty().bind(anchorPane.widthProperty());
@@ -88,7 +89,7 @@ public class DashboardController implements Initializable {
                         drawer.setVisible(false);
                         hamburger.setDisable(false);
                     }
-            }, 500, TimeUnit.MILLISECONDS);
+                }, 500, TimeUnit.MILLISECONDS);
             } else {
                 drawer.setVisible(true);
                 drawer.open();

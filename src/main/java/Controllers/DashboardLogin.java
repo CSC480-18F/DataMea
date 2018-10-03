@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class DashboardLogin implements Initializable {
     @FXML
@@ -62,45 +64,51 @@ public class DashboardLogin implements Initializable {
     }
 
     public void login(ActionEvent event) throws IOException {
-        DashboardLoading.setStage(myStage);
-        Platform.runLater(() -> {
-            try{
-                Properties props = System.getProperties();
-                props.setProperty("mail.store.protocol", "imaps");
-                props.setProperty("mail.store.protocol", "imaps");
-                Session session = Session.getDefaultInstance(props, null);
-                Store store = session.getStore("imaps");
-                store.connect("imap.gmail.com", this.getEmail(), this.getPassword());
-                //User currentUser = new User(DashboardLogin.getEmail(), DashboardLogin.getPassword(), true);
-                loginSuccessful.setValue(true);
-                Main.setStartLoadingToTrue();
-            }
-            catch(javax.mail.AuthenticationFailedException  e)
-            {
-                JFXDialogLayout content = new JFXDialogLayout();
-                content.setHeading(new Text("Incorrect Login!"));
-                content.setBody(new Text("Please check your email/password and try again."));
-                JFXDialog wrongInfo = new JFXDialog(stackPane,content, JFXDialog.DialogTransition.CENTER);
-                JFXButton button =  new JFXButton("Okay");
-                button.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent event) {
-                        wrongInfo.close();
+        final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(2);
+        executor.schedule(new Runnable() {
+            @Override
+            public void run() {
+                Platform.runLater(() -> {
+                    try{
+                        Properties props = System.getProperties();
+                        props.setProperty("mail.store.protocol", "imaps");
+                        props.setProperty("mail.store.protocol", "imaps");
+                        Session session = Session.getDefaultInstance(props, null);
+                        Store store = session.getStore("imaps");
+                        store.connect("imap.gmail.com", DashboardLogin.getEmail(), DashboardLogin.getPassword());
+                        //User currentUser = new User(DashboardLogin.getEmail(), DashboardLogin.getPassword(), true);
+                        loginSuccessful.setValue(true);
+                        Main.setStartLoadingToTrue();
+                    }
+                    catch(javax.mail.AuthenticationFailedException  e)
+                    {
+                        JFXDialogLayout content = new JFXDialogLayout();
+                        content.setHeading(new Text("Incorrect Login!"));
+                        content.setBody(new Text("Please check your email/password and try again."));
+                        JFXDialog wrongInfo = new JFXDialog(stackPane,content, JFXDialog.DialogTransition.CENTER);
+                        JFXButton button =  new JFXButton("Okay");
+                        button.setOnAction(new EventHandler<ActionEvent>() {
+                            @Override
+                            public void handle(ActionEvent event) {
+                                wrongInfo.close();
+                            }
+                        });
+                        content.setActions(button);
+                        wrongInfo.show();
+                    }catch(javax.mail.NoSuchProviderException f){
+                        f.printStackTrace();
+                    }catch(javax.mail.MessagingException g){
+                        g.printStackTrace();
                     }
                 });
-                content.setActions(button);
-                wrongInfo.show();
-            }catch(javax.mail.NoSuchProviderException f){
-                f.printStackTrace();
-            }catch(javax.mail.MessagingException g){
-                g.printStackTrace();
             }
-        });
+        }, 200, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         try {
+            DashboardLoading.setStage(myStage);
             Parent homePageParent = FXMLLoader.load(getClass().getClassLoader().getResource("Loading_Screen.fxml"));
             Scene homePage = new Scene(homePageParent);
 
