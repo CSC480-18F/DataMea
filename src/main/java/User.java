@@ -40,6 +40,7 @@ public class User {
 
     }
 
+
     public void printFolders(){
         for (int i = 0; i<folders.size(); i++){
             System.out.println(i + " " + folders.get(i).folderName);
@@ -93,6 +94,40 @@ public class User {
         return hash;
     }
 
+
+
+    public void printUserEmails(){
+        File directory = new File("TextFiles/"+this.hashCode());
+        File[] userFolders = directory.listFiles();
+        for (File f: userFolders) {
+                File uF = new File(directory+"/"+f.getName());
+                File[] folderSenders = uF.listFiles();
+
+                    System.out.println("        folder : " + f.getName());
+
+                for (File sender : folderSenders) {
+                    File s = new File(uF + "/" + sender.getName());
+                    File[] emails = s.listFiles();
+
+                    System.out.println("        sender: " + sender.getName());
+
+                    for (File email: emails) {
+                        try {
+                            BufferedReader br = new BufferedReader(new FileReader(email));
+                            String line = null;
+                            while ((line = br.readLine()) != null) {
+                                System.out.println(line);
+                            }
+                            System.out.println();
+                        } catch (Exception e) {
+                            System.out.println(email.getAbsolutePath());
+                            e.printStackTrace();
+                        }
+                    }
+
+                }
+        }
+    }
 
 
 

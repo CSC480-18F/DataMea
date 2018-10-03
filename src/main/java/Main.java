@@ -29,6 +29,9 @@ public class Main {
         //read and print all emails from the selected folder
         ArrayList<Sender> senderList = currentUser.getFolders().get(folderNum).getSenders();
         System.out.println("Done!");
+        startTime= System.nanoTime();
+        currentUser.printUserEmails();
+        endTimer(startTime);
 
     }
 

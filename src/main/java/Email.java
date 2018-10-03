@@ -158,10 +158,10 @@ it appears to be whenever there is a thread of replies
             }
 
         } catch (MessagingException e) {
-            System.out.println("right hereeeee");
+            System.out.println("Messagin Exception");
             e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("right hereeeee1");
+            System.out.println("IO Exception");
             e.printStackTrace();
         }
         return null;
