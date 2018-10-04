@@ -4,12 +4,18 @@ import com.jfoenix.controls.JFXDrawer;
 import com.jfoenix.controls.JFXHamburger;
 import com.jfoenix.controls.JFXMasonryPane;
 import com.jfoenix.transitions.hamburger.HamburgerBasicCloseTransition;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.chart.PieChart;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -48,6 +54,13 @@ public class DashboardController implements Initializable {
     private ColumnConstraints centerColumn;
 
     private DashboardDrawer dashboardDrawer;
+    private static ObservableList<PieChart.Data> topSendersData = FXCollections.observableArrayList();
+    private DoughnutChart topSendersDoughnutChart = new DoughnutChart(topSendersData);
+    private static BooleanProperty loadCharts = new SimpleBooleanProperty(false);
+
+    public static void addTopSendersData(PieChart.Data d){
+        topSendersData.add(d);
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -58,9 +71,10 @@ public class DashboardController implements Initializable {
         centerColumn.maxWidthProperty().bind(topBarGridPane.widthProperty());
         gridPaneLeft.maxWidthProperty().bind(topBarGridPane.widthProperty());
         gridPaneRight.maxWidthProperty().bind(topBarGridPane.widthProperty());
+        drawer.prefHeightProperty().bind(anchorPane.heightProperty());
 
         drawer.setVisible(false);
-        //Allows you to click through fthe drawer if it's not visible (so we set it invisible when it's not open)
+        //Allows you to click through the drawer if it's not visible (so we set it invisible when it's not open)
         drawer.setPickOnBounds(false);
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("Dashboard_Drawer.fxml"));
@@ -94,6 +108,20 @@ public class DashboardController implements Initializable {
                 drawer.setVisible(true);
                 drawer.open();
                 dashboardDrawer.expandListView();
+            }
+        });
+
+        String css = getClass().getClassLoader().getResource("Dashboard_css.css").toExternalForm();
+        topSendersDoughnutChart.setTitle("Top Senders");
+        topSendersDoughnutChart.getStylesheets().add(css);
+        masonryPane.getChildren().add(topSendersDoughnutChart);
+
+        loadCharts.addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+
+                }
             }
         });
     }

@@ -3,6 +3,8 @@ package Engine;
 import java.io.*;
 import java.util.*;
 
+import Controllers.DashboardController;
+import Controllers.DashboardDrawer;
 import Controllers.DashboardLoading;
 import Controllers.DashboardLogin;
 import javafx.application.Application;
@@ -14,6 +16,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.chart.PieChart;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
@@ -39,8 +42,9 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         primaryStage.setTitle("Data Mea");
-        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("Login_Screen.fxml"));
+        Pane root = FXMLLoader.load(getClass().getClassLoader().getResource("Login_Screen.fxml"));
         primaryStage.setScene(new Scene(root));
+        root.requestFocus();
         primaryStage.show();
         DashboardLogin.setStage(primaryStage);
 
@@ -53,6 +57,11 @@ public class Main extends Application {
                         Pane homeScreen = FXMLLoader.load(getClass().getClassLoader().getResource("Dashboard_Home.fxml"));
 
                         task.setOnSucceeded(e -> {
+                            for (int i = 0; i<currentUser.getFolders().get(0).getSenders().size(); i++){
+                                DashboardController.addTopSendersData(new PieChart.Data(i+1 +". " +
+                                        currentUser.getFolders().get(0).getSenders().get(i).getAddress(),
+                                        currentUser.getFolders().get(0).getSenders().get(i).getEmails().size()));
+                            }
                             DashboardLoading.setStopVideoToTrue();
                             Scene home = new Scene(homeScreen, 1000, 600);
                             primaryStage.setScene(home);

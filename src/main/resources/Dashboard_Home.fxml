@@ -54,7 +54,7 @@
             <JFXMasonryPane fx:id="masonryPane" HSpacing="20.0" VSpacing="50.0" cellHeight="25.0" cellWidth="25.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="540.0" prefWidth="995.0" style="-fx-background-color: #353b48;" VBox.vgrow="ALWAYS" />
          </children>
       </VBox>
-      <JFXDrawer fx:id="drawer" defaultDrawerSize="200.0" prefHeight="600.0" prefWidth="200.0">
+      <JFXDrawer fx:id="drawer" defaultDrawerSize="200.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="200.0">
          <effect>
             <DropShadow height="2.5" radius="1.375" spread="0.25" width="5.0" />
          </effect>

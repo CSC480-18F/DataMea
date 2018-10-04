@@ -39,9 +39,6 @@
                      <effect>
                         <DropShadow color="#0000004d" spread="0.25" />
                      </effect>
-                     <font>
-                        <Font size="14.0" />
-                     </font>
                   </JFXPasswordField>
                   <Pane prefHeight="121.0" prefWidth="500.0">
                      <children>

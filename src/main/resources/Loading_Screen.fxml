@@ -24,7 +24,7 @@
                </effect>
             </ImageView>
             <WebView fx:id="tutorialVideo" maxHeight="200.0" maxWidth="400.0" minHeight="200.0" minWidth="400.0" prefHeight="200.0" prefWidth="400.0" />
-            <Text fill="#ebe5e5" strokeType="OUTSIDE" strokeWidth="0.0" text="This is your first time opening DataMea, welcome! Your first time loading may take a while, please do not close the window.." textAlignment="CENTER" wrappingWidth="400.0000059604645">
+            <Text fill="#ebe5e5" strokeType="OUTSIDE" strokeWidth="0.0" text="This is your first time opening DataMea, welcome! Your first time loading may take a while, please do not close the window." textAlignment="CENTER" wrappingWidth="400.0000059604645">
                <font>
                   <Font size="16.0" />
                </font>

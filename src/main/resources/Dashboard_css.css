@@ -39,3 +39,7 @@
 .jfx-progress-bar > .track {
     -fx-background-color: #E0E0E0;
 }
+
+.chart-title {
+    -fx-text-fill: #ebe5e5;
+}
