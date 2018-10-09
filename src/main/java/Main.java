@@ -2,6 +2,7 @@
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.Executors;
 
 public class Main {
 
@@ -15,24 +16,16 @@ public class Main {
         System.out.println("Enter password for " + address);
         String password = kb.nextLine();
 
+        String encryptedString = User.encrypt("chansen@oswego.edu");
+        System.out.println("email address encrypted: " + encryptedString);
+        String oldDecrypted = User.decrypt(encryptedString);
+        System.out.println("decrypted version: "  + oldDecrypted + "\n");
+
         long startTime = System.nanoTime();
         User currentUser = new User(address, password, false);
         endTimer(startTime);
 
-        System.out.println("\n\nSelect which folder to get emails from (type 0-" + (currentUser.getFolders().size() - 1) + ")");
-        currentUser.printFolders();
-
-        int folderNum = Integer.parseInt(kb.nextLine());
-        UserFolder selectedFolder = currentUser.getFolders().get(folderNum);
-
-
-        //read and print all emails from the selected folder
-        ArrayList<Sender> senderList = currentUser.getFolders().get(folderNum).getSenders();
         System.out.println("Done!");
-        startTime= System.nanoTime();
-        currentUser.printUserEmails();
-        endTimer(startTime);
-
     }
 
 

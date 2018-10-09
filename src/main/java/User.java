@@ -2,6 +2,7 @@ import javax.mail.*;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Array;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
@@ -14,15 +15,16 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 
 public class User {
     private String USERNAME_FILE = "TextFiles/userNames.txt";
-    private int USER_SIZE = 512;
 
     private String email, password;
-    private ArrayList<UserFolder> folders;
+    //private ArrayList<UserFolder> folders;
     private ArrayList<Email> sentMail;
     private long lastLogin;
+    private String folderName;
 
 
     User (String email, String password, Boolean runSentimentAnalysis){
@@ -31,7 +33,6 @@ public class User {
 
         try {
             serializeUser();
-            folders = fetchFolders(runSentimentAnalysis);
         } catch (IOException e){
             e.printStackTrace();
         } catch (javax.mail.MessagingException e) {
@@ -39,97 +40,6 @@ public class User {
         }
 
     }
-
-
-    public void printFolders(){
-        for (int i = 0; i<folders.size(); i++){
-            System.out.println(i + " " + folders.get(i).folderName);
-        }
-
-    }
-
-
-    public ArrayList<UserFolder> fetchFolders(Boolean runSentimentAnalysis) {
-        try {
-            Properties props = System.getProperties();
-            props.setProperty("mail.store.protocol", "imaps");
-            Session session = Session.getDefaultInstance(props, null);
-            Store store = session.getStore("imaps");
-            store.connect("imap.gmail.com", this.getEmail(), this.getPassword());
-            System.out.println(store);
-
-            Folder[] folders = store.getDefaultFolder().list();
-            ArrayList<UserFolder> userFolders = new ArrayList<>();
-            int numEmails=0;
-            for (int i = 0; i<folders.length; i++) {
-                Folder f = folders[i];
-
-                //Ignore reading inbox for now because it is the biggest folder and the invalid [Gmail] folder
-                if (!(f.getName().equalsIgnoreCase("[Gmail]") /*|| f.getName().equalsIgnoreCase("Inbox")*/)  ) {
-                    UserFolder uf = new UserFolder(f, this, runSentimentAnalysis );
-                    userFolders.add(uf);
-                    //System.out.println(numEmails + " " +  userFolders.get(numEmails).folderName);
-                    numEmails++;
-                }
-
-            }
-
-            return userFolders;
-
-        } catch (javax.mail.MessagingException e) {
-            e.printStackTrace();
-            return null;
-        }
-
-    }
-
-
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        char [] c = this.getEmail().toCharArray();
-        for (int i = 0; i<c.length; i++) {
-            hash = (hash * 137)  + c[i];
-        }
-        return hash;
-    }
-
-
-
-    public void printUserEmails(){
-        File directory = new File("TextFiles/"+this.hashCode());
-        File[] userFolders = directory.listFiles();
-        for (File f: userFolders) {
-                File uF = new File(directory+"/"+f.getName());
-                File[] folderSenders = uF.listFiles();
-
-                    System.out.println("        folder : " + f.getName());
-
-                for (File sender : folderSenders) {
-                    File s = new File(uF + "/" + sender.getName());
-                    File[] emails = s.listFiles();
-
-                    System.out.println("        sender: " + sender.getName());
-
-                    for (File email: emails) {
-                        try {
-                            BufferedReader br = new BufferedReader(new FileReader(email));
-                            String line = null;
-                            while ((line = br.readLine()) != null) {
-                                System.out.println(line);
-                            }
-                            System.out.println();
-                        } catch (Exception e) {
-                            System.out.println(email.getAbsolutePath());
-                            e.printStackTrace();
-                        }
-                    }
-
-                }
-        }
-    }
-
-
 
 
     public void serializeUser() throws IOException, javax.mail.MessagingException{
@@ -150,7 +60,7 @@ public class User {
          */
 
 
-
+        // to do
         /// need to authenticate user credentials before everything below is done
 
         File f = new File(USERNAME_FILE);
@@ -165,7 +75,7 @@ public class User {
         String numString = br.readLine();
         Integer existingAccountIndex = null;
         String[] lines = new String[0];
-        int hash = this.hashCode();
+        String encryptedAddress = encrypt(email);
         long lastLoginDate = 0;
         if (numString == null) {
             BufferedWriter bw = new BufferedWriter(new FileWriter(f));
@@ -176,15 +86,17 @@ public class User {
             //look for existing user index
             numAccounts = Integer.parseInt(numString);
             lines = new String[numAccounts];
-            int[] accountHashes = new int[numAccounts];
+            String[] accountHashes = new String[numAccounts];
             String s;
             int i = 0;
 
             while ((s = br.readLine()) != null) {
                 lines[i] = s;
                 String[] stuff = s.split(" ");
-                accountHashes[i] = Integer.parseInt(stuff[0]);
-                if (accountHashes[i] == hash) {
+                accountHashes[i] = stuff[0];
+                String decryptedSavedEmail = decrypt(accountHashes[i]);
+                String userTypedEmail = decrypt(encryptedAddress);
+                if (decryptedSavedEmail.equals(userTypedEmail)) {
                     existingAccountIndex = i;
                     lastLoginDate = Long.parseLong(stuff[1]);
                     this.lastLogin = lastLoginDate;
@@ -208,7 +120,7 @@ public class User {
                 newAccounts[j] = lines[j];
             }
 
-            newAccounts[numAccounts-1] = hash + " " + System.currentTimeMillis();
+            newAccounts[numAccounts-1] = encryptedAddress + " " + System.currentTimeMillis();
             this.lastLogin = 0;
             bw.write(numAccountString);
             bw.newLine();
@@ -218,7 +130,7 @@ public class User {
             }
         } else {
             //user exists. simply update last login time
-            lines[existingAccountIndex] = hash + " "  + System.currentTimeMillis();
+            lines[existingAccountIndex] = encryptedAddress + " "  + System.currentTimeMillis();
             String n = Integer.toString(numAccounts);
             bw.write(n);
             bw.newLine();
@@ -238,13 +150,92 @@ public class User {
     }
 
     public void createSerializedUserFolder() throws IOException {
-        File temp = new File ("TextFiles/" + this.hashCode());
-        boolean exists = temp.exists();
+        File temp = new File ("TextFiles/" + encrypt(email));
+        File [] users = (new File("TextFiles/")).listFiles();
+        boolean exists = false;
+        for (File user: users) {
+            if (!user.getName().contains(".")) {
+                if (decrypt(user.getName()).equals(email)) {
+                    exists = true;
+                    folderName = user.getName();
+                    break;
+                }
+            }
+
+        }
 
         if (!exists) {
-            File dir = new File("TextFiles/" + this.hashCode());
+            String name = encrypt(email);
+            File dir = new File("TextFiles/" + name);
+            folderName = name;
             dir.mkdir();
         }
+
+    }
+
+
+
+    public void readFolderAndSerializeEmails(Folder f, boolean runSentiment){
+
+        //to do
+        //create email objects to serialize
+
+        String originPath = "TextFiles/" + encrypt(email) + "/";
+        int numMessages;
+
+
+        try {
+            f.open(f.READ_ONLY);
+            Message[] messages = f.getMessages();
+            numMessages = messages.length;
+            System.out.println("Serializing " + f.getName());
+
+        for (int i= numMessages -1; i>=0; i--) {
+            System.out.println("processing: " + i);
+            Message m = messages[i];
+            String sender = m.getFrom()[0].toString();
+            Long receivedDate = m.getReceivedDate().getTime();
+            if (this.getLastLogin() < receivedDate) {
+                //serialize email
+
+                File currentEmail = new File(originPath + receivedDate + ".txt");
+                currentEmail.createNewFile();
+
+                BufferedWriter bw = new BufferedWriter(new FileWriter(currentEmail));
+
+                //write all necessary components here
+                bw.write(encrypt(f.getName()));
+                bw.newLine();
+                bw.write(Long.toString(receivedDate));
+                bw.newLine();
+                bw.write(encrypt(sender));
+                bw.newLine();
+                bw.write(m.getFlags().toString());
+                bw.newLine();
+
+                //add sentiment analysis below
+
+
+
+
+                bw.close();
+
+
+            } else {
+                break;
+            }
+
+        }
+
+
+
+        } catch (javax.mail.MessagingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
 
@@ -263,26 +254,65 @@ public class User {
         System.out.println(store);
 
         Folder[] folders = store.getDefaultFolder().list();
-        store.close();
 
         File temp;
         boolean exists;
 
         for (int i = 0; i<folders.length; i++) {
-            if (!folders[i].getName().equalsIgnoreCase("[Gmail]")){
-                String dirName = "TextFiles/" + this.hashCode() +"/" + folders[i].getName().hashCode();
-                temp = new File(dirName);
-                exists = temp.exists();
-                if (!exists) {
-                    File dir = new File(dirName);
-                    dir.mkdir();
-                }
+            String name = folders[i].getName();
+            if (!name.equalsIgnoreCase("[Gmail]") && !name.equalsIgnoreCase("inbox")){
+                readFolderAndSerializeEmails(folders[i], false);
             }
 
         }
 
     }
 
+
+    // have a set of random keys to cycle through to make the encryption more secure
+    private static int [] randomizer = {4,5,2,5,7,6,2,4,78,8};
+
+
+
+    public static String encrypt(String strToBeEncrypted) {
+        String result = "";
+        int length = strToBeEncrypted.length();
+        char ch;
+        int ck=0;
+        for (int i = 0; i< length; i++) {
+            if (ck >= randomizer.length -1) {
+                ck = 0;
+            }
+
+            ch = strToBeEncrypted.charAt(i);
+            ch += randomizer[ck];
+            result += ch;
+            ck++;
+        }
+
+
+        return result;
+    }
+
+
+    public static String decrypt(String strEncrypted) {
+        String result = "";
+        int length = strEncrypted.length();
+        char ch;
+        int ck=0;
+        for (int i = 0; i<length; i++) {
+            if (ck >= randomizer.length-1 ) {
+                ck = 0;
+            }
+
+            ch = strEncrypted.charAt(i);
+            ch -= randomizer[ck];
+            result += ch;
+            ck++;
+        }
+
+        return result;
+    }
 
     public long getLastLogin() {
         return lastLogin;
@@ -308,12 +338,5 @@ public class User {
         this.password = password;
     }
 
-    public ArrayList<UserFolder> getFolders() {
-        return folders;
-    }
-
-    public void setFolders(ArrayList<UserFolder> folders) {
-        this.folders = folders;
-    }
 
 }
