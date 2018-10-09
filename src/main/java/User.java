@@ -192,7 +192,12 @@ public class User {
         for (int i= numMessages -1; i>=0; i--) {
             System.out.println("processing: " + i);
             Message m = messages[i];
-            String sender = m.getFrom()[0].toString();
+            String sender = "";
+            try {
+                sender = m.getFrom()[0].toString();
+            } catch (ArrayIndexOutOfBoundsException e) {
+                e.printStackTrace();
+            }
             Long receivedDate = m.getReceivedDate().getTime();
             if (this.getLastLogin() < receivedDate) {
                 //serialize email
