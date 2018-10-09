@@ -33,7 +33,7 @@ public class User {
 
     public void printFolders(){
         for (int i = 0; i<folders.size(); i++){
-            System.out.println(i + " " + folders.get(i).folderName);
+            System.out.println(i + " " + folders.get(i).getFolderName());
         }
 
     }
