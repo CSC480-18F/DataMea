@@ -16,11 +16,6 @@ public class Main {
         System.out.println("Enter password for " + address);
         String password = kb.nextLine();
 
-        String encryptedString = User.encrypt("chansen@oswego.edu");
-        System.out.println("email address encrypted: " + encryptedString);
-        String oldDecrypted = User.decrypt(encryptedString);
-        System.out.println("decrypted version: "  + oldDecrypted + "\n");
-
         long startTime = System.nanoTime();
         User currentUser = new User(address, password, false);
         endTimer(startTime);

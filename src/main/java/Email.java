@@ -10,13 +10,14 @@ import edu.stanford.nlp.util.CoreMap;
 
 import javax.mail.*;
 import javax.mail.internet.MimeMultipart;
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import org.apache.commons.mail.util.MimeMessageParser;
+import sun.jvm.hotspot.runtime.VM;
 
 class Email {
 
@@ -38,15 +39,56 @@ class Email {
     int POS = 3;
     int VPOS = 4;
     int VMULT = 3;
+    File serializedEmail;
+    String folder;
 
-    public Email(Message m, Sender s, Boolean runSentiment) {
+
+    public Email(File f) {
+        //to do: recreate emails using this constructor
+
+        recoverEmail(f);
+
+
+    }
+
+    public void recoverEmail(File f) {
+         BufferedReader br;
+
+        try {
+            br = new BufferedReader(new FileReader(f));
+            this.folder = User.decrypt(br.readLine());
+            long unixDate = Long.parseLong(br.readLine());
+            this.date = new Date(unixDate);
+            this.sender = new Sender(User.decrypt(br.readLine()));
+            this.flags = new Flags(br.readLine());
+
+            //add fields to reconstruct sentiment analysis
+
+
+
+
+            br.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("File not found");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+    }
+
+
+    public Email(Message m, Boolean runSentiment) {
 
         message = m;
 
         try {
             sentences = getSentences(m);
             title = m.getSubject();
-            sender = new Sender(s.toString());
+            sender = new Sender(message.getFrom()[0].toString());
             date = m.getSentDate();
             flags = m.getFlags();
 

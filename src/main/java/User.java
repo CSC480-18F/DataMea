@@ -25,6 +25,7 @@ public class User {
     private ArrayList<Email> sentMail;
     private long lastLogin;
     private String folderName;
+    private ArrayList<Email> emails;
 
 
     User (String email, String password, Boolean runSentimentAnalysis){
@@ -32,36 +33,34 @@ public class User {
         this.password = password;
 
         try {
-            serializeUser();
+            serializeUser(runSentimentAnalysis);
         } catch (IOException e){
             e.printStackTrace();
         } catch (javax.mail.MessagingException e) {
             e.printStackTrace();
         }
 
+        //recover all serialized emails right here
+        emails = recoverSerializedEmails();
+
+    }
+
+    public ArrayList<Email> recoverSerializedEmails() {
+        File temp = new File ("TextFiles/" + encrypt(email));
+        File [] e = temp.listFiles();
+        emails = new ArrayList<Email>();
+        for (File f: e) {
+            Email em = new Email(f);
+            this.emails.add(em);
+        }
+
+        return emails;
+
     }
 
 
-    public void serializeUser() throws IOException, javax.mail.MessagingException{
-        /*  We need to include the users email address, along with the last log in
-         *  ex. (without the info being scrambled/encrypted)
-         *  chansen@oswego.edu 2018-09-25T21:01:04.894
-         *  After encryption, will look like
-         *  2384798278923 2018-09-25T21:01:04.894
-         *
-         *  if it is a new user, add the actual user hash and login date, and increment the number of accounts
-         *  else, just update the last login date for that specific users hash
-         *
-         *  example output in the text file:
-         *  3
-            2080537423 2018-09-25T21:01:04.894
-            -949398889 2018-09-25T20:59:54.483
-            -1323952787 2018-09-25T21:01:49.573
-         */
 
-
-        // to do
-        /// need to authenticate user credentials before everything below is done
+    public void serializeUser(boolean runSentiment) throws IOException, javax.mail.MessagingException{
 
         File f = new File(USERNAME_FILE);
         boolean found = f.exists();
@@ -145,7 +144,7 @@ public class User {
         bw.close();
 
         createSerializedUserFolder();
-        updateSerializedFolders();
+        updateSerializedFolders(runSentiment);
 
     }
 
@@ -218,6 +217,7 @@ public class User {
 
 
 
+                //
                 bw.close();
 
 
@@ -239,7 +239,9 @@ public class User {
     }
 
 
-    public void updateSerializedFolders() throws javax.mail.MessagingException {
+
+
+    public void updateSerializedFolders(boolean runSentiment) throws javax.mail.MessagingException {
         /*
          *
          * look at the folders the user has in their account, and add the folders to their list of folders under their
@@ -255,13 +257,11 @@ public class User {
 
         Folder[] folders = store.getDefaultFolder().list();
 
-        File temp;
-        boolean exists;
 
         for (int i = 0; i<folders.length; i++) {
             String name = folders[i].getName();
-            if (!name.equalsIgnoreCase("[Gmail]") && !name.equalsIgnoreCase("inbox")){
-                readFolderAndSerializeEmails(folders[i], false);
+            if (!name.equalsIgnoreCase("[Gmail]") /*&& !name.equalsIgnoreCase("inbox")*/){
+                readFolderAndSerializeEmails(folders[i], runSentiment);
             }
 
         }
