@@ -1,7 +1,7 @@
 package Engine;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
 
 import Controllers.DashboardController;
 import Controllers.DashboardDrawer;
@@ -14,7 +14,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
 import javafx.scene.layout.Pane;
@@ -25,6 +24,11 @@ public class Main extends Application {
     private static User currentUser;
     private Main.ResourceLoadingTask task = new Main.ResourceLoadingTask();
     private static BooleanProperty startLoading = new SimpleBooleanProperty(false);
+    private static ArrayList<UserFolder> folders;
+
+    public static ArrayList<UserFolder> getFolders() {
+        return folders;
+    }
 
     public static void setStartLoadingToTrue(){
         startLoading.setValue(true);
@@ -35,12 +39,15 @@ public class Main extends Application {
         protected Void call() throws Exception {
             currentUser = new User(DashboardLogin.getEmail(), DashboardLogin.getPassword(), false);
             System.out.println("Data Loaded");
+            folders = currentUser.getFolders();
             return null;
         }
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception{
+        primaryStage.setMinHeight(400);
+        primaryStage.setMinWidth(600);
         primaryStage.setTitle("Data Mea");
         Pane root = FXMLLoader.load(getClass().getClassLoader().getResource("Login_Screen.fxml"));
         primaryStage.setScene(new Scene(root));
@@ -57,12 +64,23 @@ public class Main extends Application {
                         Pane homeScreen = FXMLLoader.load(getClass().getClassLoader().getResource("Dashboard_Home.fxml"));
 
                         task.setOnSucceeded(e -> {
-                            for (int i = 0; i<currentUser.getFolders().get(0).getSenders().size(); i++){
-                                DashboardController.addTopSendersData(new PieChart.Data(i+1 +". " +
-                                        currentUser.getFolders().get(0).getSenders().get(i).getAddress(),
-                                        currentUser.getFolders().get(0).getSenders().get(i).getEmails().size()));
+                            //Add top senders data to Doughnut Chart
+                            if (currentUser.getFolders().get(0).getSenders().size() < 5) {
+                                for (int i = 0; i < currentUser.getFolders().get(0).getSenders().size(); i++) {
+                                    DashboardController.addTopSendersData(new PieChart.Data(i + 1 + ". " +
+                                            currentUser.getFolders().get(0).getSenders().get(i).getAddress(),
+                                            currentUser.getFolders().get(0).getSenders().get(i).getEmails().size()));
+                                }
+                            } else{
+                                for (int i = 0; i < currentUser.getFolders().get(0).getSenders().size(); i++) {
+                                    DashboardController.addTopSendersData(new PieChart.Data(i + 1 + ". " +
+                                            currentUser.getFolders().get(0).getSenders().get(i).getAddress(),
+                                            currentUser.getFolders().get(0).getSenders().get(i).getEmails().size()));
+                                }
                             }
+
                             DashboardLoading.setStopVideoToTrue();
+                            DashboardDrawer.setLoadFolderListToTrue();
                             Scene home = new Scene(homeScreen, 1000, 600);
                             primaryStage.setScene(home);
                             homeScreen.requestFocus();

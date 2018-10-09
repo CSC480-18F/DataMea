@@ -8,10 +8,22 @@ import java.util.Properties;
 public class UserFolder {
 
 
-    javax.mail.Folder folder;
-    String folderName;
-    ArrayList<Sender> senders;
-    User user;
+    private javax.mail.Folder folder;
+    private String folderName;
+    private ArrayList<Sender> senders;
+    private User user;
+
+    public String getFolderName() {
+        return folderName;
+    }
+
+    public Folder getFolder() {
+        return folder;
+    }
+
+    public User getUser() {
+        return user;
+    }
 
     public UserFolder(javax.mail.Folder f, User u, boolean runSentiment){
         folder = f;

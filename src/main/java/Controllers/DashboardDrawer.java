@@ -1,10 +1,18 @@
 package Controllers;
 
+import Engine.Main;
+import Engine.UserFolder;
 import com.jfoenix.controls.JFXListView;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.layout.VBox;
+
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -13,11 +21,31 @@ public class DashboardDrawer implements Initializable{
     @FXML
     private JFXListView listView;
 
-    ObservableList<String> list = FXCollections.observableArrayList("All","Folder 1","Folder 2", "Folder 3");
+    @FXML
+    public VBox dashboardDrawerVBox;
+
+    ObservableList<String> list = FXCollections.observableArrayList();
+    private static BooleanProperty loadFolderList = new SimpleBooleanProperty(false);
+
+    public static void setLoadFolderListToTrue(){
+        loadFolderList.setValue(true);
+    }
+
 
     @Override
     public void initialize(URL url, ResourceBundle rb){
-        listView.setItems(list);
+        loadFolderList.addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+                    for (UserFolder f : Main.getFolders()){
+                        list.add(f.getFolderName());
+                    }
+                    listView.setItems(list);
+                }
+            }
+        });
+
         //listView.setExpanded(true);
         //listView.setVerticalGap(20.0);
     }
