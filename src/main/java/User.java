@@ -196,7 +196,8 @@ public class User {
             try {
                 sender = m.getFrom()[0].toString();
             } catch (ArrayIndexOutOfBoundsException e) {
-                e.printStackTrace();
+                System.out.println("The sender is invalid..... not processing email - for now");
+
             }
             Long receivedDate = m.getReceivedDate().getTime();
             if (this.getLastLogin() < receivedDate) {
