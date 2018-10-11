@@ -2,6 +2,8 @@ package Engine;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+
 import Controllers.*;
 import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.events.ChartDataEvent;

@@ -1,7 +1,5 @@
 package Engine;
 
-import com.detectlanguage.Result;
-import com.detectlanguage.errors.APIError;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;
@@ -11,21 +9,17 @@ import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 
-import com.detectlanguage.DetectLanguage;
 
 import javax.mail.*;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 class Email {
 
     //------------------Declaring Variables------------------//
-    final   static String     API_KEY = "4f4d63ac606a0ee5e0064aa296ce88b4";
+    //final   static String     API_KEY = "4f4d63ac606a0ee5e0064aa296ce88b4";
     private double            VNEGTHRESH;
     private double            NEGTHRESH;
     private double            NEUTHRESH;
@@ -48,6 +42,7 @@ class Email {
     private int               VMULT;
     private int               MAXLEN;
     private String            folder;
+    private int               dayOfWeek;
     File                      serializedEmail;
 
     public Email(File f) {
@@ -96,7 +91,7 @@ class Email {
     }
 
 
-    public Email(Message m, Sender s, Boolean rs) throws APIError {
+    public Email(Message m, Sender s, Boolean rs) {
 
         VNEGTHRESH = .7;
         NEGTHRESH = .65;
@@ -135,7 +130,7 @@ class Email {
 
             if (content != null) {
                 sentences = getSentences(content);
-                languages = getLanguages(sentences);
+                //languages = getLanguages(sentences);
             }
 
             //System.out.println(sentences.toString());
@@ -147,7 +142,7 @@ class Email {
         int sentenceScore;
         double probability;
         Sentiment sentenceSentiment;
-        if (sentences != null && languages.size() == 1 && languages.get(0).equals("en")) {
+        if (sentences != null) {
             for (String sentence : sentences) {
                 if (sentence.length() < MAXLEN) {
                     //System.out.println(sentence);
@@ -360,7 +355,7 @@ it appears to be whenever there is a thread of replies
         return newText;
     }
 
-    private ArrayList<String> getLanguages(ArrayList<String> sentences) throws APIError {
+/*    private ArrayList<String> getLanguages(ArrayList<String> sentences) throws APIError {
 
         DetectLanguage.apiKey = API_KEY;
 
@@ -379,6 +374,16 @@ it appears to be whenever there is a thread of replies
         }
 
         return langs;
+    }*/
+
+    public int getDayOfWeek() {
+        if (getDate() != null){
+            Calendar c = Calendar.getInstance();
+            c.setTime(getDate());
+            return c.get(Calendar.DAY_OF_WEEK);
+        }
+
+        return -1;
     }
 
     public ArrayList<String> getSentences() {
