@@ -200,12 +200,15 @@ public class User {
                 System.out.println("The sender is invalid..... not processing email - for now");
 
             }
-            Email e = new Email(messages[i], new Sender(sender), runSentiment);
-            System.out.println(e.toString());
+
+
             Long receivedDate = m.getReceivedDate().getTime();
             if (this.getLastLogin() < receivedDate) {
-                //serialize email
 
+                Email e = new Email(messages[i], new Sender(sender), runSentiment);
+                System.out.println(e.toString());
+
+                //serialize email
                 File currentEmail = new File(originPath + receivedDate + ".txt");
                 currentEmail.createNewFile();
 
