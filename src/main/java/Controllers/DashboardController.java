@@ -9,6 +9,7 @@ import eu.hansolo.fx.charts.data.*;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.chart.ChartData;
+import eu.hansolo.tilesfx.events.TileEvent;
 import eu.hansolo.tilesfx.skins.RadialChartTileSkin;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -16,9 +17,13 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.Chart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.input.MouseEvent;
@@ -188,13 +193,14 @@ public class DashboardController implements Initializable {
                             .animated(true)
                             .build();
                     masonryPane.getChildren().add(topSendersRadialChart);
+                    topSendersRadialChart.setOnTileEvent(e->{
+                        if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
+                            ChartData data = e.getData();
+                            System.out.println("Selected " + data.getName());
+                        }
+                    });
                 }
             }
         });
-
-
-        String css = getClass().getClassLoader().getResource("Dashboard_css.css").toExternalForm();
-        //topSendersDoughnutChart.setTitle("Top Senders");
-        //topSendersDoughnutChart.getStylesheets().add(css);
     }
 }
