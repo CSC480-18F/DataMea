@@ -2,7 +2,8 @@ package Engine;
 
 public class Sentiment {
 
-    int score;
+    //------------------Declaring Variables------------------//
+    int    score;
     double probability;
 
     public Sentiment(int score, double probability){

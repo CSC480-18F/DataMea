@@ -4,9 +4,10 @@ import java.util.ArrayList;
 
 class Sender implements Comparable{
 
-    private String address;
+    //------------------Declaring Variables------------------//
+    private String           address;
     private ArrayList<Email> emails;
-    int numEmailsSent;
+    int                      numEmailsSent;
 
     public Sender(String address) {
 

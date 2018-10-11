@@ -8,14 +8,14 @@ import java.util.*;
 import java.io.*;
 
 public class User {
-    private String USERNAME_FILE = "TextFiles/userNames.txt";
 
-    private String email, password;
-    //private ArrayList<UserFolder> folders;
-    private ArrayList<Email> sentMail;
-    private long lastLogin;
-    private String folderName;
-    private ArrayList<Email> emails;
+    //------------------Declaring Variables------------------//
+    private String            USERNAME_FILE = "TextFiles/userNames.txt";
+    private String            email, password;
+    private ArrayList<Email>  sentMail;
+    private long              lastLogin;
+    private String            folderName;
+    private ArrayList<Email>  emails;
     private ArrayList<String> folders;
 
 

@@ -37,9 +37,10 @@ public class DashboardLogin implements Initializable {
     @FXML
     StackPane stackPane;
 
+    //------------------Declaring Variables------------------//
     private static String email, password;
     private static Stage myStage;
-    private BooleanProperty loginSuccessful = new SimpleBooleanProperty(false);
+    private        BooleanProperty loginSuccessful = new SimpleBooleanProperty(false);
 
     @FXML
     public void getEmailField(KeyEvent event) {

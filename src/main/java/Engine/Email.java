@@ -24,30 +24,31 @@ import java.util.Properties;
 
 class Email {
 
-    final static String API_KEY = "4f4d63ac606a0ee5e0064aa296ce88b4";
-    private double VNEGTHRESH;
-    private double NEGTHRESH;
-    private double NEUTHRESH;
-    private double POSTHRESH;
+    //------------------Declaring Variables------------------//
+    final   static String     API_KEY = "4f4d63ac606a0ee5e0064aa296ce88b4";
+    private double            VNEGTHRESH;
+    private double            NEGTHRESH;
+    private double            NEUTHRESH;
+    private double            POSTHRESH;
     private ArrayList<String> sentences, languages;
-    private Message message;
-    Sentiment sentenceSentiment;
-    private int[] sentimentScores;
-    private int sentencesAnalyzed;
-    private double sentimentPct;
-    private String content, title, sentimentPctStr;
-    private Date date;
-    private Sender sender;
-    private Flags flags;
-    private int VNEG;
-    private int NEG;
-    private int NEU;
-    private int POS;
-    private int VPOS;
-    private int VMULT;
-    private int MAXLEN;
-    private String folder;
-    File serializedEmail;
+    private Message           message;
+    Sentiment                 sentenceSentiment;
+    private int[]             sentimentScores;
+    private int               sentencesAnalyzed;
+    private double            sentimentPct;
+    private String            content, title, sentimentPctStr;
+    private Date              date;
+    private Sender            sender;
+    private Flags             flags;
+    private int               VNEG;
+    private int               NEG;
+    private int               NEU;
+    private int               POS;
+    private int               VPOS;
+    private int               VMULT;
+    private int               MAXLEN;
+    private String            folder;
+    File                      serializedEmail;
 
     public Email(File f) {
         //to do: recreate emails using this constructor

@@ -2,12 +2,7 @@ package Engine;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Scanner;
-
 import Controllers.*;
-import eu.hansolo.fx.charts.SunburstChart;
-import eu.hansolo.fx.charts.SunburstChartBuilder;
-import eu.hansolo.fx.charts.data.ChartItem;
 import eu.hansolo.tilesfx.chart.ChartData;
 import javafx.application.Application;
 import javafx.beans.property.BooleanProperty;
@@ -17,7 +12,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.chart.PieChart;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -25,11 +19,12 @@ import static Controllers.DashboardController.setLoadedFromLoginScreenToTrue;
 
 public class Main extends Application {
 
-    private static User currentUser;
-    private Main.ResourceLoadingTask task = new Main.ResourceLoadingTask();
-    private static BooleanProperty startLoading = new SimpleBooleanProperty(false);
-    private static ArrayList<String> folders;
-    private ArrayList<Color> colors = new ArrayList<>();
+    //------------------Declaring Variables------------------//
+    private static User                     currentUser;
+    private        Main.ResourceLoadingTask task         = new Main.ResourceLoadingTask();
+    private static BooleanProperty          startLoading = new SimpleBooleanProperty(false);
+    private static ArrayList<String>        folders;
+    private        ArrayList<Color>         colors       = new ArrayList<>();
 
     public static ArrayList<String> getFolders() {
         return folders;
@@ -76,16 +71,16 @@ public class Main extends Application {
                         Pane homeScreen = FXMLLoader.load(getClass().getClassLoader().getResource("Dashboard_Home.fxml"));
 
                         task.setOnSucceeded(e -> {
-                            //Add top senders data to Doughnut Chart
+                            //Add top senders data to Radial Chart
                             //if (currentUser.getFolders().get(0).getSenders().size() < 5) {
                             String folderName = currentUser.recoverFolders().get(0);
                             int numSendersInFolder = currentUser.getTopSendersForFolder(folderName).size();
-
                             //only display top 10 senders for the selected folder
                             if (numSendersInFolder > 5) {
                                 numSendersInFolder = 5;
                             }
                                 for (int i = 0; i < numSendersInFolder; i++) {
+                                    //Created ChartData for top senders radial chart
                                     ChartData temp = new ChartData();
                                     temp.setValue((double) currentUser.getTopSendersForFolder(folderName).get(i).numEmailsSent);
                                     temp.setName(currentUser.getTopSendersForFolder(folderName).get(i).getAddress());
@@ -93,17 +88,6 @@ public class Main extends Application {
                                     DashboardController.addTopSendersData(temp);
                                 }
                             setLoadedFromLoginScreenToTrue();
-                            //}
-//
-//
-//                            else{
-//                                for (int i = 0; i < currentUser.getFolders().get(0).getSenders().size(); i++) {
-//                                    DashboardController.addTopSendersData(new PieChart.Data(i + 1 + ". " +
-//                                            currentUser.getFolders().get(0).getSenders().get(i).getAddress(),
-//                                            currentUser.getFolders().get(0).getSenders().get(i).getEmails().size()));
-//                                }
-//                            }
-
                             DashboardLoading.setStopVideoToTrue();
                             DashboardDrawer.setLoadFolderListToTrue();
                             Scene home = new Scene(homeScreen, 1000, 600);

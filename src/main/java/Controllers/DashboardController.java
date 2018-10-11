@@ -72,13 +72,12 @@ public class DashboardController implements Initializable {
     @FXML
     JFXButton filtersButton;
 
-    private DashboardDrawer dashboardDrawer;
-    private FilterDrawer filterDrawerClass;
-    private static BooleanProperty loadedFromLoginScreen = new SimpleBooleanProperty(false);
-   // private static ObservableList<ChartItem> topSendersData = FXCollections.observableArrayList();
-    //private DoughnutChart topSendersDoughnutChart = new DoughnutChart(topSendersData);
-    private Tile topSendersRadialChart;
-    private static ArrayList<ChartData> topSendersData = new ArrayList<>();
+    //------------------Declaring Variables------------------//
+    private        DashboardDrawer      dashboardDrawer;
+    private        FilterDrawer         filterDrawerClass;
+    private static BooleanProperty      loadedFromLoginScreen = new SimpleBooleanProperty(false);
+    private static ArrayList<ChartData> topSendersData        = new ArrayList<>();
+    private        Tile                 topSendersRadialChart;
 
 
     public static void addTopSendersData(ChartData d){
@@ -176,6 +175,7 @@ public class DashboardController implements Initializable {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if (newValue) {
+                    //Create Radial Chart
                     topSendersRadialChart = TileBuilder.create()
                             .animationDuration(100000)
                             .skinType(Tile.SkinType.RADIAL_CHART)

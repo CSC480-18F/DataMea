@@ -23,6 +23,7 @@ public class DashboardDrawer implements Initializable{
     @FXML
     public VBox dashboardDrawerVBox;
 
+    //------------------Declaring Variables------------------//
     ObservableList<String> list = FXCollections.observableArrayList();
     private static BooleanProperty loadFolderList = new SimpleBooleanProperty(false);
 

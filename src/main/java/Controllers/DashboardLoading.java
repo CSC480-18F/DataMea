@@ -23,6 +23,7 @@ public class DashboardLoading implements Initializable {
     @FXML
     JFXProgressBar progressBar;
 
+    //------------------Declaring Variables------------------//
     private static Stage myStage;
     private static BooleanProperty stopVideo = new SimpleBooleanProperty(false);
 
