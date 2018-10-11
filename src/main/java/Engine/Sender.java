@@ -22,11 +22,11 @@ class Sender implements Comparable{
     /// Need to fix this function to take into account what folder is being looked at
     @Override
     public int compareTo(Object o) {
-        return ((Sender)o).getEmails().size() - this.emails.size();
+        return ((Sender)o).numEmailsSent - this.numEmailsSent;
     }
 
     public String toString() {
-        return address + " number of emails sent: " + emails.size();
+        return address + " number of emails sent: " + numEmailsSent;
     }
 
 
