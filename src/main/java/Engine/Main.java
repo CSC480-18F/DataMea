@@ -38,7 +38,7 @@ public class Main extends Application {
     public class ResourceLoadingTask extends Task<Void> {
         @Override
         protected Void call() throws Exception {
-            currentUser = new User(DashboardLogin.getEmail(), DashboardLogin.getPassword(), false);
+            currentUser = new User(DashboardLogin.getEmail(), DashboardLogin.getPassword(), true);
             System.out.println("Data Loaded");
             folders = currentUser.recoverFolders();
             return null;

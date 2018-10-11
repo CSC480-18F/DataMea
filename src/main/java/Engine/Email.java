@@ -1,5 +1,7 @@
 package Engine;
 
+import com.detectlanguage.Result;
+import com.detectlanguage.errors.APIError;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;
@@ -9,8 +11,9 @@ import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 
+import com.detectlanguage.DetectLanguage;
+
 import javax.mail.*;
-import javax.mail.internet.MimeMultipart;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -19,34 +22,32 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.mail.util.MimeMessageParser;
-import sun.jvm.hotspot.runtime.VM;
-
 class Email {
 
-    boolean runSentiment;
-    double VNEGTHRESH = .8;
-    double NEGTHRESH = .7;
-    double NEUTHRESH = .5;
-    double POSTHRESH = .3;
-    ArrayList<String> sentences;
-    Message message;
-    int[] sentimentScores = new int[5];
-    int overallSentiment, sentencesAnalyzed;
-    double sentimentPct;
-    String content, title, sentimentPctStr;
-    Date date;
-    Sender sender;
-    Flags flags;
-    int VNEG = 0;
-    int NEG = 1;
-    int NEU = 2;
-    int POS = 3;
-    int VPOS = 4;
-    int VMULT = 3;
+    final static String API_KEY = "4f4d63ac606a0ee5e0064aa296ce88b4";
+    private double VNEGTHRESH;
+    private double NEGTHRESH;
+    private double NEUTHRESH;
+    private double POSTHRESH;
+    private ArrayList<String> sentences, languages;
+    private Message message;
+    Sentiment sentenceSentiment;
+    private int[] sentimentScores;
+    private int sentencesAnalyzed;
+    private double sentimentPct;
+    private String content, title, sentimentPctStr;
+    private Date date;
+    private Sender sender;
+    private Flags flags;
+    private int VNEG;
+    private int NEG;
+    private int NEU;
+    private int POS;
+    private int VPOS;
+    private int VMULT;
+    private int MAXLEN;
+    private String folder;
     File serializedEmail;
-    String folder;
-
 
     public Email(File f) {
         //to do: recreate emails using this constructor
@@ -54,6 +55,18 @@ class Email {
         recoverEmail(f);
 
 
+        VNEGTHRESH = .7;
+        NEGTHRESH = .65;
+        NEUTHRESH = .5;
+        POSTHRESH = .3;
+        VNEG = 0;
+        NEG = 1;
+        NEU = 2;
+        POS = 3;
+        VPOS = 4;
+        VMULT = 3;
+        MAXLEN = 300;
+        sentimentScores = new int[5];
     }
 
     public void recoverEmail(File f) {
@@ -82,9 +95,23 @@ class Email {
     }
 
 
-    public Email(Message m, Sender s, Boolean rs) {
+    public Email(Message m, Sender s, Boolean rs) throws APIError {
+
+        VNEGTHRESH = .7;
+        NEGTHRESH = .65;
+        NEUTHRESH = .5;
+        POSTHRESH = .3;
+        VNEG = 0;
+        NEG = 1;
+        NEU = 2;
+        POS = 3;
+        VPOS = 4;
+        VMULT = 3;
         message = m;
-        runSentiment = rs;
+        sentimentScores = new int[5];
+        sentencesAnalyzed = 0;
+        MAXLEN = 300;
+        boolean runSentiment = rs;
 
         try {
             //System.out.println("Content: \n" + m.getContent().toString());
@@ -101,13 +128,16 @@ class Email {
         if (runSentiment) {
             try {
                 content = getTextFromMessage(m);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (MessagingException e) {
+            } catch (IOException | MessagingException e) {
                 e.printStackTrace();
             }
 
-            if (content != null) sentences = getSentences(content);
+            if (content != null) {
+                sentences = getSentences(content);
+                languages = getLanguages(sentences);
+            }
+
+            //System.out.println(sentences.toString());
             initializeSentiment();
         }
     }
@@ -116,11 +146,10 @@ class Email {
         int sentenceScore;
         double probability;
         Sentiment sentenceSentiment;
-
-        if (sentences != null) {
+        if (sentences != null && languages.size() == 1 && languages.get(0).equals("en")) {
             for (String sentence : sentences) {
-                if (sentence.endsWith(".") || sentence.endsWith("!") || sentence.endsWith("?")) {
-                    //System.out.println("\n" + sentence);
+                if (sentence.length() < MAXLEN) {
+                    //System.out.println(sentence);
                     sentencesAnalyzed++;
                     sentenceSentiment = analyzeSentiment(sentence);
                     sentenceScore = sentenceSentiment.score;
@@ -178,7 +207,7 @@ class Email {
                 }
             }
 
-            overallSentiment = sentimentScores[VPOS] * VMULT + sentimentScores[POS] -
+            int overallSentiment = sentimentScores[VPOS] * VMULT + sentimentScores[POS] -
                     sentimentScores[NEG] - sentimentScores[VNEG] * VMULT;
 
             if (sentencesAnalyzed > 0) sentimentPct = ((double) overallSentiment / sentencesAnalyzed) * 100;
@@ -187,13 +216,6 @@ class Email {
             sentimentPctStr = df.format(sentimentPct) + "%";
         }
     }
-
-
-
-
-
-
-
 
     /*
 This function was modified from an existing function by ItsCuties from the site below
@@ -206,43 +228,51 @@ it appears to be whenever there is a thread of replies
 
     private String getTextFromMessage(Message message) throws IOException, MessagingException {
         String result = "";
-        System.out.println(message.getContentType());
-        if (message.isMimeType("text/plain")) {
-            return message.getContent().toString();
-        }
-        else if(message.isMimeType("multipart/*")){
-            Multipart mp = (Multipart) message.getContent();
-            if(mp.getBodyPart(1).isMimeType("multipart/*")){
-                return getTextFromFirstBodyPart(mp.getBodyPart(0));
+
+        try {
+            if (message.isMimeType("text/plain")) {
+                return message.getContent().toString();
+            } else if (message.isMimeType("text/html")) {
+                String html = (String) message.getContent();
+                return org.jsoup.Jsoup.parse(html).text();
+            } else if (message.isMimeType("multipart/*")) {
+                Multipart mp = (Multipart) message.getContent();
+                if (mp.getBodyPart(1).isMimeType("multipart/*")) {
+                    return getTextFromBodyPart(mp.getBodyPart(0));
+                }
+                return mp.getBodyPart(1).getContent().toString();
+            } else {
+                throw new Exception("Unknown content type found while extracting message from multipart");
             }
-            return mp.getBodyPart(1).getContent().toString();
         }
-        else {
-            System.out.println("First body part is not plain text :(");
+        catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+        return null;
+
+    }
+
+    private String getTextFromBodyPart(BodyPart bp) throws IOException, MessagingException {
+
+        try {
+            if (bp.isMimeType("text/plain")) {
+                return message.getContent().toString();
+            } else if (bp.isMimeType("text/html")) {
+                String html = (String) bp.getContent();
+                return org.jsoup.Jsoup.parse(html).text();
+            } else {
+                throw new Exception("Unknown content type found while extracting message from multipart");
+            }
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
         }
         return null;
     }
 
-    private String getTextFromFirstBodyPart(BodyPart bp) throws IOException, MessagingException {
-
-        if (bp.isMimeType("text/plain")) {
-            return message.getContent().toString();
-        } else if (bp.isMimeType("text/html")) {
-            String html = (String) bp.getContent();
-            return org.jsoup.Jsoup.parse(html).text();
-        } /* else if (bp.isMimeType("multipart/*")) {
-            return getTextFromFirstBodyPart(bp.getContent());
-        }*/
-        else{
-            System.out.println("bp[0] type:" + bp.getContentType());
-            return null;
-        }
-
-    }
-
     private ArrayList<String> getSentences(String result) {
         result = filter(result);
-        //System.out.println("After filter:\n" + result);
+        //System.out.println("\nresults: " + result);
         ArrayList<String> sentences = new ArrayList<String>();
         String[] split = result.split("~|\\n");
         for (String s : split) {
@@ -250,11 +280,13 @@ it appears to be whenever there is a thread of replies
                 String trimmed = s.trim();
                 char[] c = trimmed.toCharArray();
                 if (c.length > 0) {
-                    if (c[0] >= 65 && c[0] <= 90) //checking if first letter is uppercase via ascii value
+                    if (c[0] >= 65 && c[0] <= 90 &&
+                            (trimmed.endsWith(".") || trimmed.endsWith("!") || trimmed.endsWith("?")))
                         sentences.add(trimmed);
                 }
             }
         }
+        //System.out.println("\nsentences: " + sentences);
         return sentences;
     }
 
@@ -299,9 +331,9 @@ it appears to be whenever there is a thread of replies
 
         String[][] abbreviations = {{"(^|-)(d|D)r\\.", "(^|-)(M|m)r\\.", "(^|-)(M|m)rs\\.", "(^|-)(P|p)rof\\.",
                 "^(J|j)an\\.", "^(F|f)eb\\.", "^(M|m)ar\\.", "^(A|a)pr\\.", "^(J|j)un\\.",
-                "^(A|a)ug\\.", "^(S|s)ep\\.", "^(O|o)ct\\.", "^(N|n)ov\\.", "^(D|d)ec\\."},
+                "^(A|a)ug\\.", "^(S|s)ep\\.", "^(O|o)ct\\.", "^(N|n)ov\\.", "^(D|d)ec\\.", "p&nbsp"},
                 {"Dr", "Mr", "Mrs", "Professor", "January", "Februrary", "March", "April", "June", "August",
-                        "September", "October", "November", "December"}};
+                        "September", "October", "November", "December", " "}};
 
         for (int i = 0; i < ABBR; i++) {
             newText = newText.replaceAll(abbreviations[0][i], abbreviations[1][i]);
@@ -327,6 +359,70 @@ it appears to be whenever there is a thread of replies
         return newText;
     }
 
+    private ArrayList<String> getLanguages(ArrayList<String> sentences) throws APIError {
+
+        DetectLanguage.apiKey = API_KEY;
+
+        ArrayList<String> langs = new ArrayList<>();
+
+        for(String s : sentences) {
+
+            List<Result> results = DetectLanguage.detect(s);
+            Result cur;
+
+            for (Result result : results) {
+                cur = result;
+                if (cur.isReliable)
+                    langs.add(cur.language);
+            }
+        }
+
+        return langs;
+    }
+
+    public ArrayList<String> getSentences() {
+        return sentences;
+    }
+
+    public int[] getSentimentScores() {
+        return sentimentScores;
+    }
+
+    public int getSentencesAnalyzed() {
+        return sentencesAnalyzed;
+    }
+
+    public double getSentimentPct() {
+        return sentimentPct;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getSentimentPctStr() {
+        return sentimentPctStr;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public Sender getSender() {
+        return sender;
+    }
+
+    public Flags getFlags() {
+        return flags;
+    }
+
+    public String getFolder() {
+        return folder;
+    }
 
     public String toString() {
         if (this.sentimentPctStr != null)
@@ -336,9 +432,5 @@ it appears to be whenever there is a thread of replies
             return "From: " + this.sender + "\nTitle:" + this.title + "\nDate: " + date + "\nFlags: " + flags.toString()
                     + "\n" + content;
     }
-
-    public void display() {
-        //System.out.println(this.toString());
-    }
-
 }
+

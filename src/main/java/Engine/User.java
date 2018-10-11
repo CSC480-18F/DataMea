@@ -1,15 +1,11 @@
 package Engine;
 
+import com.detectlanguage.errors.APIError;
+
 import javax.mail.*;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.io.*;
-import java.util.Date.*;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class User {
     private String USERNAME_FILE = "TextFiles/userNames.txt";
@@ -23,13 +19,13 @@ public class User {
     private ArrayList<String> folders;
 
 
-    public User (String email, String password, Boolean runSentimentAnalysis){
+    public User(String email, String password, Boolean runSentimentAnalysis) {
         this.email = email;
         this.password = password;
 
         try {
             serializeUser(runSentimentAnalysis);
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         } catch (javax.mail.MessagingException e) {
             e.printStackTrace();
@@ -46,13 +42,13 @@ public class User {
         ArrayList<Sender> topSenders = new ArrayList<>();
         ArrayList<String> senderNames = new ArrayList<>();
         for (Email e : emails) {
-            if (e.folder.equals(folderName)) {
-                if (!senderNames.contains(e.sender.getAddress())) {
-                    senderNames.add(e.sender.getAddress());
-                    topSenders.add(new Sender(e.sender.getAddress()));
+            if (e.getFolder().equals(folderName)) {
+                if (!senderNames.contains(e.getSender().getAddress())) {
+                    senderNames.add(e.getSender().getAddress());
+                    topSenders.add(new Sender(e.getSender().getAddress()));
                 } else {
                     for (Sender s : topSenders) {
-                        if (s.getAddress().equals(e.sender.getAddress())) {
+                        if (s.getAddress().equals(e.getSender().getAddress())) {
                             s.incrementNumEmails();
                         }
                     }
@@ -66,11 +62,11 @@ public class User {
 
 
 
-    public ArrayList<String> recoverFolders(){
+    public ArrayList<String> recoverFolders() {
         ArrayList<String> f = new ArrayList<>();
         for (Email e : emails) {
-            if (!f.contains(e.folder)) {
-                f.add(e.folder);
+            if (!f.contains(e.getFolder())) {
+                f.add(e.getFolder());
             }
         }
         return f;
@@ -78,10 +74,10 @@ public class User {
 
 
     public ArrayList<Email> recoverSerializedEmails() {
-        File temp = new File ("TextFiles/" + encrypt(email));
-        File [] e = temp.listFiles();
+        File temp = new File("TextFiles/" + encrypt(email));
+        File[] e = temp.listFiles();
         emails = new ArrayList<Email>();
-        for (File f: e) {
+        for (File f : e) {
             Email em = new Email(f);
             this.emails.add(em);
         }
@@ -91,8 +87,7 @@ public class User {
     }
 
 
-
-    public void serializeUser(boolean runSentiment) throws IOException, javax.mail.MessagingException{
+    public void serializeUser(boolean runSentiment) throws IOException, javax.mail.MessagingException {
 
         File f = new File(USERNAME_FILE);
         boolean found = f.exists();
@@ -144,29 +139,29 @@ public class User {
         //user does not exists
         if (existingAccountIndex == null) {
             //one account has been created. Increase number of accounts, and add the new user to the end of list
-            numAccounts = numAccounts+1;
-            String [] newAccounts = new String[numAccounts];
+            numAccounts = numAccounts + 1;
+            String[] newAccounts = new String[numAccounts];
             String numAccountString = Integer.toString(numAccounts);
-            for (int j = 0; j<numAccounts-1; j++){
+            for (int j = 0; j < numAccounts - 1; j++) {
                 newAccounts[j] = lines[j];
             }
 
-            newAccounts[numAccounts-1] = encryptedAddress + " " + System.currentTimeMillis();
+            newAccounts[numAccounts - 1] = encryptedAddress + " " + System.currentTimeMillis();
             this.lastLogin = 0;
             bw.write(numAccountString);
             bw.newLine();
-            for (int k = 0; k<newAccounts.length; k++) {
+            for (int k = 0; k < newAccounts.length; k++) {
                 bw.write(newAccounts[k]);
                 bw.newLine();
             }
         } else {
             //user exists. simply update last login time
-            lines[existingAccountIndex] = encryptedAddress + " "  + System.currentTimeMillis();
+            lines[existingAccountIndex] = encryptedAddress + " " + System.currentTimeMillis();
             String n = Integer.toString(numAccounts);
             bw.write(n);
             bw.newLine();
             this.lastLogin = lastLoginDate;
-            for (int q = 0; q<numAccounts; q++) {
+            for (int q = 0; q < numAccounts; q++) {
                 bw.write(lines[q]);
                 bw.newLine();
             }
@@ -181,10 +176,10 @@ public class User {
     }
 
     public void createSerializedUserFolder() throws IOException {
-        File temp = new File ("TextFiles/" + encrypt(email));
-        File [] users = (new File("TextFiles/")).listFiles();
+        File temp = new File("TextFiles/" + encrypt(email));
+        File[] users = (new File("TextFiles/")).listFiles();
         boolean exists = false;
-        for (File user: users) {
+        for (File user : users) {
             if (!user.getName().contains(".")) {
                 if (decrypt(user.getName()).equals(email)) {
                     exists = true;
@@ -205,8 +200,7 @@ public class User {
     }
 
 
-
-    public void readFolderAndSerializeEmails(Folder f, boolean runSentiment){
+    public void readFolderAndSerializeEmails(Folder f, boolean runSentiment) {
 
         //to do
         //create email objects to serialize
@@ -221,79 +215,75 @@ public class User {
             numMessages = messages.length;
             System.out.println("Serializing " + f.getName());
 
-        for (int i= numMessages -1; i>=0; i--) {
-            System.out.println("processing: " + i);
-            Message m = messages[i];
-            String sender = "";
-            try {
-                sender = m.getFrom()[0].toString();
-            } catch (ArrayIndexOutOfBoundsException e) {
-                sender = "Unknown";
-                System.out.println("The sender is invalid..... not processing email - for now");
+            for (int i = numMessages - 1; i >= 0; i--) {
+                System.out.println("processing: " + i);
+                Message m = messages[i];
+                String sender = "";
+                try {
+                    sender = m.getFrom()[0].toString();
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    sender = "Unknown";
+                    System.out.println("The sender is invalid..... not processing email - for now");
+
+                }
+
+
+                Long receivedDate = m.getReceivedDate().getTime();
+                if (this.getLastLogin() < receivedDate) {
+
+                    Email e = new Email(messages[i], new Sender(sender), runSentiment);
+                    //System.out.println(e.toString());
+
+                    //serialize email
+                    File currentEmail = new File(originPath + receivedDate + ".txt");
+                    currentEmail.createNewFile();
+
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(currentEmail));
+
+                    //write all necessary components here
+                    bw.write(encrypt(f.getName()));
+                    bw.newLine();
+                    bw.write(Long.toString(receivedDate));
+                    bw.newLine();
+                    bw.write(encrypt(sender));
+                    bw.newLine();
+                    bw.write(m.getFlags().toString());
+                    bw.newLine();
+
+                    //add sentiment analysis below
+                    bw.write(Integer.toString(e.getSentimentScores()[0]));
+                    bw.newLine();
+                    bw.write(Integer.toString(e.getSentimentScores()[1]));
+                    bw.newLine();
+                    bw.write(Integer.toString(e.getSentimentScores()[2]));
+                    bw.newLine();
+                    bw.write(Integer.toString(e.getSentimentScores()[3]));
+                    bw.newLine();
+                    bw.write(Integer.toString(e.getSentimentScores()[4]));
+                    bw.newLine();
+
+
+                    //
+                    bw.close();
+
+
+                } else {
+                    break;
+                }
 
             }
-
-
-            Long receivedDate = m.getReceivedDate().getTime();
-            if (this.getLastLogin() < receivedDate) {
-
-                Email e = new Email(messages[i], new Sender(sender), runSentiment);
-                System.out.println(e.toString());
-
-                //serialize email
-                File currentEmail = new File(originPath + receivedDate + ".txt");
-                currentEmail.createNewFile();
-
-                BufferedWriter bw = new BufferedWriter(new FileWriter(currentEmail));
-
-                //write all necessary components here
-                bw.write(encrypt(f.getName()));
-                bw.newLine();
-                bw.write(Long.toString(receivedDate));
-                bw.newLine();
-                bw.write(encrypt(sender));
-                bw.newLine();
-                bw.write(m.getFlags().toString());
-                bw.newLine();
-
-                //add sentiment analysis below
-                bw.write(Integer.toString(e.sentimentScores[0]));
-                bw.newLine();
-                bw.write(Integer.toString(e.sentimentScores[1]));
-                bw.newLine();
-                bw.write(Integer.toString(e.sentimentScores[2]));
-                bw.newLine();
-                bw.write(Integer.toString(e.sentimentScores[3]));
-                bw.newLine();
-                bw.write(Integer.toString(e.sentimentScores[4]));
-                bw.newLine();
-
-
-
-
-
-                //
-                bw.close();
-
-
-            } else {
-                break;
-            }
-
-        }
-
 
 
         } catch (javax.mail.MessagingException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (APIError apiError) {
+            apiError.printStackTrace();
         }
 
 
     }
-
-
 
 
     public void updateSerializedFolders(boolean runSentiment) throws javax.mail.MessagingException {
@@ -313,9 +303,9 @@ public class User {
         Folder[] folders = store.getDefaultFolder().list();
 
 
-        for (int i = 0; i<folders.length; i++) {
+        for (int i = 0; i < folders.length; i++) {
             String name = folders[i].getName();
-            if (!name.equalsIgnoreCase("[Gmail]") /*&& !name.equalsIgnoreCase("inbox")*/){
+            if (!name.equalsIgnoreCase("[Gmail]") /*&& !name.equalsIgnoreCase("inbox")*/) {
                 readFolderAndSerializeEmails(folders[i], runSentiment);
             }
 
@@ -325,17 +315,16 @@ public class User {
 
 
     // have a set of random keys to cycle through to make the encryption more secure
-    private static int [] randomizer = {4,5,2,5,7,6,2,4,78,8};
-
+    private static int[] randomizer = {4, 5, 2, 5, 7, 6, 2, 4, 78, 8};
 
 
     public static String encrypt(String strToBeEncrypted) {
         String result = "";
         int length = strToBeEncrypted.length();
         char ch;
-        int ck=0;
-        for (int i = 0; i< length; i++) {
-            if (ck >= randomizer.length -1) {
+        int ck = 0;
+        for (int i = 0; i < length; i++) {
+            if (ck >= randomizer.length - 1) {
                 ck = 0;
             }
 
@@ -354,9 +343,9 @@ public class User {
         String result = "";
         int length = strEncrypted.length();
         char ch;
-        int ck=0;
-        for (int i = 0; i<length; i++) {
-            if (ck >= randomizer.length-1 ) {
+        int ck = 0;
+        for (int i = 0; i < length; i++) {
+            if (ck >= randomizer.length - 1) {
                 ck = 0;
             }
 
@@ -392,6 +381,4 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
-
-
 }
