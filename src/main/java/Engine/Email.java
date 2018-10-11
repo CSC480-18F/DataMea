@@ -86,8 +86,7 @@ class Email {
 
         try {
             //System.out.println("Content: \n" + m.getContent().toString());
-            content = getTextFromMessage(m);
-            if (content != null) sentences = getSentences(content);
+
             title = m.getSubject();
             sender = s;
             date = m.getSentDate();
@@ -97,7 +96,18 @@ class Email {
             e.printStackTrace();
         }
 
-        if (runSentiment) initializeSentiment();
+        if (runSentiment) {
+            try {
+                content = getTextFromMessage(m);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (MessagingException e) {
+                e.printStackTrace();
+            }
+
+            if (content != null) sentences = getSentences(content);
+            initializeSentiment();
+        }
     }
 
     private void initializeSentiment() {
