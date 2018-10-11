@@ -17,7 +17,7 @@ public class Main {
         String password = kb.nextLine();
 
         long startTime = System.nanoTime();
-        User currentUser = new User(address, password, false);
+        User currentUser = new User(address, password, true);
         endTimer(startTime);
 
         System.out.println("Done!");

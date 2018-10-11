@@ -200,6 +200,8 @@ public class User {
                 System.out.println("The sender is invalid..... not processing email - for now");
 
             }
+            Email e = new Email(messages[i], new Sender(sender), runSentiment);
+            System.out.println(e.toString());
             Long receivedDate = m.getReceivedDate().getTime();
             if (this.getLastLogin() < receivedDate) {
                 //serialize email
@@ -220,6 +222,17 @@ public class User {
                 bw.newLine();
 
                 //add sentiment analysis below
+                bw.write(Integer.toString(e.sentimentScores[0]));
+                bw.newLine();
+                bw.write(Integer.toString(e.sentimentScores[1]));
+                bw.newLine();
+                bw.write(Integer.toString(e.sentimentScores[2]));
+                bw.newLine();
+                bw.write(Integer.toString(e.sentimentScores[3]));
+                bw.newLine();
+                bw.write(Integer.toString(e.sentimentScores[4]));
+                bw.newLine();
+
 
 
 
