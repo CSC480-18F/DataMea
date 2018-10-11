@@ -10,31 +10,31 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 
 import javax.mail.*;
-import javax.mail.internet.ContentType;
 import javax.mail.internet.MimeMultipart;
-import java.io.IOException;
+import java.io.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+
+import org.apache.commons.mail.util.MimeMessageParser;
+import sun.jvm.hotspot.runtime.VM;
 
 class Email {
 
+    boolean runSentiment;
     double VNEGTHRESH = .8;
     double NEGTHRESH = .7;
     double NEUTHRESH = .5;
     double POSTHRESH = .3;
-    boolean runSentiment = false;
-    boolean extracted = false;
-    ArrayList<Email> emailsExtracted;
     ArrayList<String> sentences;
-    int[] sentimentScores = new int[5];
-    double sentimentPct = 0.0;
-    String sentimentPctStr;
-    int overallSentiment, sentencesAnalyzed;
-    String content, title;
-    MimeMultipart mp;
-    BodyPart bp;
     Message message;
+    int[] sentimentScores = new int[5];
+    int overallSentiment, sentencesAnalyzed;
+    double sentimentPct;
+    String content, title, sentimentPctStr;
     Date date;
     Sender sender;
     Flags flags;
@@ -44,50 +44,50 @@ class Email {
     int POS = 3;
     int VPOS = 4;
     int VMULT = 3;
+    File serializedEmail;
+    String folder;
 
-    //TODO figure out how to extract title, date
-    public Email(MimeMultipart m, Sender s, Flags f){
-        emailsExtracted = new ArrayList<>();
-        extracted = true;
-        mp = m;
-        sender = s;
-        flags = f;
-        sentences = getSentences(content);
+
+    public Email(File f) {
+        //to do: recreate emails using this constructor
+
+        recoverEmail(f);
+
+
     }
 
-    public Email(BodyPart b, Sender s, String t, Date d, Flags f){
-        emailsExtracted = new ArrayList<>();
-        extracted = true;
-        bp = b;
-        title = t;
-        date = d;
-        sender = s;
-        flags = f;
-        sentences = getSentences(content);
-    }
+    public void recoverEmail(File f) {
+        BufferedReader br;
 
-    public Email(String c, Sender s, String t, Date d, Flags f){
-        emailsExtracted = new ArrayList<>();
-        extracted = true;
-        content = c;
-        sender = s;
-        title = t;
-        date = d;
-        flags = f;
-        sentences = getSentences(content);
-    }
+        try {
+            br = new BufferedReader(new FileReader(f));
+            this.folder = User.decrypt(br.readLine());
+            long unixDate = Long.parseLong(br.readLine());
+            this.date = new Date(unixDate);
+            this.sender = new Sender(User.decrypt(br.readLine()));
+            this.flags = new Flags(br.readLine());
 
+            //add fields to reconstruct sentiment analysis
+
+            br.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("File not found");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 
 
     public Email(Message m, Sender s, Boolean rs) {
-        emailsExtracted = new ArrayList<>();
         message = m;
         runSentiment = rs;
 
         try {
             //System.out.println("Content: \n" + m.getContent().toString());
             content = getTextFromMessage(m);
-            if(content != null) sentences = getSentences(content);
+            if (content != null) sentences = getSentences(content);
             title = m.getSubject();
             sender = s;
             date = m.getSentDate();
@@ -96,7 +96,8 @@ class Email {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        initializeSentiment();
+
+        if (runSentiment) initializeSentiment();
     }
 
     private void initializeSentiment() {
@@ -104,65 +105,63 @@ class Email {
         double probability;
         Sentiment sentenceSentiment;
 
-        if (runSentiment) {
-
-            if (sentences != null) {
-                for (String sentence : sentences) {
-                    if (sentence.endsWith(".") || sentence.endsWith("!") || sentence.endsWith("?")) {
-                        //System.out.println("\n" + sentence);
-                        sentencesAnalyzed++;
-                        sentenceSentiment = analyzeSentiment(sentence);
-                        sentenceScore = sentenceSentiment.score;
-                        probability = sentenceSentiment.probability;
-                        switch (sentenceScore) {
-                            case 0:
-                                //System.out.println(probability + " chance it is Very Negative");
-                                if (probability > VNEGTHRESH) {
-                                    this.sentimentScores[VNEG]++;
-                                    //System.out.println("Incrementing Very Negative");
-                                } else {
-                                    this.sentimentScores[NEG]++;
-                                    //System.out.println("Incrementing Negative");
-                                }
-                                break;
-                            case 1:
-                                //System.out.println(probability + " chance it is Negative");
-                                if (probability > NEGTHRESH) {
-                                    this.sentimentScores[NEG]++;
-                                    //System.out.println("Incrementing Negative");
-                                } else {
-                                    this.sentimentScores[NEU]++;
-                                    //System.out.println("Incrementing Neutral");
-                                }
-                                break;
-                            case 2:
-                                //System.out.println(probability + " chance it is Neutral");
-                                if (probability > NEUTHRESH) {
-                                    this.sentimentScores[NEU]++;
-                                    //System.out.println("Incrementing Neutral");
-                                } else {
-                                    this.sentimentScores[POS]++;
-                                    //System.out.println("Incrementing Positive");
-                                }
-                                break;
-                            case 3:
-                                //System.out.println(probability + " chance it is Positive");
-                                if (probability > POSTHRESH) {
-                                    this.sentimentScores[POS]++;
-                                    //System.out.println("Incrementing Positive");
-                                } else {
-                                    this.sentimentScores[VPOS]++;
-                                    //System.out.println("Incrementing Very Positive");
-                                }
-                                break;
-                            case 4:
-                                //System.out.println(probability + " chance it is Very Positive");
-                                this.sentimentScores[4]++;
+        if (sentences != null) {
+            for (String sentence : sentences) {
+                if (sentence.endsWith(".") || sentence.endsWith("!") || sentence.endsWith("?")) {
+                    //System.out.println("\n" + sentence);
+                    sentencesAnalyzed++;
+                    sentenceSentiment = analyzeSentiment(sentence);
+                    sentenceScore = sentenceSentiment.score;
+                    probability = sentenceSentiment.probability;
+                    switch (sentenceScore) {
+                        case 0:
+                            //System.out.println(probability + " chance it is Very Negative");
+                            if (probability > VNEGTHRESH) {
+                                this.sentimentScores[VNEG]++;
+                                //System.out.println("Incrementing Very Negative");
+                            } else {
+                                this.sentimentScores[NEG]++;
+                                //System.out.println("Incrementing Negative");
+                            }
+                            break;
+                        case 1:
+                            //System.out.println(probability + " chance it is Negative");
+                            if (probability > NEGTHRESH) {
+                                this.sentimentScores[NEG]++;
+                                //System.out.println("Incrementing Negative");
+                            } else {
+                                this.sentimentScores[NEU]++;
+                                //System.out.println("Incrementing Neutral");
+                            }
+                            break;
+                        case 2:
+                            //System.out.println(probability + " chance it is Neutral");
+                            if (probability > NEUTHRESH) {
+                                this.sentimentScores[NEU]++;
+                                //System.out.println("Incrementing Neutral");
+                            } else {
+                                this.sentimentScores[POS]++;
+                                //System.out.println("Incrementing Positive");
+                            }
+                            break;
+                        case 3:
+                            //System.out.println(probability + " chance it is Positive");
+                            if (probability > POSTHRESH) {
+                                this.sentimentScores[POS]++;
+                                //System.out.println("Incrementing Positive");
+                            } else {
+                                this.sentimentScores[VPOS]++;
                                 //System.out.println("Incrementing Very Positive");
-                                break;
-                            default:
-                                break;
-                        }
+                            }
+                            break;
+                        case 4:
+                            //System.out.println(probability + " chance it is Very Positive");
+                            this.sentimentScores[4]++;
+                            //System.out.println("Incrementing Very Positive");
+                            break;
+                        default:
+                            break;
+
                     }
                 }
             }
@@ -170,7 +169,7 @@ class Email {
             overallSentiment = sentimentScores[VPOS] * VMULT + sentimentScores[POS] -
                     sentimentScores[NEG] - sentimentScores[VNEG] * VMULT;
 
-            if(sentencesAnalyzed > 0) sentimentPct = ((double)overallSentiment / sentencesAnalyzed) * 100;
+            if (sentencesAnalyzed > 0) sentimentPct = ((double) overallSentiment / sentencesAnalyzed) * 100;
             else sentimentPct = 0;
             DecimalFormat df = new DecimalFormat("0.##");
             sentimentPctStr = df.format(sentimentPct) + "%";
@@ -185,64 +184,49 @@ class Email {
 
 
     /*
-
 This function was modified from an existing function by ItsCuties from the site below
-
 http://www.itcuties.com/java/javamail-read-email/
-
 Some additional notes:
 -whenever something like javax.mail.internet.MimeMultipart@396f6598 appears as the message content,
 it appears to be whenever there is a thread of replies
-
 -anything (from what i've checked) that is html, is a mass email
-
  */
 
     private String getTextFromMessage(Message message) throws IOException, MessagingException {
         String result = "";
+        System.out.println(message.getContentType());
         if (message.isMimeType("text/plain")) {
             return message.getContent().toString();
+        }
+        else if(message.isMimeType("multipart/*")){
+            Multipart mp = (Multipart) message.getContent();
+            if(mp.getBodyPart(1).isMimeType("multipart/*")){
+                return getTextFromFirstBodyPart(mp.getBodyPart(0));
+            }
+            return mp.getBodyPart(1).getContent().toString();
+        }
+        else {
+            System.out.println("First body part is not plain text :(");
         }
         return null;
     }
 
+    private String getTextFromFirstBodyPart(BodyPart bp) throws IOException, MessagingException {
 
-
-/*    private String getTextFromMimeMultipart(
-            MimeMultipart mimeMultipart) throws IOException, MessagingException {
-
-        int count = mimeMultipart.getCount();
-        if (count == 0)
-            throw new MessagingException("Multipart with no body parts not supported.");
-        boolean multipartAlt = new ContentType(mimeMultipart.getContentType()).match("multipart/alternative");
-        if (multipartAlt)
-            // alternatives appear in an order of increasing
-            // faithfulness to the original content. Customize as req'd.
-            return getTextFromBodyPart(mimeMultipart.getBodyPart(count - 1));
-        String result = "";
-        for (int i = 0; i < count; i++) {
-            BodyPart bodyPart = mimeMultipart.getBodyPart(i);
-            String bodyText = getTextFromBodyPart(bodyPart);
-            if(bodyText != "") emailsExtracted.add(new Email(bodyText, sender, title, date, flags));
-            result += getTextFromBodyPart(bodyPart);
+        if (bp.isMimeType("text/plain")) {
+            return message.getContent().toString();
+        } else if (bp.isMimeType("text/html")) {
+            String html = (String) bp.getContent();
+            return org.jsoup.Jsoup.parse(html).text();
+        } /* else if (bp.isMimeType("multipart/*")) {
+            return getTextFromFirstBodyPart(bp.getContent());
+        }*/
+        else{
+            System.out.println("bp[0] type:" + bp.getContentType());
+            return null;
         }
-        return result;
+
     }
-
-    private String getTextFromBodyPart(
-            BodyPart bodyPart) throws IOException, MessagingException {
-
-        String result = "";
-        if (bodyPart.isMimeType("text/plain")) {
-            result = (String) bodyPart.getContent();
-        } else if (bodyPart.isMimeType("text/html")) {
-            String html = (String) bodyPart.getContent();
-            result = org.jsoup.Jsoup.parse(html).text();
-        } else if (bodyPart.getContent() instanceof MimeMultipart){
-            result = getTextFromMimeMultipart((MimeMultipart)bodyPart.getContent());
-        }
-        return result;
-    }*/
 
     private ArrayList<String> getSentences(String result) {
         result = filter(result);
@@ -261,7 +245,6 @@ it appears to be whenever there is a thread of replies
         }
         return sentences;
     }
-
 
 
     static Sentiment analyzeSentiment(String message) {
@@ -334,12 +317,12 @@ it appears to be whenever there is a thread of replies
 
 
     public String toString() {
-        if(this.sentimentPctStr != null)
+        if (this.sentimentPctStr != null)
             return "From: " + this.sender + "\nTitle:" + this.title + "\nDate: " + date + "\nFlags: " + flags.toString()
                     + "\nSentiment: " + this.sentimentPctStr + "\n" + content;
         else
             return "From: " + this.sender + "\nTitle:" + this.title + "\nDate: " + date + "\nFlags: " + flags.toString()
-                + "\n" + content;
+                    + "\n" + content;
     }
 
     public void display() {

@@ -2,6 +2,7 @@ package Engine;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import Controllers.DashboardController;
 import Controllers.DashboardDrawer;
@@ -24,9 +25,9 @@ public class Main extends Application {
     private static User currentUser;
     private Main.ResourceLoadingTask task = new Main.ResourceLoadingTask();
     private static BooleanProperty startLoading = new SimpleBooleanProperty(false);
-    private static ArrayList<UserFolder> folders;
+    private static ArrayList<String> folders;
 
-    public static ArrayList<UserFolder> getFolders() {
+    public static ArrayList<String> getFolders() {
         return folders;
     }
 
@@ -39,7 +40,7 @@ public class Main extends Application {
         protected Void call() throws Exception {
             currentUser = new User(DashboardLogin.getEmail(), DashboardLogin.getPassword(), false);
             System.out.println("Data Loaded");
-            folders = currentUser.getFolders();
+            folders = currentUser.recoverFolders();
             return null;
         }
     }
@@ -65,19 +66,24 @@ public class Main extends Application {
 
                         task.setOnSucceeded(e -> {
                             //Add top senders data to Doughnut Chart
-                            if (currentUser.getFolders().get(0).getSenders().size() < 5) {
-                                for (int i = 0; i < currentUser.getFolders().get(0).getSenders().size(); i++) {
+                            //if (currentUser.getFolders().get(0).getSenders().size() < 5) {
+                            String folderName = currentUser.recoverFolders().get(0);
+                            int numSendersInFolder = currentUser.getTopSendersForFolder(folderName).size();
+                                for (int i = 0; i < numSendersInFolder; i++) {
                                     DashboardController.addTopSendersData(new PieChart.Data(i + 1 + ". " +
-                                            currentUser.getFolders().get(0).getSenders().get(i).getAddress(),
-                                            currentUser.getFolders().get(0).getSenders().get(i).getEmails().size()));
+                                            currentUser.getTopSendersForFolder(folderName).get(i).getAddress(),
+                                            currentUser.getTopSendersForFolder(folderName).get(i).numEmailsSent));
                                 }
-                            } else{
-                                for (int i = 0; i < currentUser.getFolders().get(0).getSenders().size(); i++) {
-                                    DashboardController.addTopSendersData(new PieChart.Data(i + 1 + ". " +
-                                            currentUser.getFolders().get(0).getSenders().get(i).getAddress(),
-                                            currentUser.getFolders().get(0).getSenders().get(i).getEmails().size()));
-                                }
-                            }
+                            //}
+//
+//
+//                            else{
+//                                for (int i = 0; i < currentUser.getFolders().get(0).getSenders().size(); i++) {
+//                                    DashboardController.addTopSendersData(new PieChart.Data(i + 1 + ". " +
+//                                            currentUser.getFolders().get(0).getSenders().get(i).getAddress(),
+//                                            currentUser.getFolders().get(0).getSenders().get(i).getEmails().size()));
+//                                }
+//                            }
 
                             DashboardLoading.setStopVideoToTrue();
                             DashboardDrawer.setLoadFolderListToTrue();
@@ -121,6 +127,21 @@ public class Main extends Application {
         //System.out.println("Done!");
 
         //ArrayList<Sender> topSenders = currentUser.getFolders().get(0).readFolder(false);
+
+
+
+
+//        Scanner kb = new Scanner(System.in);
+//        System.out.println("Enter email address");
+//        String address = kb.nextLine();
+//        System.out.println("Enter password for " + address);
+//        String password = kb.nextLine();
+//
+//        long startTime = System.nanoTime();
+//        User currentUser = new User(address, password, false);
+//        endTimer(startTime);
+
+
 
         launch(args);
 

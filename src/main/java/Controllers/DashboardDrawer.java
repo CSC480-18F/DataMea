@@ -1,7 +1,6 @@
 package Controllers;
 
 import Engine.Main;
-import Engine.UserFolder;
 import com.jfoenix.controls.JFXListView;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -38,8 +37,9 @@ public class DashboardDrawer implements Initializable{
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if (newValue) {
-                    for (UserFolder f : Main.getFolders()){
-                        list.add(f.getFolderName());
+
+                    for (String f : Main.getFolders()){
+                        list.add(f);
                     }
                     listView.setItems(list);
                 }

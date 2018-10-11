@@ -6,11 +6,17 @@ class Sender implements Comparable{
 
     private String address;
     private ArrayList<Email> emails;
+    int numEmailsSent;
 
     public Sender(String address) {
 
         this.address = address;
         emails = new ArrayList<>();
+        numEmailsSent = 1;
+    }
+
+    public void incrementNumEmails(){
+        numEmailsSent++;
     }
 
     /// Need to fix this function to take into account what folder is being looked at
