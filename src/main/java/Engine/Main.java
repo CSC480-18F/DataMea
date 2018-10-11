@@ -4,10 +4,11 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import Controllers.DashboardController;
-import Controllers.DashboardDrawer;
-import Controllers.DashboardLoading;
-import Controllers.DashboardLogin;
+import Controllers.*;
+import eu.hansolo.fx.charts.SunburstChart;
+import eu.hansolo.fx.charts.SunburstChartBuilder;
+import eu.hansolo.fx.charts.data.ChartItem;
+import eu.hansolo.tilesfx.chart.ChartData;
 import javafx.application.Application;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -18,7 +19,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import static Controllers.DashboardController.setLoadedFromLoginScreenToTrue;
 
 public class Main extends Application {
 
@@ -26,6 +29,7 @@ public class Main extends Application {
     private Main.ResourceLoadingTask task = new Main.ResourceLoadingTask();
     private static BooleanProperty startLoading = new SimpleBooleanProperty(false);
     private static ArrayList<String> folders;
+    private ArrayList<Color> colors = new ArrayList<>();
 
     public static ArrayList<String> getFolders() {
         return folders;
@@ -56,6 +60,13 @@ public class Main extends Application {
         primaryStage.show();
         DashboardLogin.setStage(primaryStage);
 
+
+        colors.add(Color.valueOf("#fc5c65"));
+        colors.add(Color.valueOf("#fd9644"));
+        colors.add(Color.valueOf("#fed330"));
+        colors.add(Color.valueOf("#26de81"));
+        colors.add(Color.valueOf("#2bcbba"));
+
         startLoading.addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -71,14 +82,17 @@ public class Main extends Application {
                             int numSendersInFolder = currentUser.getTopSendersForFolder(folderName).size();
 
                             //only display top 10 senders for the selected folder
-                            if (numSendersInFolder > 10) {
-                                numSendersInFolder = 10;
+                            if (numSendersInFolder > 5) {
+                                numSendersInFolder = 5;
                             }
                                 for (int i = 0; i < numSendersInFolder; i++) {
-                                    DashboardController.addTopSendersData(new PieChart.Data(i + 1 + ". " +
-                                            currentUser.getTopSendersForFolder(folderName).get(i).getAddress(),
-                                            currentUser.getTopSendersForFolder(folderName).get(i).numEmailsSent));
+                                    ChartData temp = new ChartData();
+                                    temp.setValue((double) currentUser.getTopSendersForFolder(folderName).get(i).numEmailsSent);
+                                    temp.setName(currentUser.getTopSendersForFolder(folderName).get(i).getAddress());
+                                    temp.setFillColor(colors.get(i));
+                                    DashboardController.addTopSendersData(temp);
                                 }
+                            setLoadedFromLoginScreenToTrue();
                             //}
 //
 //

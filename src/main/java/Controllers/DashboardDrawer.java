@@ -37,7 +37,6 @@ public class DashboardDrawer implements Initializable{
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if (newValue) {
-
                     for (String f : Main.getFolders()){
                         list.add(f);
                     }

@@ -5,16 +5,32 @@ import com.jfoenix.controls.JFXDrawer;
 import com.jfoenix.controls.JFXHamburger;
 import com.jfoenix.controls.JFXMasonryPane;
 import com.jfoenix.transitions.hamburger.HamburgerBasicCloseTransition;
+import eu.hansolo.fx.charts.data.*;
+import eu.hansolo.tilesfx.Tile;
+import eu.hansolo.tilesfx.TileBuilder;
+import eu.hansolo.tilesfx.chart.ChartData;
+import eu.hansolo.tilesfx.skins.RadialChartTileSkin;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.chart.Chart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.TextAlignment;
+
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -58,15 +74,25 @@ public class DashboardController implements Initializable {
 
     private DashboardDrawer dashboardDrawer;
     private FilterDrawer filterDrawerClass;
-    private static ObservableList<PieChart.Data> topSendersData = FXCollections.observableArrayList();
-    private DoughnutChart topSendersDoughnutChart = new DoughnutChart(topSendersData);
+    private static BooleanProperty loadedFromLoginScreen = new SimpleBooleanProperty(false);
+   // private static ObservableList<ChartItem> topSendersData = FXCollections.observableArrayList();
+    //private DoughnutChart topSendersDoughnutChart = new DoughnutChart(topSendersData);
+    private Tile topSendersRadialChart;
+    private static ArrayList<ChartData> topSendersData = new ArrayList<>();
 
-    public static void addTopSendersData(PieChart.Data d){
+
+    public static void addTopSendersData(ChartData d){
+        //topSendersData.add(d);
         topSendersData.add(d);
+    }
+
+    public static void setLoadedFromLoginScreenToTrue(){
+        loadedFromLoginScreen.setValue(true);
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        //topSendersDoughnutChart.setTree(treeNode);
         //Resizing crap, this took way to long to figure out thanks javafx
         //mainVbox.setVgrow(masonryPane, Priority.ALWAYS);
         //mainVbox.prefWidthProperty().bind(anchorPane.widthProperty());
@@ -146,11 +172,29 @@ public class DashboardController implements Initializable {
             }
         });
 
+        loadedFromLoginScreen.addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+                    topSendersRadialChart = TileBuilder.create()
+                            .animationDuration(100000)
+                            .skinType(Tile.SkinType.RADIAL_CHART)
+                            .backgroundColor(Color.TRANSPARENT)
+                            .title("Top Senders")
+                            .textVisible(true)
+                            .titleAlignment(TextAlignment.CENTER)
+                            .prefSize(400,400)
+                            .chartData(topSendersData)
+                            .animated(true)
+                            .build();
+                    masonryPane.getChildren().add(topSendersRadialChart);
+                }
+            }
+        });
 
 
         String css = getClass().getClassLoader().getResource("Dashboard_css.css").toExternalForm();
-        topSendersDoughnutChart.setTitle("Top Senders");
-        topSendersDoughnutChart.getStylesheets().add(css);
-        masonryPane.getChildren().add(topSendersDoughnutChart);
+        //topSendersDoughnutChart.setTitle("Top Senders");
+        //topSendersDoughnutChart.getStylesheets().add(css);
     }
 }
