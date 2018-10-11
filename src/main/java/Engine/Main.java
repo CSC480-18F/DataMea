@@ -69,6 +69,11 @@ public class Main extends Application {
                             //if (currentUser.getFolders().get(0).getSenders().size() < 5) {
                             String folderName = currentUser.recoverFolders().get(0);
                             int numSendersInFolder = currentUser.getTopSendersForFolder(folderName).size();
+
+                            //only display top 10 senders for the selected folder
+                            if (numSendersInFolder > 10) {
+                                numSendersInFolder = 10;
+                            }
                                 for (int i = 0; i < numSendersInFolder; i++) {
                                     DashboardController.addTopSendersData(new PieChart.Data(i + 1 + ". " +
                                             currentUser.getTopSendersForFolder(folderName).get(i).getAddress(),

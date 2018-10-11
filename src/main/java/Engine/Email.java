@@ -69,6 +69,8 @@ class Email {
 
             //add fields to reconstruct sentiment analysis
 
+
+
             br.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
