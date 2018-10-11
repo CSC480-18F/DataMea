@@ -196,6 +196,7 @@ public class User {
             try {
                 sender = m.getFrom()[0].toString();
             } catch (ArrayIndexOutOfBoundsException e) {
+                sender = "Unknown";
                 System.out.println("The sender is invalid..... not processing email - for now");
 
             }
@@ -266,7 +267,7 @@ public class User {
 
         for (int i = 0; i<folders.length; i++) {
             String name = folders[i].getName();
-            if (!name.equalsIgnoreCase("[Gmail]") /*&& !name.equalsIgnoreCase("inbox")*/){
+            if (!name.equalsIgnoreCase("[Gmail]") && !name.equalsIgnoreCase("inbox")){
                 readFolderAndSerializeEmails(folders[i], runSentiment);
             }
 
