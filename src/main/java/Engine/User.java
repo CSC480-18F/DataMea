@@ -218,12 +218,11 @@ public class User {
             for (int i = numMessages - 1; i >= 0; i--) {
                 System.out.println("processing: " + i);
                 Message m = messages[i];
-                String sender = "";
+                String sender = "Unknown";
                 try {
                     sender = m.getFrom()[0].toString();
                 } catch (ArrayIndexOutOfBoundsException e) {
-                    sender = "Unknown";
-                    System.out.println("The sender is invalid..... not processing email - for now");
+                    System.out.println("The sender is invalid..... processing email as sender 'unknown'");
 
                 }
 

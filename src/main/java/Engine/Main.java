@@ -87,7 +87,7 @@ public class Main extends Application {
                                     //Created ChartData for top senders radial chart
                                     ChartData temp = new ChartData();
                                     temp.setValue((double) currentUser.getTopSendersForFolder(folderName).get(i).numEmailsSent);
-                                    temp.setName(currentUser.getTopSendersForFolder(folderName).get(i).getAddress());
+                                    temp.setName(currentUser.getTopSendersForFolder(folderName).get(i).filterName());
                                     temp.setFillColor(colors.get(i));
                                     DashboardController.addTopSendersData(temp);
                                 }
