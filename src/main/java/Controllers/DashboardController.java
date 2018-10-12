@@ -173,7 +173,7 @@ public class DashboardController implements Initializable {
                 if (newValue) {
                     //Create Radial Chart
                     topSendersRadialChart = TileBuilder.create()
-                            .animationDuration(100000)
+                            .animationDuration(10000)
                             .skinType(Tile.SkinType.RADIAL_CHART)
                             .backgroundColor(Color.TRANSPARENT)
                             .title("Top Senders")
@@ -185,7 +185,7 @@ public class DashboardController implements Initializable {
                             .build();
                     masonryPane.getChildren().add(topSendersRadialChart);
                     //Change scenes based on top sender ChartData selected
-                    topSendersRadialChart.setOnTileEvent(e->{
+                    topSendersRadialChart.setOnTileEvent( (e) -> {
                         if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
                             DashboardDrawer.setLoadFolderList(false);
                             ChartData data = e.getData();

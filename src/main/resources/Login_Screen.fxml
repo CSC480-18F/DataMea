@@ -15,7 +15,7 @@
 
 <StackPane fx:id="stackPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.DashboardLogin">
    <children>
-      <VBox alignment="CENTER" style="-fx-spacing: 20;" StackPane.alignment="CENTER">
+      <VBox fx:id="vBox" alignment="CENTER" style="-fx-spacing: 20;" StackPane.alignment="CENTER">
          <children>
             <ImageView fitHeight="160.0" fitWidth="274.0" pickOnBounds="true">
                <image>
