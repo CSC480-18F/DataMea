@@ -4,19 +4,20 @@ import com.detectlanguage.errors.APIError;
 
 import javax.mail.*;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.io.*;
 
 public class User {
 
     //------------------Declaring Variables------------------//
-    private String            USERNAME_FILE = "TextFiles/userNames.txt";
-    private String            email, password;
-    private ArrayList<Email>  sentMail;
-    private long              lastLogin;
-    private String            folderName;
-    private ArrayList<Email>  emails;
-    private ArrayList<String> folders;
+    private String                  USERNAME_FILE = "TextFiles/userNames.txt";
+    private String                  email, password;
+    private ArrayList<Email>        sentMail;
+    private long                    lastLogin;
+    private String                  folderName;
+    private ArrayList<Email>        emails;
+    private ArrayList<UserFolder>   folders;
 
 
     public User(String email, String password, Boolean runSentimentAnalysis) {
@@ -36,6 +37,7 @@ public class User {
         folders = recoverFolders();
 
     }
+
 
 
     public ArrayList<Sender> getTopSendersForFolder(String folderName) {
@@ -62,11 +64,25 @@ public class User {
 
 
 
-    public ArrayList<String> recoverFolders() {
-        ArrayList<String> f = new ArrayList<>();
+
+
+
+    public ArrayList<UserFolder> recoverFolders() {
+        ArrayList<UserFolder> f = new ArrayList<>();
+        ArrayList<String> folderNames = new ArrayList<>();
         for (Email e : emails) {
-            if (!f.contains(e.getFolder())) {
-                f.add(e.getFolder());
+
+            if (!folderNames.contains(e.getFolder())) {
+                UserFolder fold = new UserFolder(e.getFolder());
+                f.add(fold);
+                folderNames.add(e.getFolder());
+            } else {
+                for (UserFolder folds: f) {
+                    if (e.getFolder().equals(folds.folderName) && !folds.subFolders.contains(e.getSubFolder())) {
+                        //add the subfolder to the userFolder
+                        folds.subFolders.add(e.getSubFolder());
+                    }
+                }
             }
         }
         return f;
@@ -206,34 +222,62 @@ public class User {
         //create email objects to serialize
 
         String originPath = "TextFiles/" + encrypt(email) + "/";
-        int numMessages;
-
 
         try {
             f.open(f.READ_ONLY);
-            Message[] messages = f.getMessages();
-            numMessages = messages.length;
             System.out.println("Serializing " + f.getName());
 
-            for (int i = numMessages - 1; i >= 0; i--) {
-                System.out.println("processing: " + i);
-                Message m = messages[i];
-                String sender = "Unknown";
+            writeMessages(f, f, runSentiment, originPath);
+
+            Folder [] subFolders = f.list();
+            for (Folder sub: subFolders) {
+                writeMessages(f, sub, runSentiment, originPath);
+            }
+
+
+        } catch (javax.mail.MessagingException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void writeMessages(Folder f, Folder sub, boolean runSentiment, String originPath) {
+        System.out.println("Currently reading/writing: " + f.getName() + "    Subfolder: " + sub.getName());
+        Message [] messages = new Message[0];
+
+
+        try {
+            if (!f.getName().equals(sub.getName())) {
+                sub.open(1);
+            }
+            messages = sub.getMessages();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        int numMessages = messages.length;
+        for (int i = numMessages - 1; i >= 0; i--) {
+
+            System.out.println("processing: " + i);
+            Message m = messages[i];
+            String sender = "Unknown";
+            Long receivedDate = 0l;
+            try {
+                sender = m.getFrom()[0].toString();
+                receivedDate = m.getReceivedDate().getTime();
+            } catch (ArrayIndexOutOfBoundsException e) {
+                System.out.println("The sender is invalid..... processing email as sender 'unknown'");
+            } catch (MessagingException e) {
+                System.out.println("Messaging exception");
+            }
+
+            if (this.getLastLogin() < receivedDate) {
+
+                //serialize email
                 try {
-                    sender = m.getFrom()[0].toString();
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    System.out.println("The sender is invalid..... processing email as sender 'unknown'");
-
-                }
-
-
-                Long receivedDate = m.getReceivedDate().getTime();
-                if (this.getLastLogin() < receivedDate) {
-
                     Email e = new Email(messages[i], new Sender(sender), runSentiment);
-                    //System.out.println(e.toString());
-
-                    //serialize email
                     File currentEmail = new File(originPath + receivedDate + ".txt");
                     currentEmail.createNewFile();
 
@@ -241,6 +285,8 @@ public class User {
 
                     //write all necessary components here
                     bw.write(encrypt(f.getName()));
+                    bw.newLine();
+                    bw.write(encrypt(sub.getName()));
                     bw.newLine();
                     bw.write(Long.toString(receivedDate));
                     bw.newLine();
@@ -261,24 +307,20 @@ public class User {
                     bw.write(Integer.toString(e.getSentimentScores()[4]));
                     bw.newLine();
 
-
                     //
                     bw.close();
-
-
-                } else {
-                    break;
+                } catch (IOException e) {
+                    System.out.println("uh oh, something went wrong");
+                } catch (MessagingException e) {
+                    System.out.println("cannot get flags");
+                } catch (APIError e) {
+                    System.out.println("cannot properly create email");
                 }
 
+            } else {
+                break;
             }
 
-
-        } catch (javax.mail.MessagingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (APIError apiError) {
-            apiError.printStackTrace();
         }
 
 
@@ -304,7 +346,7 @@ public class User {
 
         for (int i = 0; i < folders.length; i++) {
             String name = folders[i].getName();
-            if (!name.equalsIgnoreCase("[Gmail]") /*&& !name.equalsIgnoreCase("inbox")*/) {
+            if (!name.equalsIgnoreCase("[Gmail]") && !name.equalsIgnoreCase("inbox")) {
                 readFolderAndSerializeEmails(folders[i], runSentiment);
             }
 

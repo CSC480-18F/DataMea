@@ -26,10 +26,10 @@ public class Main extends Application {
     private static User                     currentUser;
     private        Main.ResourceLoadingTask task         = new Main.ResourceLoadingTask();
     private static BooleanProperty          startLoading = new SimpleBooleanProperty(false);
-    private static ArrayList<String>        folders;
+    private static ArrayList<UserFolder>    folders;
     private        ArrayList<Color>         colors       = new ArrayList<>();
 
-    public static ArrayList<String> getFolders() {
+    public static ArrayList<UserFolder> getFolders() {
         return folders;
     }
 
@@ -77,7 +77,7 @@ public class Main extends Application {
                         task.setOnSucceeded(e -> {
                             //Add top senders data to Radial Chart
                             //if (currentUser.getFolders().get(0).getSenders().size() < 5) {
-                            String folderName = currentUser.recoverFolders().get(0);
+                            String folderName = currentUser.recoverFolders().get(0).folderName;
                             int numSendersInFolder = currentUser.getTopSendersForFolder(folderName).size();
                             //only display top 10 senders for the selected folder
                             if (numSendersInFolder > 5) {
@@ -115,45 +115,7 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) throws FileNotFoundException, IOException {
-        //launch(args);
 
-        // get user Engine.Email address, password
-
-        //Scanner kb = new Scanner(System.in);
-        //System.out.println("Enter email address");
-        //String address = kb.nextLine();
-        //System.out.println("Enter password for " + address);
-        //String password = kb.nextLine();
-
-        //long startTime = System.nanoTime();
-        //User currentUser = new User(DashboardLogin.getEmail(), DashboardLogin.getEmail(), true);
-        //endTimer(startTime);
-
-        //System.out.println("\n\nSelect which folder to get emails from (type 0-" + (currentUser.getFolders().size() - 1) + ")");
-        //currentUser.printFolders();
-
-        //int folderNum = Integer.parseInt(kb.nextLine());
-        //Engine.UserFolder selectedFolder = currentUser.getFolders().get(folderNum);
-
-
-        //read and print all emails from the selected folder
-        //ArrayList<Engine.Sender> senderList = currentUser.getFolders().get(folderNum).getSenders();
-        //System.out.println("Done!");
-
-        //ArrayList<Sender> topSenders = currentUser.getFolders().get(0).readFolder(false);
-
-
-
-
-//        Scanner kb = new Scanner(System.in);
-//        System.out.println("Enter email address");
-//        String address = kb.nextLine();
-//        System.out.println("Enter password for " + address);
-//        String password = kb.nextLine();
-//
-//        long startTime = System.nanoTime();
-//        User currentUser = new User(address, password, false);
-//        endTimer(startTime);
 
 
 

@@ -48,11 +48,12 @@ class Email {
     private int               VMULT;
     private int               MAXLEN;
     private String            folder;
+    private String            subFolder;
     File                      serializedEmail;
 
     public Email(File f) {
         //to do: recreate emails using this constructor
-
+        sentimentScores = new int[5];
         recoverEmail(f);
 
 
@@ -76,14 +77,18 @@ class Email {
         try {
             br = new BufferedReader(new FileReader(f));
             this.folder = User.decrypt(br.readLine());
+            this.subFolder = User.decrypt(br.readLine());
             long unixDate = Long.parseLong(br.readLine());
             this.date = new Date(unixDate);
             this.sender = new Sender(User.decrypt(br.readLine()));
             this.flags = new Flags(br.readLine());
 
             //add fields to reconstruct sentiment analysis
-
-
+            this.sentimentScores[0] = Integer.parseInt(br.readLine());
+            this.sentimentScores[1] = Integer.parseInt(br.readLine());
+            this.sentimentScores[2] = Integer.parseInt(br.readLine());
+            this.sentimentScores[3] = Integer.parseInt(br.readLine());
+            this.sentimentScores[4] = Integer.parseInt(br.readLine());
 
             br.close();
         } catch (FileNotFoundException e) {
@@ -423,6 +428,9 @@ it appears to be whenever there is a thread of replies
 
     public String getFolder() {
         return folder;
+    }
+    public String getSubFolder() {
+        return subFolder;
     }
 
     public String toString() {
