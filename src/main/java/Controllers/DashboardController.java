@@ -10,6 +10,7 @@ import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.events.TileEvent;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -208,18 +209,22 @@ public class DashboardController implements Initializable {
                     });
 
                     int[][] heatMapData = Main.getCurrentUser().generateDayOfWeekFrequency();
+                    Pane heatMapPane = new Pane();
+                    heatMapPane.setMinSize(400,400);
+                    heatMapPane.setPrefSize(400,400);
                     heatMapGridPane = new GridPane();
-                    heatMapGridPane.setPrefSize(400, 600);
-                    heatMapGridPane.add(new Label(""), 0, 0);
+                    heatMapGridPane.setPrefSize(400, 400);
+                    //heatMapGridPane.add(new Label(""), 0, 0);
                     for (int i = 0 ; i < heatMapData.length; i++) {
                         for (int j = 0; j < heatMapData[1].length; j++) {
                             Pane pane = new Pane();
+                            pane.setMinSize(20,20);
                             pane.setStyle(Main.getCurrentUser().getColorForHeatMap(heatMapData[i][j]));
-                            heatMapGridPane.add(pane, i + 1, j + 1);
+                            heatMapGridPane.add(pane, i, j);
                         }
                     }
-                    masonryPane.getChildren().add(heatMapGridPane);
-
+                    heatMapPane.getChildren().add(heatMapGridPane);
+                    masonryPane.getChildren().add(heatMapPane);
                 }
             }
         });
