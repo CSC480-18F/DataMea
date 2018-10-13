@@ -385,7 +385,7 @@ public class User {
         int TWENTTHREE = 2300;
         int TWENTFOUR = 2400;
 
-        SimpleDateFormat dateFormatter = new SimpleDateFormat("hm");
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("kkmm");
 
         dayOfWeekFrequency = new int[7][24];
 
@@ -426,13 +426,13 @@ public class User {
 
     public void differenceMinMax(){
 
-        if(this.frequencyDifference > 0) {
+        if(this.frequencyDifference < 0) {
 
             int[][] heatMap = getDayOfWeekFrequency();
             int min = heatMap[0][0];
             int max = heatMap[0][0];
-            for (int i = 0; i < heatMap[0].length; i++) {
-                for (int j = 0; j < heatMap[1].length; j++) {
+            for (int i = 0; i < heatMap.length; i++) {
+                for (int j = 0; j < heatMap[i].length; j++) {
                     if (heatMap[i][j] < min) min = heatMap[i][j];
                     else if (heatMap[i][j] > max) max = heatMap[i][j];
                 }
