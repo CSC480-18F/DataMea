@@ -2,6 +2,7 @@ package Engine;
 
 
 import javax.mail.*;
+import java.awt.*;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -17,6 +18,8 @@ public class User {
     private String folderName;
     private ArrayList<Email> emails;
     private ArrayList<String> folders;
+    private int[][] dayOfWeekFrequency;
+    private int frequencyDifference = -1;
 
 
     public User(String email, String password, Boolean runSentimentAnalysis) {
@@ -230,6 +233,7 @@ public class User {
                 if (this.getLastLogin() < receivedDate) {
 
                     Email e = new Email(messages[i], new Sender(sender), runSentiment);
+                    e.addEmailToSender();
                     //System.out.println(e.toString());
 
                     //serialize email
@@ -353,7 +357,7 @@ public class User {
         return result;
     }
 
-    public int[][] getdayOfWeekFrequency() {
+    public int[][] generateDayOfWeekFrequency() {
 
         int ZERO = 0;
         int ONE = 100;
@@ -383,7 +387,7 @@ public class User {
 
         SimpleDateFormat dateFormatter = new SimpleDateFormat("hm");
 
-        int[][] dayOfWeekFrequency = new int[7][24];
+        dayOfWeekFrequency = new int[7][24];
 
         for (Email e : getEmails()) {
             int dayOfWeek = e.getDayOfWeek() - 1;
@@ -419,6 +423,40 @@ public class User {
 
         return dayOfWeekFrequency;
     }
+
+    public void differenceMinMax(){
+
+        if(this.frequencyDifference > 0) {
+
+            int[][] heatMap = getDayOfWeekFrequency();
+            int min = heatMap[0][0];
+            int max = heatMap[0][0];
+            for (int i = 0; i < heatMap[0].length; i++) {
+                for (int j = 0; j < heatMap[1].length; j++) {
+                    if (heatMap[i][j] < min) min = heatMap[i][j];
+                    else if (heatMap[i][j] > max) max = heatMap[i][j];
+                }
+            }
+
+            this.frequencyDifference = max - min;
+        }
+
+    }
+
+    public String getColorForHeatMap(int i){
+
+        differenceMinMax();
+
+        int diff = this.frequencyDifference;
+
+        float h = 20f;
+        float s =  50 + 50 / diff * i;
+        float b = s;
+
+        return "-fx-background-color: #" + Integer.toHexString((Color.getHSBColor(h, s, b)).getRGB());
+    }
+
+    public int[][] getDayOfWeekFrequency() { return dayOfWeekFrequency; }
 
     public long getLastLogin() {
         return lastLogin;

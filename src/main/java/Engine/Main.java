@@ -39,6 +39,8 @@ public class Main extends Application {
         startLoading.setValue(true);
     }
 
+    public static User getCurrentUser() { return currentUser; }
+
     public class ResourceLoadingTask extends Task<Void> {
         @Override
         protected Void call() throws Exception {

@@ -1,5 +1,6 @@
 package Controllers;
 
+import Engine.Main;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDrawer;
 import com.jfoenix.controls.JFXHamburger;
@@ -17,6 +18,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -64,6 +66,7 @@ public class DashboardController implements Initializable {
     @FXML
     private JFXButton filtersButton;
 
+
     //------------------Declaring Variables------------------//
     private static Stage                myStage;
     private        DashboardDrawer      dashboardDrawer;
@@ -71,6 +74,7 @@ public class DashboardController implements Initializable {
     private static BooleanProperty      loadedFromLoginScreen = new SimpleBooleanProperty(false);
     private static ArrayList<ChartData> topSendersData        = new ArrayList<>();
     private        Tile                 topSendersRadialChart;
+    private        GridPane             heatMapGridPane;
 
 
     public static void setStage(Stage s){
@@ -202,6 +206,20 @@ public class DashboardController implements Initializable {
                             }
                         }
                     });
+
+                    int[][] heatMapData = Main.getCurrentUser().generateDayOfWeekFrequency();
+                    heatMapGridPane = new GridPane();
+                    heatMapGridPane.setPrefSize(400, 600);
+                    heatMapGridPane.add(new Label(""), 0, 0);
+                    for (int i = 0 ; i < heatMapData.length; i++) {
+                        for (int j = 0; j < heatMapData[1].length; j++) {
+                            Pane pane = new Pane();
+                            pane.setStyle(Main.getCurrentUser().getColorForHeatMap(heatMapData[i][j]));
+                            heatMapGridPane.add(pane, i + 1, j + 1);
+                        }
+                    }
+                    masonryPane.getChildren().add(heatMapGridPane);
+
                 }
             }
         });

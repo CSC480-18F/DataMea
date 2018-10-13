@@ -374,6 +374,8 @@ it appears to be whenever there is a thread of replies
         return -1;
     }
 
+    public void addEmailToSender(){ getSender().addEmail(this);}
+
     public ArrayList<String> getSentences() {
         return sentences;
     }
