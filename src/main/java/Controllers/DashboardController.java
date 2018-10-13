@@ -18,6 +18,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
@@ -209,7 +210,11 @@ public class DashboardController implements Initializable {
                     });
 
                     int[][] heatMapData = Main.getCurrentUser().generateDayOfWeekFrequency();
+                    VBox heatMapAndTitle = new VBox();
                     Pane heatMapPane = new Pane();
+                    Label heatMapTitle = new Label("Received Email Frequency");
+                    heatMapTitle.setTextFill(Color.LIGHTGRAY);
+                    heatMapTitle.setStyle("-fx-font: 22 System;");
                     heatMapPane.setMinSize(400,400);
                     heatMapPane.setPrefSize(400,400);
                     heatMapGridPane = new GridPane();
@@ -232,7 +237,10 @@ public class DashboardController implements Initializable {
                         }
                     }
                     heatMapPane.getChildren().add(heatMapGridPane);
-                    masonryPane.getChildren().add(heatMapPane);
+                    heatMapAndTitle.getChildren().addAll(heatMapTitle,heatMapPane);
+                    heatMapAndTitle.setSpacing(5);
+                    heatMapAndTitle.setPadding(new Insets(20));
+                    masonryPane.getChildren().add(heatMapAndTitle);
                 }
             }
         });
