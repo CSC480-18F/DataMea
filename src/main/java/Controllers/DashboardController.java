@@ -221,14 +221,19 @@ public class DashboardController implements Initializable {
                     heatMapGridPane.setPrefSize(400, 400);
 
                     for (int i = 0 ; i < heatMapData.length; i++) {
-                        Label day = new Label(Integer.toString(i + 1));
-                        day.setStyle("-fx-text-fill: #ff931e");
+                        Label day = new Label(Main.getCurrentUser().getDay(i));
+                        day.setStyle("-fx-text-fill: #ff931e;");
                         heatMapGridPane.add(day, 0, i + 1);
+                        day.setMinWidth(Region.USE_PREF_SIZE);
+                        day.setMaxWidth(Region.USE_PREF_SIZE);
 
                         for (int j = 0; j < heatMapData[1].length; j++) {
                             Label hour = new Label(Integer.toString(j + 1));
-                            hour.setStyle("-fx-text-fill: #ff931e");
+                            hour.setStyle("-fx-text-fill: #ff931e;");
                             heatMapGridPane.add(hour, j + 1, 0);
+                            hour.setMinWidth(Region.USE_PREF_SIZE);
+                            hour.setMaxWidth(Region.USE_PREF_SIZE);
+
 
                             Pane pane = new Pane();
                             pane.setMinSize(20,20);
@@ -236,6 +241,8 @@ public class DashboardController implements Initializable {
                             heatMapGridPane.add(pane, j + 1, i + 1);
                         }
                     }
+                    heatMapGridPane.setGridLinesVisible(true);
+                    heatMapGridPane.setVisible(true);
                     heatMapPane.getChildren().add(heatMapGridPane);
                     heatMapAndTitle.getChildren().addAll(heatMapTitle,heatMapPane);
                     heatMapAndTitle.setSpacing(5);

@@ -449,11 +449,15 @@ public class User {
 
         int diff = this.frequencyDifference;
 
-        float h = 20f;
-        float s =  50 + 50 / diff * i;
-        float b = s;
+        float h = .75f;
+        float s = 1f;
+        float b = 1f / (float)diff * i;
 
-        return "-fx-background-color: #" + Integer.toHexString((Color.getHSBColor(h, s, b)).getRGB());
+
+        if(i == 0)
+            return "-fx-background-color: transparent;";
+        else
+            return "-fx-background-color: #" + Integer.toHexString((Color.HSBtoRGB(h, s, b)));
     }
 
     public int[][] getDayOfWeekFrequency() { return dayOfWeekFrequency; }
@@ -484,6 +488,27 @@ public class User {
 
     public ArrayList<Email> getEmails() {
         return emails;
+    }
+
+    public static String getDay(int i){
+        switch(i) {
+            case 0:
+                return "Sun";
+            case 1:
+                return "Mon";
+            case 2:
+                return "Tue";
+            case 3:
+                return "Wed";
+            case 4:
+                return "Thu";
+            case 5:
+                return "Fri";
+            case 6:
+                return "Sat";
+            default:
+                return "";
+        }
     }
 }
 
