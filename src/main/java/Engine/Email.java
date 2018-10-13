@@ -11,6 +11,7 @@ import edu.stanford.nlp.util.CoreMap;
 
 
 import javax.mail.*;
+import javax.mail.internet.MimeMultipart;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -20,30 +21,30 @@ class Email {
 
     //------------------Declaring Variables------------------//
     //final   static String     API_KEY = "4f4d63ac606a0ee5e0064aa296ce88b4";
-    private double            VNEGTHRESH;
-    private double            NEGTHRESH;
-    private double            NEUTHRESH;
-    private double            POSTHRESH;
+    private double VNEGTHRESH;
+    private double NEGTHRESH;
+    private double NEUTHRESH;
+    private double POSTHRESH;
     private ArrayList<String> sentences, languages;
-    private Message           message;
-    Sentiment                 sentenceSentiment;
-    private int[]             sentimentScores;
-    private int               sentencesAnalyzed;
-    private double            sentimentPct;
-    private String            content, title, sentimentPctStr;
-    private Date              date;
-    private Sender            sender;
-    private Flags             flags;
-    private int               VNEG;
-    private int               NEG;
-    private int               NEU;
-    private int               POS;
-    private int               VPOS;
-    private int               VMULT;
-    private int               MAXLEN;
-    private String            folder;
-    private int               dayOfWeek;
-    File                      serializedEmail;
+    private Message message;
+    Sentiment sentenceSentiment;
+    private int[] sentimentScores;
+    private int sentencesAnalyzed;
+    private double sentimentPct;
+    private String content, title, sentimentPctStr;
+    private Date date;
+    private Sender sender;
+    private Flags flags;
+    private int VNEG;
+    private int NEG;
+    private int NEU;
+    private int POS;
+    private int VPOS;
+    private int VMULT;
+    private int MAXLEN;
+    private String folder;
+    private int dayOfWeek;
+    File serializedEmail;
 
     public Email(File f) {
         //to do: recreate emails using this constructor
@@ -77,7 +78,6 @@ class Email {
             this.flags = new Flags(br.readLine());
 
             //add fields to reconstruct sentiment analysis
-
 
 
             br.close();
@@ -145,7 +145,7 @@ class Email {
         if (sentences != null) {
             for (String sentence : sentences) {
                 if (sentence.length() < MAXLEN) {
-                    //System.out.println(sentence);
+                    System.out.println(sentence);
                     sentencesAnalyzed++;
                     sentenceSentiment = analyzeSentiment(sentence);
                     sentenceScore = sentenceSentiment.score;
@@ -222,52 +222,40 @@ it appears to be whenever there is a thread of replies
 -anything (from what i've checked) that is html, is a mass email
  */
 
-    private String getTextFromMessage(Message message) throws IOException, MessagingException {
+    private String getTextFromMessage(Message message) throws MessagingException, IOException {
         String result = "";
-
-        try {
-            if (message.isMimeType("text/plain")) {
-                return message.getContent().toString();
-            } else if (message.isMimeType("text/html")) {
-                String html = (String) message.getContent();
-                return org.jsoup.Jsoup.parse(html).text();
-            } else if (message.isMimeType("multipart/*")) {
-                Multipart mp = (Multipart) message.getContent();
-                if (mp.getBodyPart(1).isMimeType("multipart/*")) {
-                    return getTextFromBodyPart(mp.getBodyPart(0));
-                }
-                return mp.getBodyPart(1).getContent().toString();
-            } else {
-                throw new Exception("Unknown content type found while extracting message from multipart");
-            }
+        if (message.isMimeType("text/plain")) {
+            result = message.getContent().toString();
+        } else if (message.isMimeType("multipart/*")) {
+            MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
+            result = getTextFromMimeMultipart(mimeMultipart);
         }
-        catch(Exception e){
-            System.out.println(e.getMessage());
-        }
-        return null;
-
+        return result;
     }
 
-    private String getTextFromBodyPart(BodyPart bp) throws IOException, MessagingException {
-
-        try {
-            if (bp.isMimeType("text/plain")) {
-                return message.getContent().toString();
-            } else if (bp.isMimeType("text/html")) {
-                String html = (String) bp.getContent();
-                return org.jsoup.Jsoup.parse(html).text();
-            } else {
-                throw new Exception("Unknown content type found while extracting message from multipart");
+    private String getTextFromMimeMultipart(
+            MimeMultipart mimeMultipart)  throws MessagingException, IOException{
+        String result = "";
+        int count = mimeMultipart.getCount();
+        for (int i = 0; i < count; i++) {
+            BodyPart bodyPart = mimeMultipart.getBodyPart(i);
+            if (bodyPart.isMimeType("text/plain")) {
+                result = result + "\n" + bodyPart.getContent();
+                break; // without break same text appears twice in my tests
+            } else if (bodyPart.isMimeType("text/html")) {
+                String html = (String) bodyPart.getContent();
+                result = result + "\n" + org.jsoup.Jsoup.parse(html).text();
+            } else if (bodyPart.getContent() instanceof MimeMultipart){
+                result = result + getTextFromMimeMultipart((MimeMultipart)bodyPart.getContent());
             }
         }
-        catch(Exception e){
-            System.out.println(e.getMessage());
-        }
-        return null;
+        return result;
     }
 
     private ArrayList<String> getSentences(String result) {
+        //System.out.println("before: " + result);
         result = filter(result);
+        //System.out.println("after: " + result);
         //System.out.println("\nresults: " + result);
         ArrayList<String> sentences = new ArrayList<String>();
         String[] split = result.split("~|\\n");
@@ -377,7 +365,7 @@ it appears to be whenever there is a thread of replies
     }*/
 
     public int getDayOfWeek() {
-        if (getDate() != null){
+        if (getDate() != null) {
             Calendar c = Calendar.getInstance();
             c.setTime(getDate());
             return c.get(Calendar.DAY_OF_WEEK);
