@@ -5,37 +5,27 @@ import com.jfoenix.controls.JFXDrawer;
 import com.jfoenix.controls.JFXHamburger;
 import com.jfoenix.controls.JFXMasonryPane;
 import com.jfoenix.transitions.hamburger.HamburgerBasicCloseTransition;
-import eu.hansolo.fx.charts.data.*;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.events.TileEvent;
-import eu.hansolo.tilesfx.skins.RadialChartTileSkin;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.chart.AreaChart;
-import javafx.scene.chart.Chart;
-import javafx.scene.chart.PieChart;
+import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -48,13 +38,10 @@ public class DashboardController implements Initializable {
     private JFXDrawer drawer;
 
     @FXML
-    JFXDrawer filtersDrawer;
+    private JFXDrawer filtersDrawer;
 
     @FXML
     private JFXHamburger hamburger;
-
-    //@FXML
-    //private VBox mainVbox;
 
     @FXML
     private JFXMasonryPane masonryPane;
@@ -75,14 +62,20 @@ public class DashboardController implements Initializable {
     private ColumnConstraints centerColumn;
 
     @FXML
-    JFXButton filtersButton;
+    private JFXButton filtersButton;
 
     //------------------Declaring Variables------------------//
+    private static Stage                myStage;
     private        DashboardDrawer      dashboardDrawer;
     private        FilterDrawer         filterDrawerClass;
     private static BooleanProperty      loadedFromLoginScreen = new SimpleBooleanProperty(false);
     private static ArrayList<ChartData> topSendersData        = new ArrayList<>();
     private        Tile                 topSendersRadialChart;
+
+
+    public static void setStage(Stage s){
+        myStage = s;
+    }
 
 
     public static void addTopSendersData(ChartData d){
@@ -98,8 +91,6 @@ public class DashboardController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         //topSendersDoughnutChart.setTree(treeNode);
         //Resizing crap, this took way to long to figure out thanks javafx
-        //mainVbox.setVgrow(masonryPane, Priority.ALWAYS);
-        //mainVbox.prefWidthProperty().bind(anchorPane.widthProperty());
         topBarGridPane.prefWidthProperty().bind(anchorPane.widthProperty());
         masonryPane.prefWidthProperty().bind(anchorPane.widthProperty());
         masonryPane.maxHeightProperty().bind(anchorPane.heightProperty());
@@ -182,7 +173,7 @@ public class DashboardController implements Initializable {
                 if (newValue) {
                     //Create Radial Chart
                     topSendersRadialChart = TileBuilder.create()
-                            .animationDuration(100000)
+                            .animationDuration(10000)
                             .skinType(Tile.SkinType.RADIAL_CHART)
                             .backgroundColor(Color.TRANSPARENT)
                             .title("Top Senders")
@@ -193,10 +184,22 @@ public class DashboardController implements Initializable {
                             .animated(true)
                             .build();
                     masonryPane.getChildren().add(topSendersRadialChart);
-                    topSendersRadialChart.setOnTileEvent(e->{
+                    //Change scenes based on top sender ChartData selected
+                    topSendersRadialChart.setOnTileEvent( (e) -> {
                         if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
+                            DashboardDrawer.setLoadFolderList(false);
                             ChartData data = e.getData();
                             System.out.println("Selected " + data.getName());
+                            try {
+                                loadedFromLoginScreen.setValue(false);
+                                AnchorPane newScenePane = FXMLLoader.load(getClass().getClassLoader().getResource("Dashboard_Home.fxml"));
+                                Scene newScene = new Scene(newScenePane, 1000, 600);
+                                myStage.requestFocus();
+                                myStage.setScene(newScene);
+                                DashboardDrawer.setLoadFolderList(true);
+                            }catch(IOException error){
+                                error.printStackTrace();
+                            }
                         }
                     });
                 }

@@ -2,6 +2,7 @@ package Controllers;
 
 import Engine.Main;
 import com.jfoenix.controls.*;
+import com.jfoenix.controls.events.JFXDialogEvent;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -14,8 +15,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.effect.BoxBlur;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javax.mail.Session;
@@ -37,10 +40,14 @@ public class DashboardLogin implements Initializable {
     @FXML
     StackPane stackPane;
 
+    @FXML
+    VBox vBox;
+
     //------------------Declaring Variables------------------//
     private static String email, password;
     private static Stage myStage;
     private        BooleanProperty loginSuccessful = new SimpleBooleanProperty(false);
+    private        boolean opened = false;
 
     @FXML
     public void getEmailField(KeyEvent event) {
@@ -83,6 +90,7 @@ public class DashboardLogin implements Initializable {
                     }
                     catch(javax.mail.AuthenticationFailedException  e)
                     {
+                        BoxBlur blur = new BoxBlur(3,3,3);
                         JFXDialogLayout content = new JFXDialogLayout();
                         content.setHeading(new Text("Incorrect Login!"));
                         content.setBody(new Text("Please check your email/password and try again."));
@@ -95,7 +103,15 @@ public class DashboardLogin implements Initializable {
                             }
                         });
                         content.setActions(button);
-                        wrongInfo.show();
+                        if (!opened) {
+                            wrongInfo.show();
+                            vBox.setEffect(blur);
+                            opened = true;
+                        }
+                        wrongInfo.setOnDialogClosed((JFXDialogEvent closedEvent) -> {
+                            vBox.setEffect(null);
+                            opened = false;
+                        });
                     }catch(javax.mail.NoSuchProviderException f){
                         f.printStackTrace();
                     }catch(javax.mail.MessagingException g){

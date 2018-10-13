@@ -27,8 +27,8 @@ public class DashboardDrawer implements Initializable{
     ObservableList<String> list = FXCollections.observableArrayList();
     private static BooleanProperty loadFolderList = new SimpleBooleanProperty(false);
 
-    public static void setLoadFolderListToTrue(){
-        loadFolderList.setValue(true);
+    public static void setLoadFolderList(Boolean b){
+        loadFolderList.setValue(b);
     }
 
 
