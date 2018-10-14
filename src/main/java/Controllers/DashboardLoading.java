@@ -11,7 +11,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
-import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 import javax.mail.Session;
@@ -58,7 +57,7 @@ public class DashboardLoading implements Initializable {
         );
 
         emailNotify.setCursor(Cursor.HAND);
-
+        
         readyLoadingScreen.addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
