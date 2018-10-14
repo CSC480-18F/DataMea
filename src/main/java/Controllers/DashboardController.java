@@ -19,6 +19,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
@@ -114,7 +115,8 @@ public class DashboardController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("Dashboard_Drawer.fxml"));
             VBox box = loader.load();
             dashboardDrawer = loader.getController();
-            dashboardDrawer.dashboardDrawerVBox.maxHeightProperty().bind(anchorPane.heightProperty());
+            //dashboardDrawer.dashboardDrawerVBox.maxHeightProperty().bind(anchorPane.heightProperty());
+            dashboardDrawer.dashboardDrawerVBox.prefHeightProperty().bind(anchorPane.heightProperty());
             drawer.setSidePane(box);
         } catch (IOException ex) {
             Logger.getLogger(DashboardController.class.getName()).log(Level.SEVERE, null, ex);
@@ -136,7 +138,7 @@ public class DashboardController implements Initializable {
             basicCloseTransition.setRate(basicCloseTransition.getRate() * -1);
             basicCloseTransition.play();
             if (drawer.isOpened()) {
-                dashboardDrawer.shrinkListView();
+                DashboardDrawer.setShrinkListToTrue();
                 drawer.close();
                 hamburger.setDisable(true);
                 //This starts a Thread but immediately schedules it to run after 500 milliseconds, so the drawer closing animation can run before making the drawer invisible
@@ -152,7 +154,7 @@ public class DashboardController implements Initializable {
             } else {
                 drawer.setVisible(true);
                 drawer.open();
-                dashboardDrawer.expandListView();
+                DashboardDrawer.setExpandListToTrue();
             }
         });
 
@@ -189,6 +191,7 @@ public class DashboardController implements Initializable {
                             .chartData(topSendersData)
                             .animated(true)
                             .build();
+                    topSendersRadialChart.setCursor(Cursor.HAND);
                     masonryPane.getChildren().add(topSendersRadialChart);
                     //Change scenes based on top sender ChartData selected
                     topSendersRadialChart.setOnTileEvent( (e) -> {

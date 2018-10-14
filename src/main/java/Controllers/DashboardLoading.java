@@ -8,6 +8,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import java.util.*;
@@ -55,6 +56,8 @@ public class DashboardLoading implements Initializable {
         tutorialVideo.getEngine().load(
                 "https://www.youtube.com/embed/J---aiyznGQ?autoplay=1"
         );
+
+        emailNotify.setCursor(Cursor.HAND);
 
         readyLoadingScreen.addListener(new ChangeListener<Boolean>() {
             @Override
