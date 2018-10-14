@@ -44,10 +44,14 @@ public class User {
 
 
     public ArrayList<Sender> getTopSendersForFolder(String folderName) {
+        boolean all = false;
+        if (folderName.equals("AllFolders")) {
+            all = true;
+        }
         ArrayList<Sender> topSenders = new ArrayList<>();
         ArrayList<String> senderNames = new ArrayList<>();
         for (Email e : emails) {
-            if (e.getFolder().equals(folderName)) {
+            if (e.getFolder().equals(folderName) || all) {
                 if (!senderNames.contains(e.getSender().getAddress())) {
                     senderNames.add(e.getSender().getAddress());
                     topSenders.add(new Sender(e.getSender().getAddress()));
@@ -242,9 +246,6 @@ public class User {
     }
 
 
-                    //System.out.println(e.toString());
-
-
     public void writeMessages(Folder f, Folder sub, boolean runSentiment, String originPath) {
         System.out.println("Currently reading/writing: " + f.getName() + "    Subfolder: " + sub.getName());
         Message [] messages = new Message[0];
@@ -347,7 +348,7 @@ public class User {
 
         for (int i = 0; i < folders.length; i++) {
             String name = folders[i].getName();
-            if (!name.equalsIgnoreCase("[Gmail]") && !name.equalsIgnoreCase("inbox")) {
+            if (!name.equalsIgnoreCase("[Gmail]") /*&& !name.equalsIgnoreCase("inbox")*/) {
                 readFolderAndSerializeEmails(folders[i], runSentiment);
             }
 

@@ -82,7 +82,7 @@ public class Main extends Application {
                             //Add top senders data to Radial Chart
                             //if (currentUser.getFolders().get(0).getSenders().size() < 5) {
                             String folderName = currentUser.recoverFolders().get(0).folderName;
-                            int numSendersInFolder = currentUser.getTopSendersForFolder(folderName).size();
+                            int numSendersInFolder = currentUser.getTopSendersForFolder("AllFolders").size();
                             //only display top 10 senders for the selected folder
                             if (numSendersInFolder > 5) {
                                 numSendersInFolder = 5;
