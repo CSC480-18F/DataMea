@@ -1,5 +1,6 @@
 package Controllers;
 
+import Engine.Main;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDrawer;
 import com.jfoenix.controls.JFXHamburger;
@@ -9,6 +10,7 @@ import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.events.TileEvent;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -16,7 +18,9 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -64,6 +68,7 @@ public class DashboardController implements Initializable {
     @FXML
     private JFXButton filtersButton;
 
+
     //------------------Declaring Variables------------------//
     private static Stage                myStage;
     private        DashboardDrawer      dashboardDrawer;
@@ -71,6 +76,7 @@ public class DashboardController implements Initializable {
     private static BooleanProperty      loadedFromLoginScreen = new SimpleBooleanProperty(false);
     private static ArrayList<ChartData> topSendersData        = new ArrayList<>();
     private        Tile                 topSendersRadialChart;
+    private        GridPane             heatMapGridPane;
 
 
     public static void setStage(Stage s){
@@ -202,6 +208,46 @@ public class DashboardController implements Initializable {
                             }
                         }
                     });
+
+                    int[][] heatMapData = Main.getCurrentUser().generateDayOfWeekFrequency();
+                    VBox heatMapAndTitle = new VBox();
+                    Pane heatMapPane = new Pane();
+                    Label heatMapTitle = new Label("Received Email Frequency");
+                    heatMapTitle.setTextFill(Color.LIGHTGRAY);
+                    heatMapTitle.setStyle("-fx-font: 22 System;");
+                    heatMapPane.setMinSize(400,400);
+                    heatMapPane.setPrefSize(400,400);
+                    heatMapGridPane = new GridPane();
+                    heatMapGridPane.setPrefSize(400, 400);
+
+                    for (int i = 0 ; i < heatMapData.length; i++) {
+                        Label day = new Label(Main.getCurrentUser().getDay(i));
+                        day.setStyle("-fx-text-fill: #ff931e;");
+                        heatMapGridPane.add(day, 0, i + 1);
+                        day.setMinWidth(Region.USE_PREF_SIZE);
+                        day.setMaxWidth(Region.USE_PREF_SIZE);
+
+                        for (int j = 0; j < heatMapData[1].length; j++) {
+                            Label hour = new Label(Integer.toString(j + 1));
+                            hour.setStyle("-fx-text-fill: #ff931e;");
+                            heatMapGridPane.add(hour, j + 1, 0);
+                            hour.setMinWidth(Region.USE_PREF_SIZE);
+                            hour.setMaxWidth(Region.USE_PREF_SIZE);
+
+
+                            Pane pane = new Pane();
+                            pane.setMinSize(20,20);
+                            pane.setStyle(Main.getCurrentUser().getColorForHeatMap(heatMapData[i][j]));
+                            heatMapGridPane.add(pane, j + 1, i + 1);
+                        }
+                    }
+                    heatMapGridPane.setGridLinesVisible(true);
+                    heatMapGridPane.setVisible(true);
+                    heatMapPane.getChildren().add(heatMapGridPane);
+                    heatMapAndTitle.getChildren().addAll(heatMapTitle,heatMapPane);
+                    heatMapAndTitle.setSpacing(5);
+                    heatMapAndTitle.setPadding(new Insets(20));
+                    masonryPane.getChildren().add(heatMapAndTitle);
                 }
             }
         });

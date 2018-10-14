@@ -1,10 +1,11 @@
 package Engine;
 
-import com.detectlanguage.errors.APIError;
 
 import javax.mail.*;
+import java.awt.*;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.io.*;
 
@@ -18,6 +19,8 @@ public class User {
     private String                  folderName;
     private ArrayList<Email>        emails;
     private ArrayList<UserFolder>   folders;
+    private int[][] dayOfWeekFrequency;
+    private int frequencyDifference = -1;
 
 
     public User(String email, String password, Boolean runSentimentAnalysis) {
@@ -64,12 +67,10 @@ public class User {
 
 
 
-
-
-
     public ArrayList<UserFolder> recoverFolders() {
         ArrayList<UserFolder> f = new ArrayList<>();
         ArrayList<String> folderNames = new ArrayList<>();
+
         for (Email e : emails) {
 
             if (!folderNames.contains(e.getFolder())) {
@@ -241,6 +242,9 @@ public class User {
     }
 
 
+                    //System.out.println(e.toString());
+
+
     public void writeMessages(Folder f, Folder sub, boolean runSentiment, String originPath) {
         System.out.println("Currently reading/writing: " + f.getName() + "    Subfolder: " + sub.getName());
         Message [] messages = new Message[0];
@@ -313,17 +317,14 @@ public class User {
                     System.out.println("uh oh, something went wrong");
                 } catch (MessagingException e) {
                     System.out.println("cannot get flags");
-                } catch (APIError e) {
-                    System.out.println("cannot properly create email");
                 }
 
             } else {
                 break;
             }
 
+
         }
-
-
     }
 
 
@@ -399,6 +400,111 @@ public class User {
         return result;
     }
 
+    public int[][] generateDayOfWeekFrequency() {
+
+        int ZERO = 0;
+        int ONE = 100;
+        int TWO = 200;
+        int THREE = 300;
+        int FOUR = 400;
+        int FIVE = 500;
+        int SIX = 600;
+        int SEVEN = 700;
+        int EIGHT = 800;
+        int NINE = 900;
+        int TEN = 1000;
+        int ELEVEN = 1100;
+        int TWELVE = 1200;
+        int THIRT = 1300;
+        int FOURT = 1400;
+        int FIFT = 1500;
+        int SIXT = 1600;
+        int SEVENT = 1700;
+        int EIGHTT = 1800;
+        int NINET = 1900;
+        int TWENTY = 2000;
+        int TWENTONE = 2100;
+        int TWENTTWO = 2200;
+        int TWENTTHREE = 2300;
+        int TWENTFOUR = 2400;
+
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("kkmm");
+
+        dayOfWeekFrequency = new int[7][24];
+
+        for (Email e : getEmails()) {
+            int dayOfWeek = e.getDayOfWeek() - 1;
+            Date d = e.getDate();
+            String time = dateFormatter.format(d);
+            int t = Integer.parseInt(time);
+
+            if (t >= ZERO && t < ONE) dayOfWeekFrequency[dayOfWeek][0]++;
+            else if (t >= ONE && t < TWO) dayOfWeekFrequency[dayOfWeek][1]++;
+            else if (t >= TWO && t < THREE) dayOfWeekFrequency[dayOfWeek][2]++;
+            else if (t >= THREE && t < FOUR) dayOfWeekFrequency[dayOfWeek][3]++;
+            else if (t >= FOUR && t < FIVE) dayOfWeekFrequency[dayOfWeek][4]++;
+            else if (t >= FIVE && t < SIX) dayOfWeekFrequency[dayOfWeek][5]++;
+            else if (t >= SIX && t < SEVEN) dayOfWeekFrequency[dayOfWeek][6]++;
+            else if (t >= SEVEN && t < EIGHT) dayOfWeekFrequency[dayOfWeek][7]++;
+            else if (t >= EIGHT && t < NINE) dayOfWeekFrequency[dayOfWeek][8]++;
+            else if (t >= NINE && t < TEN) dayOfWeekFrequency[dayOfWeek][9]++;
+            else if (t >= TEN && t < ELEVEN) dayOfWeekFrequency[dayOfWeek][10]++;
+            else if (t >= ELEVEN && t < TWELVE) dayOfWeekFrequency[dayOfWeek][11]++;
+            else if (t >= TWELVE && t < THIRT) dayOfWeekFrequency[dayOfWeek][12]++;
+            else if (t >= THIRT && t < FOURT) dayOfWeekFrequency[dayOfWeek][13]++;
+            else if (t >= FOURT && t < FIFT) dayOfWeekFrequency[dayOfWeek][14]++;
+            else if (t >= FIFT && t < SIXT) dayOfWeekFrequency[dayOfWeek][15]++;
+            else if (t >= SIXT && t < SEVENT) dayOfWeekFrequency[dayOfWeek][16]++;
+            else if (t >= SEVENT && t < EIGHTT) dayOfWeekFrequency[dayOfWeek][17]++;
+            else if (t >= EIGHTT && t < NINET) dayOfWeekFrequency[dayOfWeek][18]++;
+            else if (t >= NINET && t < TWENTY) dayOfWeekFrequency[dayOfWeek][19]++;
+            else if (t >= TWENTY && t < TWENTONE) dayOfWeekFrequency[dayOfWeek][20]++;
+            else if (t >= TWENTONE && t < TWENTTWO) dayOfWeekFrequency[dayOfWeek][21]++;
+            else if (t >= TWENTTWO && t < TWENTTHREE) dayOfWeekFrequency[dayOfWeek][22]++;
+            else if (t >= TWENTTHREE && t < TWENTFOUR) dayOfWeekFrequency[dayOfWeek][23]++;
+        }
+
+        return dayOfWeekFrequency;
+    }
+
+    public void differenceMinMax(){
+
+        if(this.frequencyDifference < 0) {
+
+            int[][] heatMap = getDayOfWeekFrequency();
+            int min = heatMap[0][0];
+            int max = heatMap[0][0];
+            for (int i = 0; i < heatMap.length; i++) {
+                for (int j = 0; j < heatMap[i].length; j++) {
+                    if (heatMap[i][j] < min) min = heatMap[i][j];
+                    else if (heatMap[i][j] > max) max = heatMap[i][j];
+                }
+            }
+
+            this.frequencyDifference = max - min;
+        }
+
+    }
+
+    public String getColorForHeatMap(int i){
+
+        differenceMinMax();
+
+        int diff = this.frequencyDifference;
+
+        float h = .75f;
+        float s = 1f;
+        float b = 1f / (float)diff * i;
+
+
+        if(i == 0)
+            return "-fx-background-color: transparent;";
+        else
+            return "-fx-background-color: #" + Integer.toHexString((Color.HSBtoRGB(h, s, b)));
+    }
+
+    public int[][] getDayOfWeekFrequency() { return dayOfWeekFrequency; }
+
     public long getLastLogin() {
         return lastLogin;
     }
@@ -422,4 +528,31 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public ArrayList<Email> getEmails() {
+        return emails;
+    }
+
+    public static String getDay(int i){
+        switch(i) {
+            case 0:
+                return "Sun";
+            case 1:
+                return "Mon";
+            case 2:
+                return "Tue";
+            case 3:
+                return "Wed";
+            case 4:
+                return "Thu";
+            case 5:
+                return "Fri";
+            case 6:
+                return "Sat";
+            default:
+                return "";
+        }
+    }
 }
+
+

@@ -20,13 +20,13 @@ import java.util.ResourceBundle;
 
 public class DashboardLoading implements Initializable {
     @FXML
-    WebView tutorialVideo;
+    private WebView tutorialVideo;
 
     @FXML
-    JFXCheckBox emailNotify;
+    private JFXCheckBox emailNotify;
 
     @FXML
-    JFXProgressBar progressBar;
+    private JFXProgressBar progressBar;
 
     //------------------Declaring Variables------------------//
     private static Stage myStage;

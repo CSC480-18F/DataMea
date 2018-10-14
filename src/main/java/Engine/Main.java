@@ -2,6 +2,8 @@ package Engine;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+
 import Controllers.*;
 import eu.hansolo.tilesfx.chart.ChartData;
 import javafx.application.Application;
@@ -36,6 +38,8 @@ public class Main extends Application {
     public static void setStartLoadingToTrue(){
         startLoading.setValue(true);
     }
+
+    public static User getCurrentUser() { return currentUser; }
 
     public class ResourceLoadingTask extends Task<Void> {
         @Override
