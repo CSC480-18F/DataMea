@@ -66,6 +66,23 @@ public class User {
         colors.add(javafx.scene.paint.Color.valueOf("#fed330"));
         colors.add(javafx.scene.paint.Color.valueOf("#26de81"));
         colors.add(javafx.scene.paint.Color.valueOf("#2bcbba"));
+        colors.add(javafx.scene.paint.Color.valueOf("#eb3b5a"));
+        colors.add(javafx.scene.paint.Color.valueOf("#fa8231"));
+        colors.add(javafx.scene.paint.Color.valueOf("#f7b731"));
+        colors.add(javafx.scene.paint.Color.valueOf("#20bf6b"));
+        colors.add(javafx.scene.paint.Color.valueOf("#0fb9b1"));
+        colors.add(javafx.scene.paint.Color.valueOf("#45aaf2"));
+        colors.add(javafx.scene.paint.Color.valueOf("#4b7bec"));
+        colors.add(javafx.scene.paint.Color.valueOf("#a55eea"));
+        colors.add(javafx.scene.paint.Color.valueOf("#d1d8e0"));
+        colors.add(javafx.scene.paint.Color.valueOf("#778ca3"));
+        colors.add(javafx.scene.paint.Color.valueOf("#2d98da"));
+        colors.add(javafx.scene.paint.Color.valueOf("#3867d6"));
+        colors.add(javafx.scene.paint.Color.valueOf("#8854d0"));
+        colors.add(javafx.scene.paint.Color.valueOf("#a5b1c2"));
+        colors.add(javafx.scene.paint.Color.valueOf("#4b6584"));
+
+
         int colorCount = 0;
 
         for (UserFolder uf: folders) {
@@ -83,7 +100,11 @@ public class User {
                     TreeNode subfold = new TreeNode(new ChartData("", numEmailsInSubFolder, javafx.scene.paint.Color.TRANSPARENT), temp);
                 }
             }
-            colorCount++;
+            if(colorCount < 19) {
+                colorCount++;
+            }else{
+                colorCount = 0;
+            }
         }
         return treeRoot;
     }
