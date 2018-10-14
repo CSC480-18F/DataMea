@@ -17,10 +17,12 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -74,27 +76,27 @@ public class DashboardController implements Initializable {
 
 
     //------------------Declaring Variables------------------//
-    private static Stage                myStage;
-    private        DashboardDrawer      dashboardDrawer;
-    private        FilterDrawer         filterDrawerClass;
-    private static BooleanProperty      loadedFromLoginScreen   = new SimpleBooleanProperty(false);
-    private static ArrayList<ChartData> topSendersData          = new ArrayList<>();
-    private        Tile                 topSendersRadialChart;
-    private        GridPane             heatMapGridPane;
-    private        User                 currentUser             = Main.getCurrentUser();
+    private static Stage myStage;
+    private DashboardDrawer dashboardDrawer;
+    private FilterDrawer filterDrawerClass;
+    private static BooleanProperty loadedFromLoginScreen = new SimpleBooleanProperty(false);
+    private static ArrayList<ChartData> topSendersData = new ArrayList<>();
+    private Tile topSendersRadialChart;
+    private GridPane heatMapGridPane;
+    private User currentUser = Main.getCurrentUser();
 
 
-    public static void setStage(Stage s){
+    public static void setStage(Stage s) {
         myStage = s;
     }
 
 
-    public static void addTopSendersData(ChartData d){
+    public static void addTopSendersData(ChartData d) {
         //topSendersData.add(d);
         topSendersData.add(d);
     }
 
-    public static void setLoadedFromLoginScreenToTrue(){
+    public static void setLoadedFromLoginScreenToTrue() {
         loadedFromLoginScreen.setValue(true);
     }
 
@@ -191,14 +193,14 @@ public class DashboardController implements Initializable {
                             .title("Top Senders")
                             .textVisible(true)
                             .titleAlignment(TextAlignment.CENTER)
-                            .prefSize(400,400)
+                            .prefSize(400, 400)
                             .chartData(topSendersData)
                             .animated(true)
                             .build();
                     topSendersRadialChart.setCursor(Cursor.HAND);
                     masonryPane.getChildren().add(topSendersRadialChart);
                     //Change scenes based on top sender ChartData selected
-                    topSendersRadialChart.setOnTileEvent( (e) -> {
+                    topSendersRadialChart.setOnTileEvent((e) -> {
                         if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
                             DashboardDrawer.setLoadFolderList(false);
                             ChartData data = e.getData();
@@ -210,7 +212,7 @@ public class DashboardController implements Initializable {
                                 myStage.requestFocus();
                                 myStage.setScene(newScene);
                                 DashboardDrawer.setLoadFolderList(true);
-                            }catch(IOException error){
+                            } catch (IOException error) {
                                 error.printStackTrace();
                             }
                         }
@@ -226,12 +228,12 @@ public class DashboardController implements Initializable {
                     Label heatMapTitle = new Label("Received Email Frequency");
                     heatMapTitle.setTextFill(Color.LIGHTGRAY);
                     heatMapTitle.setStyle("-fx-font: 22 System;");
-                    heatMapPane.setMinSize(400,400);
-                    heatMapPane.setPrefSize(400,400);
+                    heatMapPane.setMinSize(400, 400);
+                    heatMapPane.setPrefSize(400, 400);
                     heatMapGridPane = new GridPane();
                     heatMapGridPane.setPrefSize(400, 400);
 
-                    for (int i = 0 ; i < heatMapData.length; i++) {
+                    for (int i = 0; i < heatMapData.length; i++) {
                         Label day = new Label(Main.getCurrentUser().getDay(i));
                         day.setStyle("-fx-text-fill: #ff931e;");
                         heatMapGridPane.add(day, 0, i + 1);
@@ -239,23 +241,42 @@ public class DashboardController implements Initializable {
                         day.setMaxWidth(Region.USE_PREF_SIZE);
 
                         for (int j = 0; j < heatMapData[1].length; j++) {
-                            Label hour = new Label(Integer.toString(j + 1));
+                            Label hour = new Label(Integer.toString(j));
                             hour.setStyle("-fx-text-fill: #ff931e;");
                             heatMapGridPane.add(hour, j + 1, 0);
                             hour.setMinWidth(Region.USE_PREF_SIZE);
                             hour.setMaxWidth(Region.USE_PREF_SIZE);
 
 
-                            Pane pane = new Pane();
-                            pane.setMinSize(20,20);
+                            StackPane pane = new StackPane();
+                            pane.setMinSize(20, 20);
                             pane.setStyle(Main.getCurrentUser().getColorForHeatMap(heatMapData[i][j]));
+
+                            Label freq = new Label(Integer.toString(heatMapData[i][j]));
+                            freq.setTextFill(Color.LIGHTGRAY);
+
+                            pane.setOnMouseEntered(new EventHandler<MouseEvent>() {
+                                @Override
+                                public void handle(MouseEvent event) {
+                                    pane.getChildren().add(freq);
+                                    StackPane.setAlignment(freq, Pos.CENTER);
+                                }
+                            });
+
+                            pane.setOnMouseExited(new EventHandler<MouseEvent>() {
+                                @Override
+                                public void handle(MouseEvent event) {
+                                    pane.getChildren().remove(freq);
+                                }
+                            });
+
                             heatMapGridPane.add(pane, j + 1, i + 1);
                         }
                     }
                     heatMapGridPane.setGridLinesVisible(true);
                     heatMapGridPane.setVisible(true);
                     heatMapPane.getChildren().add(heatMapGridPane);
-                    heatMapAndTitle.getChildren().addAll(heatMapTitle,heatMapPane);
+                    heatMapAndTitle.getChildren().addAll(heatMapTitle, heatMapPane);
                     heatMapAndTitle.setSpacing(5);
                     heatMapAndTitle.setPadding(new Insets(20));
                     masonryPane.getChildren().add(heatMapAndTitle);
