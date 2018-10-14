@@ -35,9 +35,15 @@ public class DashboardLoading implements Initializable {
     private static String appEmail_Username = "datameaapp@gmail.com";
     private static String appEmail_Password = "CSC480HCI521";
     private static  String appEmail_Recipient;
+    private static BooleanProperty          readyLoadingScreen = new SimpleBooleanProperty(false);
+
 
     public static void setStopVideoToTrue(){
         stopVideo.setValue(true);
+    }
+
+    public static void setReadyLoadingScreenToTrue(){
+        readyLoadingScreen.setValue(true);
     }
 
     public static void setStage(Stage stage) {
@@ -46,16 +52,26 @@ public class DashboardLoading implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        appEmail_Recipient = DashboardLogin.getEmail();
-        String from = appEmail_Username;
-        String pass = appEmail_Password;
-        String to = appEmail_Recipient;
-        String subject = "Java send mail example";
-        String body = "Welcome to JavaMail!";
-        sendFromGMail(from, pass, to, subject, body);
         tutorialVideo.getEngine().load(
                 "https://www.youtube.com/embed/J---aiyznGQ?autoplay=1"
         );
+
+        readyLoadingScreen.addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+
+                    appEmail_Recipient = DashboardLogin.getEmail();
+
+                    emailNotify.selectedProperty().addListener(new ChangeListener<Boolean>() {
+                        @Override
+                        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                            //sendFromGMail(appEmail_Username, appEmail_Password, appEmail_Recipient, "DataMea Ready", "Body Stuff");
+                        }
+                    });
+                }
+            }
+        });
 
         stopVideo.addListener(new ChangeListener<Boolean>() {
             @Override
@@ -63,13 +79,6 @@ public class DashboardLoading implements Initializable {
                 if (newValue) {
                     tutorialVideo.getEngine().load(null);
                 }
-            }
-        });
-
-        emailNotify.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                sendFromGMail(appEmail_Username, appEmail_Password, appEmail_Recipient, "DataMea Ready", "Body Stuff");
             }
         });
     }
