@@ -26,6 +26,7 @@ public class User {
     private ArrayList<UserFolder>   folders;
     private int[][] dayOfWeekFrequency;
     private int frequencyDifference = -1;
+    private ArrayList<javafx.scene.paint.Color> colors = new ArrayList<>();
 
 
     public User(String email, String password, Boolean runSentimentAnalysis) {
@@ -60,26 +61,29 @@ public class User {
 
     public TreeNode getFoldersCountForSunburst(){
         TreeNode treeRoot   = new TreeNode(new ChartData("ROOT"));
+        colors.add(javafx.scene.paint.Color.valueOf("#fc5c65"));
+        colors.add(javafx.scene.paint.Color.valueOf("#fd9644"));
+        colors.add(javafx.scene.paint.Color.valueOf("#fed330"));
+        colors.add(javafx.scene.paint.Color.valueOf("#26de81"));
+        colors.add(javafx.scene.paint.Color.valueOf("#2bcbba"));
+        int colorCount = 0;
 
         for (UserFolder uf: folders) {
-
             int numEmailsInFolder = getNumEmailsInFolder(uf.getFolderName());
-            TreeNode temp = new TreeNode(new ChartData(uf.folderName, numEmailsInFolder ), treeRoot);
+            TreeNode temp = new TreeNode(new ChartData(uf.folderName, numEmailsInFolder, colors.get(colorCount)), treeRoot);
 
             for (String f: uf.subFolders) {
                 if (!f.equals(uf.folderName)) {
                     //if the folder does not match the subfolder name, add the node normally
                     int numEmailsInSubFolder = getNumEmailsInSubFolder(uf.getFolderName(), f);
-                    TreeNode subfold = new TreeNode(new ChartData(f, numEmailsInSubFolder), temp);
+                    TreeNode subfold = new TreeNode(new ChartData(f, numEmailsInSubFolder, colors.get(colorCount)), temp);
                 } else {
                     //else, add the node but make it invisible so it takes up the correct section of the pie
-                    // TODO: figure out how to make this TREENODE INVISIBLE
-
                     int numEmailsInSubFolder = getNumEmailsInSubFolder(uf.getFolderName(), f);
-                    TreeNode subfold = new TreeNode(new ChartData(f, numEmailsInSubFolder, Tile.BACKGROUND), temp);
-
+                    TreeNode subfold = new TreeNode(new ChartData("", numEmailsInSubFolder, javafx.scene.paint.Color.TRANSPARENT), temp);
                 }
             }
+            colorCount++;
         }
         return treeRoot;
     }

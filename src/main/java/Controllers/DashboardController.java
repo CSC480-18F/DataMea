@@ -11,6 +11,7 @@ import com.jfoenix.transitions.hamburger.HamburgerBasicCloseTransition;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.chart.ChartData;
+import eu.hansolo.tilesfx.chart.SunburstChart;
 import eu.hansolo.tilesfx.events.TileEvent;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -83,7 +84,8 @@ public class DashboardController implements Initializable {
     private static ArrayList<ChartData> topSendersData = new ArrayList<>();
     private Tile topSendersRadialChart;
     private GridPane heatMapGridPane;
-    private User currentUser = Main.getCurrentUser();
+    private Tile foldersSunburstChart;
+    private User currentUser;
 
 
     public static void setStage(Stage s) {
@@ -185,7 +187,8 @@ public class DashboardController implements Initializable {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if (newValue) {
-                    //Create Radial Chart
+                    currentUser = Main.getCurrentUser();
+                    //Top senders Radial Chart:
                     topSendersRadialChart = TileBuilder.create()
                             .animationDuration(10000)
                             .skinType(Tile.SkinType.RADIAL_CHART)
@@ -218,6 +221,7 @@ public class DashboardController implements Initializable {
                         }
                     });
 
+                    //HeatMap:
                     //rather than using em here, assign the value of em to be whatever the list of emails we want
                     //aka, add filter, and then display those results
                     ArrayList<Email> em = Main.getCurrentUser().getEmails();
@@ -228,10 +232,9 @@ public class DashboardController implements Initializable {
                     Label heatMapTitle = new Label("Received Email Frequency");
                     heatMapTitle.setTextFill(Color.LIGHTGRAY);
                     heatMapTitle.setStyle("-fx-font: 22 System;");
-                    heatMapPane.setMinSize(400, 400);
-                    heatMapPane.setPrefSize(400, 400);
+                    heatMapPane.setPrefSize(600, 300);
                     heatMapGridPane = new GridPane();
-                    heatMapGridPane.setPrefSize(400, 400);
+                    heatMapGridPane.setPrefSize(600, 300);
 
                     for (int i = 0; i < heatMapData.length; i++) {
                         Label day = new Label(Main.getCurrentUser().getDay(i));
@@ -249,6 +252,7 @@ public class DashboardController implements Initializable {
 
 
                             StackPane pane = new StackPane();
+                            pane.setCursor(Cursor.HAND);
                             pane.setMinSize(20, 20);
                             pane.setStyle(Main.getCurrentUser().getColorForHeatMap(heatMapData[i][j]));
 
@@ -274,12 +278,28 @@ public class DashboardController implements Initializable {
                         }
                     }
                     heatMapGridPane.setGridLinesVisible(true);
-                    heatMapGridPane.setVisible(true);
                     heatMapPane.getChildren().add(heatMapGridPane);
                     heatMapAndTitle.getChildren().addAll(heatMapTitle, heatMapPane);
                     heatMapAndTitle.setSpacing(5);
                     heatMapAndTitle.setPadding(new Insets(20));
                     masonryPane.getChildren().add(heatMapAndTitle);
+
+
+                    //Folders SunburstChart:
+                    foldersSunburstChart = TileBuilder.create()
+                            .skinType(Tile.SkinType.SUNBURST)
+                            .backgroundColor(Color.TRANSPARENT)
+                            .sunburstBackgroundColor(Color.TRANSPARENT)
+                            .title("Folder Structure")
+                            .textVisible(true)
+                            .titleAlignment(TextAlignment.CENTER)
+                            .sunburstTextOrientation(SunburstChart.TextOrientation.HORIZONTAL)
+                            .minSize(400, 400)
+                            .prefSize(400, 400)
+                            .sunburstTree(currentUser.getFoldersCountForSunburst())
+                            .sunburstInteractive(true)
+                            .build();
+                    masonryPane.getChildren().add(foldersSunburstChart);
                 }
             }
         });
