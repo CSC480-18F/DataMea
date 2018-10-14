@@ -1,6 +1,10 @@
 package Engine;
 
 
+import apple.laf.JRSUIUtils;
+import eu.hansolo.tilesfx.chart.ChartData;
+import eu.hansolo.tilesfx.tools.TreeNode;
+
 import javax.mail.*;
 import java.awt.*;
 import java.io.IOException;
@@ -50,6 +54,44 @@ public class User {
             }
         }
         return filteredEmails;
+    }
+
+
+    public TreeNode getFoldersCountForSunburst(){
+        TreeNode treeRoot   = new TreeNode(new ChartData("ROOT"));
+
+        for (UserFolder uf: folders) {
+
+            int numEmailsInFolder = getNumEmailsInFolder(uf.getFolderName());
+            TreeNode temp = new TreeNode(new ChartData(uf.folderName, numEmailsInFolder ), treeRoot);
+
+            for (String f: uf.subFolders) {
+                int numEmailsInSubFolder = getNumEmailsInSubFolder(uf.getFolderName(), f);
+                TreeNode subfold = new TreeNode(new ChartData(f, numEmailsInSubFolder), temp);
+            }
+        }
+        return treeRoot;
+    }
+
+
+    public int getNumEmailsInFolder(String folderName) {
+        int count = 0;
+        for (Email e: getEmails()) {
+            if (e.getFolder().equals(folderName)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public int getNumEmailsInSubFolder(String folderName, String subFolderName) {
+        int count = 0;
+        for (Email e: getEmails()) {
+            if (e.getFolder().equals(folderName) && e.getSubFolder().equals(subFolderName)) {
+                count++;
+            }
+        }
+        return count;
     }
 
 
