@@ -42,16 +42,30 @@ public class User {
     }
 
 
+    public ArrayList<Email> getEmailsFromFolder(String folderName, String subFolderName) {
+        ArrayList<Email> filteredEmails = new ArrayList<>();
+        for (Email e: this.emails) {
+            if (e.getFolder().equalsIgnoreCase(folderName) && e.getSubFolder().equalsIgnoreCase(subFolderName)) {
+                filteredEmails.add(e);
+            }
+        }
+        return filteredEmails;
+    }
 
-    public ArrayList<Sender> getTopSendersForFolder(String folderName) {
+
+    public ArrayList<Sender> getTopSendersForFolder(String folderName, String subFolderName) {
         boolean all = false;
+        boolean subFolderBool = false;
         if (folderName.equals("AllFolders")) {
             all = true;
+        }
+        if (subFolderName.equals("")) {
+            subFolderBool = true;
         }
         ArrayList<Sender> topSenders = new ArrayList<>();
         ArrayList<String> senderNames = new ArrayList<>();
         for (Email e : emails) {
-            if (e.getFolder().equals(folderName) || all) {
+            if ((e.getFolder().equals(folderName) && e.getSubFolder().equals(subFolderName))|| all || (e.getFolder().equals(folderName) && subFolderBool) ) {
                 if (!senderNames.contains(e.getSender().getAddress())) {
                     senderNames.add(e.getSender().getAddress());
                     topSenders.add(new Sender(e.getSender().getAddress()));
@@ -99,8 +113,14 @@ public class User {
         File[] e = temp.listFiles();
         emails = new ArrayList<Email>();
         for (File f : e) {
-            Email em = new Email(f);
-            this.emails.add(em);
+            try {
+                Email em = new Email(f);
+                this.emails.add(em);
+            } catch (Exception em) {
+                System.out.println("Email cannot be properly read..");
+                em.printStackTrace();
+            }
+
         }
 
         return emails;
@@ -400,7 +420,10 @@ public class User {
         return result;
     }
 
-    public int[][] generateDayOfWeekFrequency() {
+
+
+    //add a paramater to specify which emails to populate for the heatmap
+    public int[][] generateDayOfWeekFrequency(ArrayList<Email> emailsOfIntrest) {
 
         int ZERO = 0;
         int ONE = 100;
@@ -432,7 +455,7 @@ public class User {
 
         dayOfWeekFrequency = new int[7][24];
 
-        for (Email e : getEmails()) {
+        for (Email e : emailsOfIntrest) {
             int dayOfWeek = e.getDayOfWeek() - 1;
             Date d = e.getDate();
             String time = dateFormatter.format(d);

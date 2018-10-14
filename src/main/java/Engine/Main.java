@@ -82,7 +82,7 @@ public class Main extends Application {
                             //Add top senders data to Radial Chart
                             //if (currentUser.getFolders().get(0).getSenders().size() < 5) {
                             String folderName = currentUser.recoverFolders().get(0).folderName;
-                            int numSendersInFolder = currentUser.getTopSendersForFolder("AllFolders").size();
+                            int numSendersInFolder = currentUser.getTopSendersForFolder("AllFolders", "").size();
                             //only display top 10 senders for the selected folder
                             if (numSendersInFolder > 5) {
                                 numSendersInFolder = 5;
@@ -90,8 +90,8 @@ public class Main extends Application {
                                 for (int i = 0; i < numSendersInFolder; i++) {
                                     //Created ChartData for top senders radial chart
                                     ChartData temp = new ChartData();
-                                    temp.setValue((double) currentUser.getTopSendersForFolder(folderName).get(i).numEmailsSent);
-                                    temp.setName(currentUser.getTopSendersForFolder(folderName).get(i).filterName());
+                                    temp.setValue((double) currentUser.getTopSendersForFolder(folderName, "").get(i).numEmailsSent);
+                                    temp.setName(currentUser.getTopSendersForFolder(folderName, "").get(i).filterName());
                                     temp.setFillColor(colors.get(i));
                                     DashboardController.addTopSendersData(temp);
                                 }

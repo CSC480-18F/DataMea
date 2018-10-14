@@ -1,6 +1,8 @@
 package Controllers;
 
 import Engine.Main;
+import Engine.User;
+import Engine.Email;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDrawer;
 import com.jfoenix.controls.JFXHamburger;
@@ -29,6 +31,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -74,10 +77,11 @@ public class DashboardController implements Initializable {
     private static Stage                myStage;
     private        DashboardDrawer      dashboardDrawer;
     private        FilterDrawer         filterDrawerClass;
-    private static BooleanProperty      loadedFromLoginScreen = new SimpleBooleanProperty(false);
-    private static ArrayList<ChartData> topSendersData        = new ArrayList<>();
+    private static BooleanProperty      loadedFromLoginScreen   = new SimpleBooleanProperty(false);
+    private static ArrayList<ChartData> topSendersData          = new ArrayList<>();
     private        Tile                 topSendersRadialChart;
     private        GridPane             heatMapGridPane;
+    private        User                 currentUser             = Main.getCurrentUser();
 
 
     public static void setStage(Stage s){
@@ -212,7 +216,11 @@ public class DashboardController implements Initializable {
                         }
                     });
 
-                    int[][] heatMapData = Main.getCurrentUser().generateDayOfWeekFrequency();
+                    //rather than using em here, assign the value of em to be whatever the list of emails we want
+                    //aka, add filter, and then display those results
+                    ArrayList<Email> em = Main.getCurrentUser().getEmails();
+                    //ArrayList<Email> em2 = Main.getCurrentUser().getEmailsFromFolder("first year admin stuff", "testFolder");
+                    int[][] heatMapData = Main.getCurrentUser().generateDayOfWeekFrequency(em);
                     VBox heatMapAndTitle = new VBox();
                     Pane heatMapPane = new Pane();
                     Label heatMapTitle = new Label("Received Email Frequency");

@@ -17,7 +17,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-class Email {
+public class Email {
 
     //------------------Declaring Variables------------------//
     //final   static String     API_KEY = "4f4d63ac606a0ee5e0064aa296ce88b4";
