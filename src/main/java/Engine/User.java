@@ -66,8 +66,10 @@ public class User {
             TreeNode temp = new TreeNode(new ChartData(uf.folderName, numEmailsInFolder ), treeRoot);
 
             for (String f: uf.subFolders) {
-                int numEmailsInSubFolder = getNumEmailsInSubFolder(uf.getFolderName(), f);
-                TreeNode subfold = new TreeNode(new ChartData(f, numEmailsInSubFolder), temp);
+                if (!f.equals(uf.folderName)) {
+                    int numEmailsInSubFolder = getNumEmailsInSubFolder(uf.getFolderName(), f);
+                    TreeNode subfold = new TreeNode(new ChartData(f, numEmailsInSubFolder), temp);
+                }
             }
         }
         return treeRoot;
