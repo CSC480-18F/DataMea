@@ -3,6 +3,7 @@ package Controllers;
 import Engine.Main;
 import Engine.UserFolder;
 import com.jfoenix.controls.JFXListView;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -27,14 +28,28 @@ public class DashboardDrawer implements Initializable{
     //------------------Declaring Variables------------------//
     ObservableList<String> list = FXCollections.observableArrayList();
     private static BooleanProperty loadFolderList = new SimpleBooleanProperty(false);
+    private static BooleanProperty expandList = new SimpleBooleanProperty(false);
+    private static BooleanProperty shrinkList = new SimpleBooleanProperty(false);
+
+
 
     public static void setLoadFolderList(Boolean b){
         loadFolderList.setValue(b);
     }
 
+    public static void setExpandListToTrue(){
+        expandList.setValue(true);
+    }
+
+    public static void setShrinkListToTrue(){
+        shrinkList.setValue(true);
+    }
+
 
     @Override
     public void initialize(URL url, ResourceBundle rb){
+
+        list.add(0,"All");
         loadFolderList.addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -43,21 +58,37 @@ public class DashboardDrawer implements Initializable{
                         list.add(f.getFolderName());
                     }
                     listView.setItems(list);
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            listView.scrollTo(list.get(0));
+                            listView.getSelectionModel().select(list.get(0));
+                        }
+                    });
                 }
             }
         });
 
-        //listView.setExpanded(true);
-        //listView.setVerticalGap(20.0);
-    }
+        expandList.addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+                    listView.setExpanded(true);
+                    listView.setVerticalGap(20.0);
+                    shrinkList.setValue(false);
+                }
+            }
+        });
 
-    public void expandListView(){
-        listView.setExpanded(true);
-        listView.setVerticalGap(20.0);
-    }
-
-    public void shrinkListView(){
-        listView.setExpanded(false);
-        listView.setVerticalGap(0.0);
+        shrinkList.addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+                    listView.setExpanded(false);
+                    listView.setVerticalGap(0.0);
+                    expandList.setValue(false);
+                }
+            }
+        });
     }
 }

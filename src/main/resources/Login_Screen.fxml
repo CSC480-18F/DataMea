@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXCheckBox?>
 <?import com.jfoenix.controls.JFXPasswordField?>
 <?import com.jfoenix.controls.JFXTextField?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
@@ -8,6 +9,7 @@
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
@@ -40,12 +42,14 @@
                         <DropShadow color="#0000004d" spread="0.25" />
                      </effect>
                   </JFXPasswordField>
-                  <Pane prefHeight="121.0" prefWidth="500.0">
+                  <Pane prefHeight="121.0" prefWidth="400.0">
                      <children>
-                        <Pane layoutX="138.0" layoutY="-3.0" prefHeight="35.0" prefWidth="125.0" style="-fx-background-color: white; -fx-background-radius: 5;">
+                        <Pane layoutX="55.0" layoutY="-3.0" prefHeight="35.0" prefWidth="125.0" style="-fx-background-color: white; -fx-background-radius: 5;">
                            <effect>
                               <DropShadow color="#0000004d" spread="0.25" />
                            </effect>
+                        </Pane>
+                        <HBox alignment="CENTER" layoutX="55.0" layoutY="-3.0" style="-fx-spacing: 15;">
                            <children>
                               <JFXButton fx:id="loginButton" alignment="CENTER" contentDisplay="RIGHT" onAction="#login" prefHeight="35.0" prefWidth="125.0" ripplerFill="#ff931e" style="-fx-background-color: #f5f6fa; -fx-padding: 5; -fx-border-color: #a4b0be; -fx-border-radius: 5; -fx-background-radius: 5;" text="Login with">
                                  <graphic>
@@ -55,8 +59,9 @@
                                     <Cursor fx:constant="HAND" />
                                  </cursor>
                               </JFXButton>
+                              <JFXCheckBox fx:id="rememberEmail" checkedColor="#ff931e" text="Remember my Email" textFill="#ebe5e5" unCheckedColor="#e0e0e0" />
                            </children>
-                        </Pane>
+                        </HBox>
                      </children>
                   </Pane>
                </children>

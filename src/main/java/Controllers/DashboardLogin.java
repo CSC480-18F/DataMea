@@ -13,6 +13,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.effect.BoxBlur;
@@ -39,6 +40,9 @@ public class DashboardLogin implements Initializable {
 
     @FXML
     StackPane stackPane;
+
+    @FXML
+    JFXCheckBox rememberEmail;
 
     @FXML
     VBox vBox;
@@ -124,6 +128,7 @@ public class DashboardLogin implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        rememberEmail.setCursor(Cursor.HAND);
         try {
             DashboardLoading.setStage(myStage);
             Parent homePageParent = FXMLLoader.load(getClass().getClassLoader().getResource("Loading_Screen.fxml"));
