@@ -113,8 +113,14 @@ public class User {
         File[] e = temp.listFiles();
         emails = new ArrayList<Email>();
         for (File f : e) {
-            Email em = new Email(f);
-            this.emails.add(em);
+            try {
+                Email em = new Email(f);
+                this.emails.add(em);
+            } catch (Exception em) {
+                System.out.println("Email cannot be properly read..");
+                em.printStackTrace();
+            }
+
         }
 
         return emails;
