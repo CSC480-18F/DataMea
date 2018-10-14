@@ -2,6 +2,7 @@ package Engine;
 
 
 import apple.laf.JRSUIUtils;
+import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.tools.TreeNode;
 
@@ -67,8 +68,16 @@ public class User {
 
             for (String f: uf.subFolders) {
                 if (!f.equals(uf.folderName)) {
+                    //if the folder does not match the subfolder name, add the node normally
                     int numEmailsInSubFolder = getNumEmailsInSubFolder(uf.getFolderName(), f);
                     TreeNode subfold = new TreeNode(new ChartData(f, numEmailsInSubFolder), temp);
+                } else {
+                    //else, add the node but make it invisible so it takes up the correct section of the pie
+                    // TODO: figure out how to make this TREENODE INVISIBLE
+
+                    int numEmailsInSubFolder = getNumEmailsInSubFolder(uf.getFolderName(), f);
+                    TreeNode subfold = new TreeNode(new ChartData(f, numEmailsInSubFolder, Tile.BACKGROUND), temp);
+
                 }
             }
         }
