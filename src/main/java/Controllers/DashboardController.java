@@ -27,14 +27,13 @@ import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
-
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -56,6 +55,9 @@ public class DashboardController implements Initializable {
 
     @FXML
     private JFXMasonryPane masonryPane;
+
+    @FXML
+    private ScrollPane scrollPane;
 
     @FXML
     private AnchorPane anchorPane;
@@ -104,11 +106,17 @@ public class DashboardController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        //topSendersDoughnutChart.setTree(treeNode);
         //Resizing crap, this took way to long to figure out thanks javafx
+        String scrollPaneCss = this.getClass().getClassLoader().getResource("scrollpane.css").toExternalForm();
+        scrollPane.getStylesheets().add(scrollPaneCss);
+        scrollPane.setFitToWidth(true);
+        //scrollPane.prefWidthProperty().bind(masonryPane.widthProperty());
+        Platform.runLater(()->scrollPane.requestLayout());
         topBarGridPane.prefWidthProperty().bind(anchorPane.widthProperty());
         masonryPane.prefWidthProperty().bind(anchorPane.widthProperty());
-        masonryPane.maxHeightProperty().bind(anchorPane.heightProperty());
+        //masonryPane.minHeightProperty().bind(anchorPane.heightProperty());
+        //scrollPane.minWidthProperty().bind(masonryPane.widthProperty());
+        //scrollPane.prefHeightProperty().bind(masonryPane.heightProperty());
         centerColumn.maxWidthProperty().bind(topBarGridPane.widthProperty());
         gridPaneLeft.maxWidthProperty().bind(topBarGridPane.widthProperty());
         gridPaneRight.maxWidthProperty().bind(topBarGridPane.widthProperty());
@@ -300,6 +308,8 @@ public class DashboardController implements Initializable {
                             .sunburstInteractive(true)
                             .build();
                     masonryPane.getChildren().add(foldersSunburstChart);
+
+                    Platform.runLater(()->scrollPane.requestLayout());
                 }
             }
         });

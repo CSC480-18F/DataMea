@@ -60,7 +60,7 @@ public class User {
 
 
     public TreeNode getFoldersCountForSunburst(){
-        TreeNode treeRoot   = new TreeNode(new ChartData("ROOT"));
+
         colors.add(javafx.scene.paint.Color.valueOf("#fc5c65"));
         colors.add(javafx.scene.paint.Color.valueOf("#fd9644"));
         colors.add(javafx.scene.paint.Color.valueOf("#fed330"));
@@ -82,6 +82,7 @@ public class User {
         colors.add(javafx.scene.paint.Color.valueOf("#a5b1c2"));
         colors.add(javafx.scene.paint.Color.valueOf("#4b6584"));
 
+        TreeNode treeRoot   = new TreeNode(new ChartData("ROOT"));
 
         int colorCount = 0;
 
