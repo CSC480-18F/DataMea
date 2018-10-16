@@ -2,8 +2,6 @@ package Engine;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-
 import Controllers.*;
 import eu.hansolo.tilesfx.chart.ChartData;
 import javafx.application.Application;
@@ -114,6 +112,7 @@ public class Main extends Application {
             @Override
             public void handle(WindowEvent event) {
                 Platform.exit();
+                System.exit(0);
             }
         });
     }
