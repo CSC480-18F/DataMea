@@ -106,17 +106,15 @@ public class DashboardController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        //Resizing crap, this took way to long to figure out thanks javafx
+
         String scrollPaneCss = this.getClass().getClassLoader().getResource("scrollpane.css").toExternalForm();
         scrollPane.getStylesheets().add(scrollPaneCss);
+
+        //Resizing crap, this took way to long to figure out thanks javafx
         scrollPane.setFitToWidth(true);
-        //scrollPane.prefWidthProperty().bind(masonryPane.widthProperty());
         Platform.runLater(()->scrollPane.requestLayout());
         topBarGridPane.prefWidthProperty().bind(anchorPane.widthProperty());
         masonryPane.prefWidthProperty().bind(anchorPane.widthProperty());
-        //masonryPane.minHeightProperty().bind(anchorPane.heightProperty());
-        //scrollPane.minWidthProperty().bind(masonryPane.widthProperty());
-        //scrollPane.prefHeightProperty().bind(masonryPane.heightProperty());
         centerColumn.maxWidthProperty().bind(topBarGridPane.widthProperty());
         gridPaneLeft.maxWidthProperty().bind(topBarGridPane.widthProperty());
         gridPaneRight.maxWidthProperty().bind(topBarGridPane.widthProperty());
@@ -309,6 +307,7 @@ public class DashboardController implements Initializable {
                             .build();
                     masonryPane.getChildren().add(foldersSunburstChart);
 
+                    //Allows the scroll pane to resize the masonry pane after nodes are added
                     Platform.runLater(()->scrollPane.requestLayout());
                 }
             }
