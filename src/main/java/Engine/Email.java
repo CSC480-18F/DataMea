@@ -9,8 +9,13 @@ import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 
+import org.apache.tika.langdetect.OptimaizeLangDetector;
+import org.apache.tika.language.detect.LanguageDetector;
+import org.apache.tika.language.detect.LanguageResult;
+
 
 import javax.mail.*;
+import javax.mail.internet.ContentType;
 import javax.mail.internet.MimeMultipart;
 import java.io.*;
 import java.text.DecimalFormat;
@@ -42,6 +47,7 @@ public class Email {
     private int               VPOS;
     private int               VMULT;
     private int               MAXLEN;
+    private int               MINLEN;
     private String            folder;
     private String            subFolder;
     File                      serializedEmail;
@@ -65,7 +71,8 @@ public class Email {
         VPOS = 4;
         VMULT = 3;
         MAXLEN = 300;
-        sentimentScores = new int[5];
+        MINLEN = 10;
+
     }
 
     public void recoverEmail(File f) {
@@ -115,6 +122,7 @@ public class Email {
         sentimentScores = new int[5];
         sentencesAnalyzed = 0;
         MAXLEN = 300;
+        MINLEN = 10;
         boolean runSentiment = rs;
 
         try {
@@ -136,7 +144,7 @@ public class Email {
                 e.printStackTrace();
             }
 
-            if (content != null) {
+            if (content != null && !content.equals("")) {
                 sentences = getSentences(content);
                 //languages = getLanguages(sentences);
             }
@@ -152,8 +160,9 @@ public class Email {
         Sentiment sentenceSentiment;
         if (sentences != null) {
             for (String sentence : sentences) {
-                if (sentence.length() < MAXLEN) {
-                    System.out.println(sentence);
+                String lang = detectLanguage(sentence);
+                if (sentence.length() < MAXLEN && sentence.length() > MINLEN && lang.equals("en")) {
+                    //System.out.println("sentence being analyzed: " + sentence);
                     sentencesAnalyzed++;
                     sentenceSentiment = analyzeSentiment(sentence);
                     sentenceScore = sentenceSentiment.score;
@@ -230,10 +239,13 @@ it appears to be whenever there is a thread of replies
 -anything (from what i've checked) that is html, is a mass email
  */
 
-    private String getTextFromMessage(Message message) throws MessagingException, IOException {
+    private String getTextFromMessage(Message message) throws IOException, MessagingException {
         String result = "";
         if (message.isMimeType("text/plain")) {
             result = message.getContent().toString();
+            boolean msgExists = sender.addMessage(result.hashCode());
+            if(msgExists)
+                result = "";
         } else if (message.isMimeType("multipart/*")) {
             MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
             result = getTextFromMimeMultipart(mimeMultipart);
@@ -242,20 +254,43 @@ it appears to be whenever there is a thread of replies
     }
 
     private String getTextFromMimeMultipart(
-            MimeMultipart mimeMultipart)  throws MessagingException, IOException{
-        String result = "";
+            MimeMultipart mimeMultipart) throws IOException, MessagingException {
+
         int count = mimeMultipart.getCount();
+        if (count == 0)
+            throw new MessagingException("Multipart with no body parts not supported.");
+        boolean multipartAlt = new ContentType(mimeMultipart.getContentType()).match("multipart/alternative");
+        boolean multipartMix = new ContentType(mimeMultipart.getContentType()).match("multipart/mixed");
+/*        if (multipartAlt || multipartMix) {
+            System.out.println(mimeMultipart.getContentType() + " ...here are the parts");
+            for(int i = 0; i < count; i ++){
+                System.out.println(mimeMultipart.getBodyPart(i).getContentType());
+            }
+        }*/
+        String result = "";
         for (int i = 0; i < count; i++) {
             BodyPart bodyPart = mimeMultipart.getBodyPart(i);
-            if (bodyPart.isMimeType("text/plain")) {
-                result = result + "\n" + bodyPart.getContent();
-                break; // without break same text appears twice in my tests
-            } else if (bodyPart.isMimeType("text/html")) {
-                String html = (String) bodyPart.getContent();
-                result = result + "\n" + org.jsoup.Jsoup.parse(html).text();
-            } else if (bodyPart.getContent() instanceof MimeMultipart){
-                result = result + getTextFromMimeMultipart((MimeMultipart)bodyPart.getContent());
-            }
+            //System.out.println(bodyPart.getContentType());
+            result += getTextFromBodyPart(bodyPart);
+        }
+        return result;
+    }
+
+    private String getTextFromBodyPart(
+            BodyPart bodyPart) throws IOException, MessagingException {
+
+        String result = "";
+        if (bodyPart.isMimeType("text/plain")) {
+            result = (String) bodyPart.getContent();
+            if(sender.addMessage(result.hashCode()))
+                result = "";
+        } else if (bodyPart.isMimeType("text/html")) {
+            String html = (String) bodyPart.getContent();
+            result = org.jsoup.Jsoup.parse(html).text();
+            if(sender.addMessage(result.hashCode()))
+                result = "";
+        } else if (bodyPart.getContent() instanceof MimeMultipart){
+            result = getTextFromMimeMultipart((MimeMultipart)bodyPart.getContent());
         }
         return result;
     }
@@ -382,6 +417,14 @@ it appears to be whenever there is a thread of replies
         return -1;
     }
 
+
+    private String detectLanguage(String text) {
+        LanguageDetector ld = new OptimaizeLangDetector().loadModels();
+        ld.addText(text);
+        LanguageResult detected = ld.detect();
+        return detected.getLanguage();
+    }
+
     public void addEmailToSender(){ getSender().addEmail(this);}
 
     public ArrayList<String> getSentences() {
@@ -439,5 +482,6 @@ it appears to be whenever there is a thread of replies
             return "From: " + this.sender + "\nTitle:" + this.title + "\nDate: " + date + "\nFlags: " + flags.toString()
                     + "\n" + content;
     }
+
 }
 

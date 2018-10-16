@@ -1,16 +1,18 @@
 package Engine;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 class Sender implements Comparable{
 
     //------------------Declaring Variables------------------//
-    private String           address;
-    private ArrayList<Email> emails;
-    int                      numEmailsSent;
+    private String               address;
+    private ArrayList<Email>     emails;
+    int                          numEmailsSent;
+    private ArrayList<Integer>   messages; //hashcodes of previous conversation messages
 
     public Sender(String address) {
-
+        messages = new ArrayList<>();
         this.address = address;
         emails = new ArrayList<>();
         numEmailsSent = 1;
@@ -72,6 +74,16 @@ class Sender implements Comparable{
 
     public void addEmail(Email e) {
         this.emails.add(e);
+    }
+
+    public boolean addMessage(int hash) {
+        boolean found = true;
+        if (! messages.contains(hash)){
+            messages.add(hash);
+            found = false;
+        }
+
+        return found;
     }
 
 
