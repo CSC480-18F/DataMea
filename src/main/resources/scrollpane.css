@@ -5,24 +5,25 @@
  ******************************************************************************/
 
 .scroll-bar:vertical > .track-background, .scroll-bar:horizontal > .track-background {
-    -fx-background-color: #F1F1F1;
+    -fx-background-color: #353b48;
     -fx-background-insets: 0.0;
 }
 
 .scroll-bar:vertical > .thumb, .scroll-bar:horizontal > .thumb {
-    -fx-background-color: #BCBCBC;
+    -fx-background-color: #252a32;
+    -fx-pref-width: 6.0;
     -fx-background-insets: 0.0;
-    -fx-background-radius: 1.0;
+    -fx-background-radius: 5.0;
 }
 
 /* Up- and Down-Button Padding */
 .scroll-bar:vertical > .increment-button, .scroll-bar:vertical > .decrement-button {
-    -fx-padding: 5 2 5 2;
+    -fx-padding: 0 0 0 0;
 }
 
 /* Left- and Right-Button Padding */
 .scroll-bar:horizontal > .increment-button, .scroll-bar:horizontal > .decrement-button {
-    -fx-padding: 2 5 2 5;
+    -fx-padding: 0 0 0 0;
 }
 
 .scroll-bar > .increment-button, .scroll-bar > .decrement-button, .scroll-bar:hover > .increment-button, .scroll-bar:hover > .decrement-button {
@@ -30,7 +31,7 @@
 }
 
 .scroll-bar > .increment-button > .increment-arrow, .scroll-bar > .decrement-button > .decrement-arrow {
-    -fx-background-color: rgb(150.0, 150.0, 150.0);
+    -fx-background-color: transparent;
 }
 
 /* Up Arrow */
