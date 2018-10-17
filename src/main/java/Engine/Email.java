@@ -50,6 +50,7 @@ public class Email {
     private int               MINLEN;
     private String            folder;
     private String            subFolder;
+    private ArrayList<String> attachments;
     File                      serializedEmail;
     private int               dayOfWeek;
 
@@ -129,6 +130,7 @@ public class Email {
             //System.out.println("Content: \n" + m.getContent().toString());
 
             title = m.getSubject();
+            attachments = extractAttachments();
             sender = s;
             date = m.getSentDate();
             flags = m.getFlags();
@@ -417,6 +419,19 @@ it appears to be whenever there is a thread of replies
         return -1;
     }
 
+    public ArrayList<String> extractAttachments() throws MessagingException, IOException {
+        ArrayList<String> attachments = new ArrayList<>();
+        if(message.isMimeType("multipart/*")){
+            MimeMultipart mp = (MimeMultipart) message.getContent();
+            int count = mp.getCount();
+            for(int i = 0; i < count; i ++){
+                String fileName = mp.getBodyPart(i).getFileName();
+                if(fileName != null) attachments.add(fileName);
+            }
+        }
+        return attachments;
+    }
+
 
     private String detectLanguage(String text) {
         LanguageDetector ld = new OptimaizeLangDetector().loadModels();
@@ -470,8 +485,13 @@ it appears to be whenever there is a thread of replies
     public String getFolder() {
         return folder;
     }
+
     public String getSubFolder() {
         return subFolder;
+    }
+
+    public ArrayList<String> getAttachments() {
+        return attachments;
     }
 
     public String toString() {

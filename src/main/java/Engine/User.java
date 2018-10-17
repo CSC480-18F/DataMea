@@ -411,6 +411,8 @@ public class User {
                     bw.write(Integer.toString(e.getSentimentScores()[4]));
                     bw.newLine();
 
+                    //write attachments
+
                     //
                     bw.close();
                 } catch (IOException e) {
