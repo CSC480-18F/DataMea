@@ -10,6 +10,7 @@ import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.chart.SunburstChart;
 import eu.hansolo.tilesfx.events.TileEvent;
+import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -33,6 +34,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Stop;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -41,6 +43,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -97,9 +100,13 @@ public class DashboardController implements Initializable {
     private DonutChart domainDonutChart;
     private Map<String, Long> domains;
     private ObservableList<PieChart.Data> domainsData = FXCollections.observableArrayList();
+    private Tile attachmentsRadialChart;
     private Map<String, Long> attachments;
     private ArrayList<ChartData> attachmentsData = new ArrayList<>();
-    private Tile attachmentsRadialChart;
+    private Tile sentimentGauge;
+    private long              lastTimerCall;
+    private AnimationTimer    timer;
+    private static final Random RND = new Random();
 
     public static void setStage(Stage s) {
         myStage = s;
@@ -397,6 +404,39 @@ public class DashboardController implements Initializable {
                             .build();
                     masonryPane.getChildren().add(attachmentsRadialChart);
 
+                    sentimentGauge = TileBuilder.create()
+                            .skinType(Tile.SkinType.BAR_GAUGE)
+                            .backgroundColor(Color.TRANSPARENT)
+                            .title("Sentiment")
+                            .unit("%")
+                            .value(69)
+                            .gradientStops(new Stop(0, Color.valueOf("#fc5c65")),
+                                    new Stop(0.25, Color.valueOf("#fd9644")),
+                                    new Stop(0.5, Color.valueOf("#fed330")),
+                                    new Stop(0.75, Color.valueOf("#26de81")),
+                                    new Stop(1.0, Color.valueOf("#45aaf2")))
+                            .strokeWithGradient(true)
+                            .highlightSections(true)
+                            .averagingPeriod(25)
+                            .autoReferenceValue(true)
+                            .titleAlignment(TextAlignment.LEFT)
+                            .prefSize(350, 350)
+                            .maxSize(350, 350)
+                            .animated(true)
+                            .build();
+                    masonryPane.getChildren().add(sentimentGauge);
+                    lastTimerCall = System.nanoTime();
+                    timer = new AnimationTimer() {
+                        @Override
+                        public void handle(final long now) {
+                            if (now > lastTimerCall + 2_000_000_000) {
+                                sentimentGauge.setValue(RND.nextDouble() * sentimentGauge.getRange() + sentimentGauge.getMinValue());
+
+                                lastTimerCall = now;
+                            }
+                        }
+                    };
+                    timer.start();
                     //Allows the scroll pane to resize the masonry pane after nodes are added, keep at bottom!
                     Platform.runLater(() -> scrollPane.requestLayout());
                 }
