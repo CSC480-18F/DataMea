@@ -4,7 +4,6 @@ import Engine.Main;
 import Engine.User;
 import Engine.Email;
 import com.jfoenix.controls.*;
-import com.jfoenix.controls.events.JFXDialogEvent;
 import com.jfoenix.transitions.hamburger.HamburgerBasicCloseTransition;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.TileBuilder;
@@ -16,18 +15,20 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Side;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.effect.BoxBlur;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -81,25 +82,23 @@ public class DashboardController implements Initializable {
 
 
     //------------------Declaring Variables------------------//
-    private static Stage myStage;
-    private DashboardDrawer dashboardDrawer;
-    private FilterDrawer filterDrawerClass;
-    private static BooleanProperty loadedFromLoginScreen = new SimpleBooleanProperty(false);
-    private static ArrayList<ChartData> topSendersData = new ArrayList<>();
-    private Tile topSendersRadialChart;
-    private GridPane heatMapGridPane;
-    private Tile foldersSunburstChart;
-    private User currentUser;
-    private static BooleanProperty homeOnCloseRequest = new SimpleBooleanProperty(false);
-    private Tile domainDonutChart;
-    private Map<String, Long> domains;
-    private ArrayList<ChartData> domainsChartData = new ArrayList<>();
-
+    private static Stage                         myStage;
+    private        DashboardDrawer               dashboardDrawer;
+    private        FilterDrawer                  filterDrawerClass;
+    private static BooleanProperty               loadedFromLoginScreen = new SimpleBooleanProperty(false);
+    private static ArrayList<ChartData>          topSendersData = new ArrayList<>();
+    private        Tile                          topSendersRadialChart;
+    private        GridPane                      heatMapGridPane;
+    private        Tile                          foldersSunburstChart;
+    private        User                          currentUser;
+    private static BooleanProperty               homeOnCloseRequest = new SimpleBooleanProperty(false);
+    private        DonutChart                    domainDonutChart;
+    private        Map<String, Long>             domains;
+    private        ObservableList<PieChart.Data> domainsData = FXCollections.observableArrayList();
 
     public static void setStage(Stage s) {
         myStage = s;
     }
-
 
     public static void addTopSendersData(ChartData d) {
         //topSendersData.add(d);
@@ -211,7 +210,7 @@ public class DashboardController implements Initializable {
                             .backgroundColor(Color.TRANSPARENT)
                             .title("Top Senders")
                             .textVisible(true)
-                            .titleAlignment(TextAlignment.CENTER)
+                            .titleAlignment(TextAlignment.LEFT)
                             .prefSize(400, 400)
                             .chartData(topSendersData)
                             .animated(true)
@@ -248,9 +247,9 @@ public class DashboardController implements Initializable {
                     Label heatMapTitle = new Label("Received Email Frequency");
                     heatMapTitle.setTextFill(Color.LIGHTGRAY);
                     heatMapTitle.setStyle("-fx-font: 22 System;");
-                    heatMapPane.setPrefSize(600, 300);
+                    heatMapPane.setPrefSize(500, 250);
                     heatMapGridPane = new GridPane();
-                    heatMapGridPane.setPrefSize(600, 300);
+                    heatMapGridPane.setPrefSize(500, 250);
 
                     for (int i = 0; i < heatMapData.length; i++) {
                         Label day = new Label(Main.getCurrentUser().getDay(i));
@@ -261,10 +260,11 @@ public class DashboardController implements Initializable {
 
                         for (int j = 0; j < heatMapData[1].length; j++) {
                             Label hour = new Label(Integer.toString(j));
+                            StackPane hourPane = new StackPane();
+                            hourPane.setMinSize(20, 20);
                             hour.setStyle("-fx-text-fill: #ff931e;");
-                            heatMapGridPane.add(hour, j + 1, 0);
-                            hour.setMinWidth(Region.USE_PREF_SIZE);
-                            hour.setMaxWidth(Region.USE_PREF_SIZE);
+                            hourPane.getChildren().add(hour);
+                            heatMapGridPane.add(hourPane, j + 1, 0);
 
 
                             StackPane pane = new StackPane();
@@ -308,7 +308,7 @@ public class DashboardController implements Initializable {
                             .sunburstBackgroundColor(Color.TRANSPARENT)
                             .title("Folder Structure")
                             .textVisible(true)
-                            .titleAlignment(TextAlignment.CENTER)
+                            .titleAlignment(TextAlignment.LEFT)
                             .sunburstTextOrientation(SunburstChart.TextOrientation.HORIZONTAL)
                             .showInfoRegion(true)
                             .minSize(400, 400)
@@ -318,36 +318,32 @@ public class DashboardController implements Initializable {
                             .build();
                     masonryPane.getChildren().add(foldersSunburstChart);
 
+                    //Domains donut chart
                     domains = currentUser.getDomainFreq(currentUser.getEmails());
-                    int colorCount = 0;
+                    PieChart.Data domainOther = new PieChart.Data("Other",0);
+                    int domainCount = 0;
                     for (Map.Entry<String, Long> entry : domains.entrySet()) {
-                        ChartData temp = new ChartData();
-                        temp.setName(entry.getKey());
-                        temp.setValue(entry.getValue());
-                        temp.setFillColor(User.colors.get(colorCount));
-                        domainsChartData.add(temp);
-                        if (colorCount < 19) {
-                            colorCount++;
+                        if (domainCount<5){
+                            PieChart.Data temp = new PieChart.Data(entry.getKey(),entry.getValue());
+                            domainsData.add(temp);
+                            domainCount++;
                         }else{
-                            colorCount = 0;
+                            double otherValue = domainOther.getPieValue();
+                            domainOther = new PieChart.Data("Other", otherValue);
                         }
                     }
-
-                    domainDonutChart = TileBuilder.create()
-                            .animationDuration(10000)
-                            .skinType(Tile.SkinType.DONUT_CHART)
-                            .backgroundColor(Color.TRANSPARENT)
-                            .title("Domain's")
-                            .textVisible(true)
-                            .titleAlignment(TextAlignment.CENTER)
-                            .prefSize(400, 400)
-                            .chartData(domainsChartData)
-                            .animated(true)
-                            .build();
-                    //domainDonutChart.setCursor(Cursor.HAND);
+                    domainsData.add(domainOther);
+                    domainDonutChart = new DonutChart(domainsData);
+                    domainDonutChart.setMaxSize(400,400);
+                    domainDonutChart.setTitle("Domains");
+                    domainDonutChart.setLegendVisible(true);
+                    domainDonutChart.setLegendSide(Side.BOTTOM);
+                    domainDonutChart.setLabelsVisible(true);
+                    domainDonutChart.getStylesheets().add(this.getClass().getClassLoader().getResource("donutchart.css").toExternalForm());
                     masonryPane.getChildren().add(domainDonutChart);
 
-                    //Allows the scroll pane to resize the masonry pane after nodes are added
+
+                    //Allows the scroll pane to resize the masonry pane after nodes are added, keep at bottom!
                     Platform.runLater(()->scrollPane.requestLayout());
                 }
             }
