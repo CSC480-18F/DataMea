@@ -104,10 +104,17 @@ public class User {
         }
         String [] aTypesAry = new String[aTypes.size()];
         aTypesAry = aTypes.toArray(aTypesAry);
+        String [] whiteSpaceRemoved = new String[aTypes.size()];
+
+        //this below removes whitespace before and after... Temporary fix
+        for (int i = 0; i<aTypes.size(); i++) {
+            String attachment = aTypes.get(i).trim();
+            whiteSpaceRemoved[i] = attachment;
+        }
 
 
         Map<String, Long> freqs =
-                Stream.of(aTypesAry)
+                Stream.of(whiteSpaceRemoved)
                         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
         freqs = new TreeMap<String, Long>(freqs);
@@ -590,7 +597,7 @@ public class User {
 
         for (int i = 0; i < folders.length; i++) {
             String name = folders[i].getName();
-            if (!name.equalsIgnoreCase("[Gmail]") && !name.equalsIgnoreCase("inbox") ) {
+            if (!name.equalsIgnoreCase("[Gmail]") /* && !name.equalsIgnoreCase("inbox")*/ ) {
                 readFolderAndSerializeEmails(folders[i], runSentiment);
             }
 

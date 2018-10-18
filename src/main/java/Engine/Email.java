@@ -435,7 +435,7 @@ it appears to be whenever there is a thread of replies
             int count = mp.getCount();
             for(int i = 0; i < count; i ++){
                 String fileName = mp.getBodyPart(i).getFileName();
-                if(fileName != null) attachments.add(fileName.substring(fileName.lastIndexOf(".")));
+                if(fileName != null) attachments.add(fileName.substring(fileName.lastIndexOf(".")).trim());
             }
         }
         return attachments;
