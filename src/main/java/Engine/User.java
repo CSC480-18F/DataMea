@@ -53,10 +53,29 @@ public class User {
 
         ArrayList<String> domains = new ArrayList<>();
         for (Email e: emails) {
-            //get everything after the @ symbol
+                String address = e.getSender().getAddress().substring(e.getSender().getAddress().indexOf("@"));
+                int quoteLocation = address.indexOf("\"" /*,address.indexOf("\"")+1*/);
+                int caratLocation = address.indexOf(">");
+                String d;
 
-                String domain = e.getSender().getAddress().substring(e.getSender().getAddress().indexOf("@"));
-                domains.add(domain);
+                int earlierLocation = -1;
+
+                if (quoteLocation < caratLocation && quoteLocation!=-1) {
+                    earlierLocation = quoteLocation;
+                } else {
+                    if (caratLocation != -1) {
+                        earlierLocation = caratLocation;
+                    }
+                }
+
+                if (earlierLocation == -1) {
+                    //none of the weird characters are found
+                    domains.add(address);
+                } else {
+                    //some weird characters are found
+                    d = address.substring(address.indexOf("@"), earlierLocation);
+                    domains.add(d);
+                }
 
         }
 
@@ -67,6 +86,54 @@ public class User {
         Map<String, Long> freqs =
                 Stream.of(doms)
                         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        freqs = new TreeMap<String, Long>(freqs);
+
+        Map sorted = sortByValues(freqs);
+
+        return sorted;
+    }
+
+    public Map<String, Long> getAttachmentFreq(ArrayList<Email> emails){
+        ArrayList<String> aTypes = new ArrayList<>();
+        for (Email e: emails) {
+            //get everything after the @ symbol
+            ArrayList<String> atts = e.getAttachments();
+            if(atts != null){
+                aTypes.addAll(atts);
+            }
+        }
+        String [] aTypesAry = new String[aTypes.size()];
+        aTypesAry = aTypes.toArray(aTypesAry);
+
+
+        Map<String, Long> freqs =
+                Stream.of(aTypesAry)
+                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        freqs = new TreeMap<String, Long>(freqs);
+
+        Map sorted = sortByValues(freqs);
+
+        return sorted;
+    }
+
+    public Map<String, Long> getLanguageFreq(ArrayList<Email> emails){
+        ArrayList<String> langs = new ArrayList<>();
+        for (Email e: emails) {
+            //get everything after the @ symbol
+            String l = e.getLanguage();
+            if(!l.equals("unk")){
+                langs.add(l);
+            }
+        }
+        String [] langsAry = new String[langs.size()];
+        langsAry = langs.toArray(langsAry);
+
+
+        Map<String, Long> freqs =
+                Stream.of(langsAry)
+                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
         freqs = new TreeMap<String, Long>(freqs);
 
         Map sorted = sortByValues(freqs);
@@ -475,6 +542,15 @@ public class User {
                     bw.newLine();
 
                     //write attachments
+                    bw.write(e.getAttachments().toString());
+                    bw.newLine();
+
+                    //write language
+                    String l = e.getLanguage();
+                    if(l != null)
+                        bw.write(l);
+                    else
+                        bw.write("unk");
 
                     //
                     bw.close();
@@ -512,7 +588,7 @@ public class User {
 
         for (int i = 0; i < folders.length; i++) {
             String name = folders[i].getName();
-            if (!name.equalsIgnoreCase("[Gmail]") /*&& !name.equalsIgnoreCase("inbox")*/) {
+            if (!name.equalsIgnoreCase("[Gmail]") && !name.equalsIgnoreCase("inbox") ) {
                 readFolderAndSerializeEmails(folders[i], runSentiment);
             }
 
@@ -547,20 +623,24 @@ public class User {
 
     public static String decrypt(String strEncrypted) {
         String result = "";
-        int length = strEncrypted.length();
-        char ch;
-        int ck = 0;
-        for (int i = 0; i < length; i++) {
-            if (ck >= randomizer.length - 1) {
-                ck = 0;
+        try {
+            int length = strEncrypted.length();
+            char ch;
+            int ck = 0;
+            for (int i = 0; i < length; i++) {
+                if (ck >= randomizer.length - 1) {
+                    ck = 0;
+                }
+
+                ch = strEncrypted.charAt(i);
+                ch -= randomizer[ck];
+                result += ch;
+                ck++;
             }
-
-            ch = strEncrypted.charAt(i);
-            ch -= randomizer[ck];
-            result += ch;
-            ck++;
         }
-
+        catch(NullPointerException e){
+            System.out.println("Null Pointer encountered while decrypting in User.decrypt()");
+        }
         return result;
     }
 
@@ -699,6 +779,8 @@ public class User {
     public ArrayList<Email> getEmails() {
         return emails;
     }
+
+
 
     public static String getDay(int i){
         switch(i) {

@@ -22,7 +22,6 @@ import java.util.*;
 public class Email {
 
     //------------------Declaring Variables------------------//
-    //final   static String     API_KEY = "4f4d63ac606a0ee5e0064aa296ce88b4";
     private double VNEGTHRESH;
     private double NEGTHRESH;
     private double NEUTHRESH;
@@ -50,10 +49,12 @@ public class Email {
     private ArrayList<String> attachments;
     File                      serializedEmail;
     private int               dayOfWeek;
+    private String            language;
 
 
     public Email(File f) {
         //to do: recreate emails using this constructor
+        attachments = new ArrayList<>();
         sentimentScores = new int[5];
         recoverEmail(f);
 
@@ -93,6 +94,15 @@ public class Email {
             this.sentimentScores[3] = Integer.parseInt(br.readLine());
             this.sentimentScores[4] = Integer.parseInt(br.readLine());
 
+            String atts = br.readLine();
+            if(atts.length() > 2) {
+                String[] attsAry = ((atts.replace("[", "")).replace("]", "")).split(",");
+                if (attsAry.length > 0)
+                    this.attachments.addAll(Arrays.asList(attsAry));
+            }
+
+            this.language = br.readLine();
+
             br.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -131,7 +141,10 @@ public class Email {
             sender = s;
             date = m.getSentDate();
             flags = m.getFlags();
-
+            content = getTextFromMessage(m);
+            if(content != null && !content.equals("")) {
+                language = detectLanguage(content);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -159,8 +172,7 @@ public class Email {
         Sentiment sentenceSentiment;
         if (sentences != null) {
             for (String sentence : sentences) {
-                String lang = detectLanguage(sentence);
-                if (sentence.length() < MAXLEN && sentence.length() > MINLEN && lang.equals("en")) {
+                if (this.getLanguage().equals("en") &&sentence.length() < MAXLEN && sentence.length() > MINLEN) {
                     //System.out.println("sentence being analyzed: " + sentence);
                     sentencesAnalyzed++;
                     sentenceSentiment = analyzeSentiment(sentence);
@@ -423,7 +435,7 @@ it appears to be whenever there is a thread of replies
             int count = mp.getCount();
             for(int i = 0; i < count; i ++){
                 String fileName = mp.getBodyPart(i).getFileName();
-                if(fileName != null) attachments.add(fileName);
+                if(fileName != null) attachments.add(fileName.substring(fileName.lastIndexOf(".")));
             }
         }
         return attachments;
@@ -435,6 +447,17 @@ it appears to be whenever there is a thread of replies
         ld.addText(text);
         LanguageResult detected = ld.detect();
         return detected.getLanguage();
+    }
+
+    private ArrayList<String> detectLanguages(ArrayList<String> sentences) {
+        ArrayList<String> languages = new ArrayList<>();
+        LanguageDetector ld = new OptimaizeLangDetector().loadModels();
+        for(String s : sentences) {
+            ld.addText(s);
+            languages.add(ld.detect().getLanguage());
+        }
+
+        return languages;
     }
 
     public void addEmailToSender(){ getSender().addEmail(this);}
@@ -489,6 +512,10 @@ it appears to be whenever there is a thread of replies
 
     public ArrayList<String> getAttachments() {
         return attachments;
+    }
+
+    public String getLanguage() {
+        return language;
     }
 
     public String toString() {

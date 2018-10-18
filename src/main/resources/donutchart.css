@@ -1,0 +1,45 @@
+.data0.chart-pie {
+    -fx-pie-color: #fc5c65;
+}
+
+.data1.chart-pie {
+    -fx-pie-color: #fd9644;
+}
+
+.data2.chart-pie {
+    -fx-pie-color: #fed330;
+}
+
+.data3.chart-pie {
+    -fx-pie-color: #26de81;
+}
+
+.data4.chart-pie {
+    -fx-pie-color: #2bcbba;
+}
+
+.data5.chart-pie {
+    -fx-pie-color: #d1d8e0;
+}
+
+.chart-title {
+    -fx-text-fill: lightgrey;
+    -fx-font-size: 24px
+
+}
+
+.chart-pie{
+    -fx-border-width: 0px;
+}
+
+.chart-legend {
+    -fx-background-color: #2f3640;
+}
+
+.chart-legend-item{
+    -fx-text-fill: lightgrey;
+}
+
+.chart-pie-label { /*this is what you need for labels*/
+    -fx-fill: lightgrey;
+}
