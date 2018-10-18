@@ -139,6 +139,7 @@ public class DashboardLogin implements Initializable {
                 public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                     if (newValue) {
                         DashboardLoading.setReadyLoadingScreenToTrue();
+                        DashboardLoading.setLoadingOnCloseRequest(true);
                         myStage.setScene(homePage);
                         myStage.show();
                         myStage.requestFocus();

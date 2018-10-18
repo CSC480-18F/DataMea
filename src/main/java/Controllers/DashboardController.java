@@ -3,10 +3,8 @@ package Controllers;
 import Engine.Main;
 import Engine.User;
 import Engine.Email;
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDrawer;
-import com.jfoenix.controls.JFXHamburger;
-import com.jfoenix.controls.JFXMasonryPane;
+import com.jfoenix.controls.*;
+import com.jfoenix.controls.events.JFXDialogEvent;
 import com.jfoenix.transitions.hamburger.HamburgerBasicCloseTransition;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.TileBuilder;
@@ -18,6 +16,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -28,11 +27,16 @@ import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.effect.BoxBlur;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -88,6 +92,7 @@ public class DashboardController implements Initializable {
     private GridPane heatMapGridPane;
     private Tile foldersSunburstChart;
     private User currentUser;
+    private static BooleanProperty homeOnCloseRequest = new SimpleBooleanProperty(false);
 
 
     public static void setStage(Stage s) {
@@ -102,6 +107,10 @@ public class DashboardController implements Initializable {
 
     public static void setLoadedFromLoginScreenToTrue() {
         loadedFromLoginScreen.setValue(true);
+    }
+
+    public static void setHomeOnCloseRequest(Boolean b){
+        homeOnCloseRequest.setValue(b);
     }
 
     @Override
@@ -313,5 +322,21 @@ public class DashboardController implements Initializable {
                 }
             }
         });
+
+        homeOnCloseRequest.addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+                    myStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                        @Override
+                        public void handle(WindowEvent event) {
+                            Platform.exit();
+                            System.exit(0);
+                        }
+                    });
+                }
+            }
+        });
+
     }
 }

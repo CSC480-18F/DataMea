@@ -51,6 +51,9 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
+        File textFilesDir = new File("TextFiles/");
+        textFilesDir.mkdirs();
+        Platform.setImplicitExit(false);
         primaryStage.setMinHeight(400);
         primaryStage.setMinWidth(600);
         primaryStage.setTitle("Data Mea");
@@ -59,6 +62,7 @@ public class Main extends Application {
         root.requestFocus();
         primaryStage.show();
         DashboardLogin.setStage(primaryStage);
+        DashboardLoading.setStage(primaryStage);
         DashboardController.setStage(primaryStage);
 
 
@@ -95,7 +99,9 @@ public class Main extends Application {
                                 }
                             setLoadedFromLoginScreenToTrue();
                             DashboardLoading.setStopVideoToTrue();
+                            DashboardLoading.setLoadingOnCloseRequest(false);
                             DashboardDrawer.setLoadFolderList(true);
+                            DashboardController.setHomeOnCloseRequest(true);
                             Scene home = new Scene(homeScreen, 1000, 600);
                             primaryStage.setScene(home);
                             homeScreen.requestFocus();
