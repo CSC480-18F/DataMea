@@ -1,9 +1,11 @@
 package Engine;
 
+import java.awt.event.MouseEvent;
 import java.io.*;
 import java.util.ArrayList;
 import Controllers.*;
 import eu.hansolo.tilesfx.chart.ChartData;
+import eu.hansolo.tilesfx.events.TileEvent;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;

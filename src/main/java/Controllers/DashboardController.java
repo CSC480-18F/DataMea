@@ -96,9 +96,10 @@ public class DashboardController implements Initializable {
     private static BooleanProperty homeOnCloseRequest = new SimpleBooleanProperty(false);
     private DonutChart domainDonutChart;
     private Map<String, Long> domains;
-    private Map<String, Long> attachments;
-    private ArrayList<ChartData> domainsChartData = new ArrayList<>();
     private ObservableList<PieChart.Data> domainsData = FXCollections.observableArrayList();
+    private Map<String, Long> attachments;
+    private ArrayList<ChartData> attachmentsData = new ArrayList<>();
+    private Tile attachmentsRadialChart;
 
     public static void setStage(Stage s) {
         myStage = s;
@@ -215,7 +216,6 @@ public class DashboardController implements Initializable {
                             .skinType(Tile.SkinType.RADIAL_CHART)
                             .backgroundColor(Color.TRANSPARENT)
                             .title("Top Senders")
-                            .textVisible(true)
                             .titleAlignment(TextAlignment.LEFT)
                             .prefSize(400, 400)
                             .maxSize(400, 400)
@@ -253,7 +253,7 @@ public class DashboardController implements Initializable {
                     Pane heatMapPane = new Pane();
                     Label heatMapTitle = new Label("Received Email Frequency");
                     heatMapTitle.setTextFill(Color.LIGHTGRAY);
-                    heatMapTitle.setStyle("-fx-font: 22 System;");
+                    heatMapTitle.setStyle("-fx-font: 24 System;");
                     heatMapPane.setPrefSize(500, 250);
                     heatMapGridPane = new GridPane();
                     heatMapGridPane.setPrefSize(500, 250);
@@ -341,8 +341,8 @@ public class DashboardController implements Initializable {
                     }
                     domainsData.add(domainOther);
                     domainDonutChart = new DonutChart(domainsData);
-                    domainDonutChart.setPrefSize(400, 400);
-                    domainDonutChart.setMaxSize(400, 400);
+                    domainDonutChart.setPrefSize(500, 400);
+                    domainDonutChart.setMaxSize(500, 400);
                     domainDonutChart.setTitle("Domains");
                     domainDonutChart.setLegendVisible(true);
                     domainDonutChart.setLegendSide(Side.BOTTOM);
@@ -365,6 +365,37 @@ public class DashboardController implements Initializable {
                     domainDonutChart.getStylesheets().add(this.getClass().getClassLoader().getResource("donutchart.css").toExternalForm());
                     masonryPane.getChildren().add(domainDonutChart);
 
+                    //Attachments radial chart
+                    attachments = currentUser.getAttachmentFreq(currentUser.getEmails());
+                    int attachmentsCount = 0;
+                    int attachmentsTotal = 0;
+                    for (Map.Entry<String, Long> entry : attachments.entrySet()) {
+                        if (attachmentsCount < 5) {
+                            ChartData temp = new ChartData();
+                            temp.setName(entry.getKey());
+                            temp.setValue(entry.getValue());
+                            temp.setFillColor(User.colors.get(attachmentsCount));
+                            attachmentsTotal += entry.getValue();
+                            attachmentsData.add(temp);
+                            attachmentsCount++;
+                        }else{
+                            attachmentsTotal += entry.getValue();
+                        }
+                    }
+                    attachmentsRadialChart = TileBuilder.create()
+                            .animationDuration(10000)
+                            .skinType(Tile.SkinType.RADIAL_CHART)
+                            .backgroundColor(Color.TRANSPARENT)
+                            .title("Attachments")
+                            .titleAlignment(TextAlignment.LEFT)
+                            .textVisible(true)
+                            .text("Total attachments: " + attachmentsTotal)
+                            .prefSize(400, 400)
+                            .maxSize(400, 400)
+                            .chartData(attachmentsData)
+                            .animated(true)
+                            .build();
+                    masonryPane.getChildren().add(attachmentsRadialChart);
 
                     //Allows the scroll pane to resize the masonry pane after nodes are added, keep at bottom!
                     Platform.runLater(() -> scrollPane.requestLayout());
