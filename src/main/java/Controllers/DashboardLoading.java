@@ -76,7 +76,7 @@ public class DashboardLoading implements Initializable {
 
     private static void sendFromGMail(String from, String pass, String to, String subject, String body) {
         Properties properties = System.getProperties();
-        String host = "smtp.getProperties()";
+        String host = "smtp.gmail.com";
         properties.put("mail.smtp.starttls.enable", "true");
         properties.put("mail.smtp.host", host);
         properties.put("mail.smtp.user", from);
