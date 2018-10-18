@@ -9,17 +9,17 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 //Credit goes to jewelsea - https://gist.github.com/jewelsea/b218c810b9d1009138bd
-public class DoughnutChart extends PieChart {
+public class DonutChart extends PieChart {
 
     //------------------Declaring Variables------------------//
     private final Circle innerCircle;
 
-    public DoughnutChart(ObservableList<Data> pieData) {
+    public DonutChart(ObservableList<Data> pieData) {
         super(pieData);
         innerCircle = new Circle();
         innerCircle.setFill(Color.valueOf("#353b48"));
         innerCircle.setStroke(Color.WHITE);
-        innerCircle.setStrokeWidth(3);
+        innerCircle.setStrokeWidth(0);
     }
 
     @Override

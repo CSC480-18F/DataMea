@@ -1,9 +1,11 @@
 package Engine;
 
+import java.awt.event.MouseEvent;
 import java.io.*;
 import java.util.ArrayList;
 import Controllers.*;
 import eu.hansolo.tilesfx.chart.ChartData;
+import eu.hansolo.tilesfx.events.TileEvent;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -37,6 +39,8 @@ public class Main extends Application {
         startLoading.setValue(true);
     }
 
+    public static User getCurrentUser() { return currentUser; }
+
     public class ResourceLoadingTask extends Task<Void> {
         @Override
         protected Void call() throws Exception {
@@ -49,6 +53,9 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
+        File textFilesDir = new File("TextFiles/");
+        textFilesDir.mkdirs();
+        Platform.setImplicitExit(false);
         primaryStage.setMinHeight(400);
         primaryStage.setMinWidth(600);
         primaryStage.setTitle("Data Mea");
@@ -57,6 +64,7 @@ public class Main extends Application {
         root.requestFocus();
         primaryStage.show();
         DashboardLogin.setStage(primaryStage);
+        DashboardLoading.setStage(primaryStage);
         DashboardController.setStage(primaryStage);
 
 
@@ -78,7 +86,7 @@ public class Main extends Application {
                             //Add top senders data to Radial Chart
                             //if (currentUser.getFolders().get(0).getSenders().size() < 5) {
                             String folderName = currentUser.recoverFolders().get(0).folderName;
-                            int numSendersInFolder = currentUser.getTopSendersForFolder(folderName).size();
+                            int numSendersInFolder = currentUser.getTopSendersForFolder("AllFolders", "").size();
                             //only display top 10 senders for the selected folder
                             if (numSendersInFolder > 5) {
                                 numSendersInFolder = 5;
@@ -86,14 +94,16 @@ public class Main extends Application {
                                 for (int i = 0; i < numSendersInFolder; i++) {
                                     //Created ChartData for top senders radial chart
                                     ChartData temp = new ChartData();
-                                    temp.setValue((double) currentUser.getTopSendersForFolder(folderName).get(i).numEmailsSent);
-                                    temp.setName(currentUser.getTopSendersForFolder(folderName).get(i).filterName());
+                                    temp.setValue((double) currentUser.getTopSendersForFolder(folderName, "").get(i).numEmailsSent);
+                                    temp.setName(currentUser.getTopSendersForFolder(folderName, "").get(i).filterName());
                                     temp.setFillColor(colors.get(i));
                                     DashboardController.addTopSendersData(temp);
                                 }
                             setLoadedFromLoginScreenToTrue();
                             DashboardLoading.setStopVideoToTrue();
+                            DashboardLoading.setLoadingOnCloseRequest(false);
                             DashboardDrawer.setLoadFolderList(true);
+                            DashboardController.setHomeOnCloseRequest(true);
                             Scene home = new Scene(homeScreen, 1000, 600);
                             primaryStage.setScene(home);
                             homeScreen.requestFocus();
@@ -110,6 +120,7 @@ public class Main extends Application {
             @Override
             public void handle(WindowEvent event) {
                 Platform.exit();
+                System.exit(0);
             }
         });
     }

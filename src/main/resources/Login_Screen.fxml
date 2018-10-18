@@ -1,67 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXCheckBox?>
 <?import com.jfoenix.controls.JFXPasswordField?>
 <?import com.jfoenix.controls.JFXTextField?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.effect.Reflection?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
 <StackPane fx:id="stackPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.DashboardLogin">
    <children>
-      <VBox fx:id="vBox" alignment="CENTER" style="-fx-spacing: 20;" StackPane.alignment="CENTER">
+      <HBox alignment="CENTER" style="-fx-spacing: 50;">
          <children>
             <ImageView fitHeight="160.0" fitWidth="274.0" pickOnBounds="true">
                <image>
                   <Image url="@DataMeaLogo.png" />
                </image>
                <effect>
-                  <DropShadow color="#00000040" height="20.0" radius="9.5" width="20.0" />
+                  <Reflection fraction="1.0" topOpacity="0.05" />
                </effect>
             </ImageView>
-            <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="400.0" style="-fx-spacing: 20;" VBox.vgrow="NEVER">
+            <Line endY="100.0" opacity="0.24" startY="-300.0" stroke="#e0e0e0" />
+            <VBox fx:id="vBox" alignment="CENTER" style="-fx-spacing: 20;">
                <children>
-                  <JFXTextField fx:id="emailField" focusColor="#d4313300" onKeyReleased="#getEmailField" prefHeight="35.0" prefWidth="400.0" promptText="Email" style="-fx-background-color: #ecf0f1; -fx-border-color: #b2bec3; -fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10;" unFocusColor="#4d4d4d00">
-                     <effect>
-                        <DropShadow color="#0000004d" spread="0.25" />
-                     </effect>
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </JFXTextField>
-                  <JFXPasswordField fx:id="passwordField" focusColor="#d4333500" onAction="#login" onKeyReleased="#getPasswordField" prefHeight="35.0" prefWidth="400.0" promptText="Password" style="-fx-background-color: #ecf0f1; -fx-border-color: #b2bec3; -fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10;" unFocusColor="#4d4d4d00">
-                     <effect>
-                        <DropShadow color="#0000004d" spread="0.25" />
-                     </effect>
-                  </JFXPasswordField>
-                  <Pane prefHeight="121.0" prefWidth="500.0">
+                  <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="400.0" style="-fx-spacing: 20;" VBox.vgrow="NEVER">
                      <children>
-                        <Pane layoutX="138.0" layoutY="-3.0" prefHeight="35.0" prefWidth="125.0" style="-fx-background-color: white; -fx-background-radius: 5;">
+                        <JFXTextField fx:id="emailField" focusColor="#d4313300" onKeyReleased="#getEmailField" prefHeight="35.0" prefWidth="400.0" promptText="Email" style="-fx-background-color: #ecf0f1; -fx-border-color: #b2bec3; -fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10;" unFocusColor="#4d4d4d00">
                            <effect>
                               <DropShadow color="#0000004d" spread="0.25" />
                            </effect>
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </JFXTextField>
+                        <JFXPasswordField fx:id="passwordField" focusColor="#d4333500" onAction="#login" onKeyReleased="#getPasswordField" prefHeight="35.0" prefWidth="400.0" promptText="Password" style="-fx-background-color: #ecf0f1; -fx-border-color: #b2bec3; -fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10;" unFocusColor="#4d4d4d00">
+                           <effect>
+                              <DropShadow color="#0000004d" spread="0.25" />
+                           </effect>
+                        </JFXPasswordField>
+                        <Pane prefHeight="38.0" prefWidth="400.0">
                            <children>
-                              <JFXButton fx:id="loginButton" alignment="CENTER" contentDisplay="RIGHT" onAction="#login" prefHeight="35.0" prefWidth="125.0" ripplerFill="#ff931e" style="-fx-background-color: #f5f6fa; -fx-padding: 5; -fx-border-color: #a4b0be; -fx-border-radius: 5; -fx-background-radius: 5;" text="Login with">
-                                 <graphic>
-                                    <FontAwesomeIconView glyphName="GOOGLE" opacity="0.6" />
-                                 </graphic>
-                                 <cursor>
-                                    <Cursor fx:constant="HAND" />
-                                 </cursor>
-                              </JFXButton>
+                              <Pane layoutX="221.0" layoutY="-3.0" prefHeight="35.0" prefWidth="125.0" style="-fx-background-color: white; -fx-background-radius: 5;">
+                                 <effect>
+                                    <DropShadow color="#0000004d" spread="0.25" />
+                                 </effect>
+                              </Pane>
+                              <HBox alignment="CENTER" layoutX="55.0" layoutY="-3.0" style="-fx-spacing: 15;">
+                                 <children>
+                                    <JFXCheckBox fx:id="rememberEmail" checkedColor="#ff931e" text="Remember my Email" textFill="#ebe5e5" unCheckedColor="#e0e0e0" />
+                                    <JFXButton fx:id="loginButton" alignment="CENTER" contentDisplay="RIGHT" onAction="#login" prefHeight="35.0" prefWidth="125.0" ripplerFill="#ff931e" style="-fx-background-color: #f5f6fa; -fx-padding: 5; -fx-border-color: #a4b0be; -fx-border-radius: 5; -fx-background-radius: 5;" text="Login with">
+                                       <graphic>
+                                          <FontAwesomeIconView glyphName="GOOGLE" opacity="0.6" />
+                                       </graphic>
+                                       <cursor>
+                                          <Cursor fx:constant="HAND" />
+                                       </cursor>
+                                    </JFXButton>
+                                 </children>
+                              </HBox>
                            </children>
                         </Pane>
                      </children>
-                  </Pane>
+                  </VBox>
                </children>
             </VBox>
          </children>
-      </VBox>
+      </HBox>
    </children>
 </StackPane>

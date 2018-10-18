@@ -1,12 +1,18 @@
 package Engine;
 
-import com.detectlanguage.errors.APIError;
-
+import eu.hansolo.tilesfx.chart.ChartData;
+import eu.hansolo.tilesfx.tools.TreeNode;
 import javax.mail.*;
+import java.awt.*;
 import java.io.IOException;
-import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.io.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.Map.Entry.*;
 
 public class User {
 
@@ -18,6 +24,9 @@ public class User {
     private String                  folderName;
     private ArrayList<Email>        emails;
     private ArrayList<UserFolder>   folders;
+    private int[][] dayOfWeekFrequency;
+    private int frequencyDifference = -1;
+    public static ArrayList<javafx.scene.paint.Color> colors = new ArrayList<>();
 
 
     public User(String email, String password, Boolean runSentimentAnalysis) {
@@ -39,12 +48,235 @@ public class User {
     }
 
 
+    public Map<String, Long> getDomainFreq(ArrayList<Email> emails){
+        //TODO; refine filters to remove weird chars
 
-    public ArrayList<Sender> getTopSendersForFolder(String folderName) {
+        ArrayList<String> domains = new ArrayList<>();
+        for (Email e: emails) {
+                String address = e.getSender().getAddress().substring(e.getSender().getAddress().indexOf("@"));
+                int quoteLocation = address.indexOf("\"" /*,address.indexOf("\"")+1*/);
+                int caratLocation = address.indexOf(">");
+                String d;
+
+                int earlierLocation = -1;
+
+                if (quoteLocation < caratLocation && quoteLocation!=-1) {
+                    earlierLocation = quoteLocation;
+                } else {
+                    if (caratLocation != -1) {
+                        earlierLocation = caratLocation;
+                    }
+                }
+
+                if (earlierLocation == -1) {
+                    //none of the weird characters are found
+                    domains.add(address);
+                } else {
+                    //some weird characters are found
+                    d = address.substring(address.indexOf("@"), earlierLocation);
+                    domains.add(d);
+                }
+
+        }
+
+        String [] doms = new String[domains.size()];
+        doms = domains.toArray(doms);
+
+
+        Map<String, Long> freqs =
+                Stream.of(doms)
+                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        freqs = new TreeMap<String, Long>(freqs);
+
+        Map sorted = sortByValues(freqs);
+
+        return sorted;
+    }
+
+    public Map<String, Long> getAttachmentFreq(ArrayList<Email> emails){
+        ArrayList<String> aTypes = new ArrayList<>();
+        for (Email e: emails) {
+            //get everything after the @ symbol
+            ArrayList<String> atts = e.getAttachments();
+            if(atts != null){
+                aTypes.addAll(atts);
+            }
+        }
+        String [] aTypesAry = new String[aTypes.size()];
+        aTypesAry = aTypes.toArray(aTypesAry);
+
+
+        Map<String, Long> freqs =
+                Stream.of(aTypesAry)
+                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        freqs = new TreeMap<String, Long>(freqs);
+
+        Map sorted = sortByValues(freqs);
+
+        return sorted;
+    }
+
+    public Map<String, Long> getLanguageFreq(ArrayList<Email> emails){
+        ArrayList<String> langs = new ArrayList<>();
+        for (Email e: emails) {
+            //get everything after the @ symbol
+            String l = e.getLanguage();
+            if(!l.equals("unk")){
+                langs.add(l);
+            }
+        }
+        String [] langsAry = new String[langs.size()];
+        langsAry = langs.toArray(langsAry);
+
+
+        Map<String, Long> freqs =
+                Stream.of(langsAry)
+                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        freqs = new TreeMap<String, Long>(freqs);
+
+        Map sorted = sortByValues(freqs);
+
+        return sorted;
+    }
+
+    public static <K, V extends Comparable<V>> Map<K, V>
+    sortByValues(final Map<K, V> map) {
+        Comparator<K> valueComparator =
+                new Comparator<K>() {
+                    public int compare(K k1, K k2) {
+                        int compare =
+                                map.get(k2).compareTo(map.get(k1));
+                        if (compare == 0)
+                            return 1;
+                        else
+                            return compare;
+                    }
+                };
+
+        Map<K, V> sortedByValues =
+                new TreeMap<K, V>(valueComparator);
+        sortedByValues.putAll(map);
+        return sortedByValues;
+    }
+
+    public ArrayList<Email> getEmailsFromFolder(String folderName, String subFolderName) {
+        ArrayList<Email> filteredEmails = new ArrayList<>();
+        for (Email e: this.emails) {
+            if (e.getFolder().equalsIgnoreCase(folderName) && e.getSubFolder().equalsIgnoreCase(subFolderName)) {
+                filteredEmails.add(e);
+            }
+        }
+        return filteredEmails;
+    }
+
+    public ArrayList<Email> getEmailsFromSender(String sender, ArrayList<Email> emailsToFilter){
+        ArrayList<Email> filteredEmails = new ArrayList<Email>();
+        for(Email e: emailsToFilter){
+            if (e.getSender().getAddress().equalsIgnoreCase(sender)){
+                filteredEmails.add(e);
+            }
+        }
+        return filteredEmails;
+    }
+    //Date Filter using start and end date
+    public ArrayList<Email> getEmailsWithinDate(Date startDate, Date endDate, ArrayList<Email> emailsToFilter){
+        ArrayList<Email> filteredEmails = new ArrayList<Email>();
+        for (Email e: emailsToFilter){
+            if(e.getDate().after(startDate) && e.getDate().before(endDate)){
+                filteredEmails.add(e);
+            }
+        }
+        return filteredEmails;
+    }
+
+    public TreeNode getFoldersCountForSunburst(){
+
+        colors.add(javafx.scene.paint.Color.valueOf("#fc5c65"));
+        colors.add(javafx.scene.paint.Color.valueOf("#fd9644"));
+        colors.add(javafx.scene.paint.Color.valueOf("#fed330"));
+        colors.add(javafx.scene.paint.Color.valueOf("#26de81"));
+        colors.add(javafx.scene.paint.Color.valueOf("#2bcbba"));
+        colors.add(javafx.scene.paint.Color.valueOf("#eb3b5a"));
+        colors.add(javafx.scene.paint.Color.valueOf("#fa8231"));
+        colors.add(javafx.scene.paint.Color.valueOf("#f7b731"));
+        colors.add(javafx.scene.paint.Color.valueOf("#20bf6b"));
+        colors.add(javafx.scene.paint.Color.valueOf("#0fb9b1"));
+        colors.add(javafx.scene.paint.Color.valueOf("#45aaf2"));
+        colors.add(javafx.scene.paint.Color.valueOf("#4b7bec"));
+        colors.add(javafx.scene.paint.Color.valueOf("#a55eea"));
+        colors.add(javafx.scene.paint.Color.valueOf("#d1d8e0"));
+        colors.add(javafx.scene.paint.Color.valueOf("#778ca3"));
+        colors.add(javafx.scene.paint.Color.valueOf("#2d98da"));
+        colors.add(javafx.scene.paint.Color.valueOf("#3867d6"));
+        colors.add(javafx.scene.paint.Color.valueOf("#8854d0"));
+        colors.add(javafx.scene.paint.Color.valueOf("#a5b1c2"));
+        colors.add(javafx.scene.paint.Color.valueOf("#4b6584"));
+
+        TreeNode treeRoot   = new TreeNode(new ChartData("ROOT"));
+
+        int colorCount = 0;
+
+        for (UserFolder uf: folders) {
+            int numEmailsInFolder = getNumEmailsInFolder(uf.getFolderName());
+            TreeNode temp = new TreeNode(new ChartData(uf.folderName, numEmailsInFolder, colors.get(colorCount)), treeRoot);
+
+            for (String f: uf.subFolders) {
+                if (!f.equals(uf.folderName)) {
+                    //if the folder does not match the subfolder name, add the node normally
+                    int numEmailsInSubFolder = getNumEmailsInSubFolder(uf.getFolderName(), f);
+                    TreeNode subfold = new TreeNode(new ChartData(f, numEmailsInSubFolder, colors.get(colorCount)), temp);
+                } else {
+                    //else, add the node but make it invisible so it takes up the correct section of the pie
+                    int numEmailsInSubFolder = getNumEmailsInSubFolder(uf.getFolderName(), f);
+                    TreeNode subfold = new TreeNode(new ChartData("", numEmailsInSubFolder, javafx.scene.paint.Color.TRANSPARENT), temp);
+                }
+            }
+            if(colorCount < 19) {
+                colorCount++;
+            }else{
+                colorCount = 0;
+            }
+        }
+        return treeRoot;
+    }
+
+
+    public int getNumEmailsInFolder(String folderName) {
+        int count = 0;
+        for (Email e: getEmails()) {
+            if (e.getFolder().equals(folderName)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public int getNumEmailsInSubFolder(String folderName, String subFolderName) {
+        int count = 0;
+        for (Email e: getEmails()) {
+            if (e.getFolder().equals(folderName) && e.getSubFolder().equals(subFolderName)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+
+    public ArrayList<Sender> getTopSendersForFolder(String folderName, String subFolderName) {
+        boolean all = false;
+        boolean subFolderBool = false;
+        if (folderName.equals("AllFolders")) {
+            all = true;
+        }
+        if (subFolderName.equals("")) {
+            subFolderBool = true;
+        }
         ArrayList<Sender> topSenders = new ArrayList<>();
         ArrayList<String> senderNames = new ArrayList<>();
         for (Email e : emails) {
-            if (e.getFolder().equals(folderName)) {
+            if ((e.getFolder().equals(folderName) && e.getSubFolder().equals(subFolderName))|| all || (e.getFolder().equals(folderName) && subFolderBool) ) {
                 if (!senderNames.contains(e.getSender().getAddress())) {
                     senderNames.add(e.getSender().getAddress());
                     topSenders.add(new Sender(e.getSender().getAddress()));
@@ -64,12 +296,10 @@ public class User {
 
 
 
-
-
-
     public ArrayList<UserFolder> recoverFolders() {
         ArrayList<UserFolder> f = new ArrayList<>();
         ArrayList<String> folderNames = new ArrayList<>();
+
         for (Email e : emails) {
 
             if (!folderNames.contains(e.getFolder())) {
@@ -94,8 +324,14 @@ public class User {
         File[] e = temp.listFiles();
         emails = new ArrayList<Email>();
         for (File f : e) {
-            Email em = new Email(f);
-            this.emails.add(em);
+            try {
+                Email em = new Email(f);
+                this.emails.add(em);
+            } catch (Exception em) {
+                System.out.println("Email cannot be properly read..");
+                em.printStackTrace();
+            }
+
         }
 
         return emails;
@@ -307,23 +543,31 @@ public class User {
                     bw.write(Integer.toString(e.getSentimentScores()[4]));
                     bw.newLine();
 
+                    //write attachments
+                    bw.write(e.getAttachments().toString());
+                    bw.newLine();
+
+                    //write language
+                    String l = e.getLanguage();
+                    if(l != null)
+                        bw.write(l);
+                    else
+                        bw.write("unk");
+
                     //
                     bw.close();
                 } catch (IOException e) {
                     System.out.println("uh oh, something went wrong");
                 } catch (MessagingException e) {
                     System.out.println("cannot get flags");
-                } catch (APIError e) {
-                    System.out.println("cannot properly create email");
                 }
 
             } else {
                 break;
             }
 
+
         }
-
-
     }
 
 
@@ -346,12 +590,11 @@ public class User {
 
         for (int i = 0; i < folders.length; i++) {
             String name = folders[i].getName();
-            if (!name.equalsIgnoreCase("[Gmail]") && !name.equalsIgnoreCase("inbox")) {
+            if (!name.equalsIgnoreCase("[Gmail]") && !name.equalsIgnoreCase("inbox") ) {
                 readFolderAndSerializeEmails(folders[i], runSentiment);
             }
 
         }
-
     }
 
 
@@ -382,22 +625,134 @@ public class User {
 
     public static String decrypt(String strEncrypted) {
         String result = "";
-        int length = strEncrypted.length();
-        char ch;
-        int ck = 0;
-        for (int i = 0; i < length; i++) {
-            if (ck >= randomizer.length - 1) {
-                ck = 0;
+        try {
+            int length = strEncrypted.length();
+            char ch;
+            int ck = 0;
+            for (int i = 0; i < length; i++) {
+                if (ck >= randomizer.length - 1) {
+                    ck = 0;
+                }
+
+                ch = strEncrypted.charAt(i);
+                ch -= randomizer[ck];
+                result += ch;
+                ck++;
             }
-
-            ch = strEncrypted.charAt(i);
-            ch -= randomizer[ck];
-            result += ch;
-            ck++;
         }
-
+        catch(NullPointerException e){
+            System.out.println("Null Pointer encountered while decrypting in User.decrypt()");
+        }
         return result;
     }
+
+
+
+    //add a paramater to specify which emails to populate for the heatmap
+    public int[][] generateDayOfWeekFrequency(ArrayList<Email> emailsOfIntrest) {
+
+        int ZERO = 0;
+        int ONE = 100;
+        int TWO = 200;
+        int THREE = 300;
+        int FOUR = 400;
+        int FIVE = 500;
+        int SIX = 600;
+        int SEVEN = 700;
+        int EIGHT = 800;
+        int NINE = 900;
+        int TEN = 1000;
+        int ELEVEN = 1100;
+        int TWELVE = 1200;
+        int THIRT = 1300;
+        int FOURT = 1400;
+        int FIFT = 1500;
+        int SIXT = 1600;
+        int SEVENT = 1700;
+        int EIGHTT = 1800;
+        int NINET = 1900;
+        int TWENTY = 2000;
+        int TWENTONE = 2100;
+        int TWENTTWO = 2200;
+        int TWENTTHREE = 2300;
+        int TWENTFOUR = 2400;
+
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("kkmm");
+
+        dayOfWeekFrequency = new int[7][24];
+
+        for (Email e : emailsOfIntrest) {
+            int dayOfWeek = e.getDayOfWeek() - 1;
+            Date d = e.getDate();
+            String time = dateFormatter.format(d);
+            int t = Integer.parseInt(time);
+
+            if (t >= ZERO && t < ONE) dayOfWeekFrequency[dayOfWeek][0]++;
+            else if (t >= ONE && t < TWO) dayOfWeekFrequency[dayOfWeek][1]++;
+            else if (t >= TWO && t < THREE) dayOfWeekFrequency[dayOfWeek][2]++;
+            else if (t >= THREE && t < FOUR) dayOfWeekFrequency[dayOfWeek][3]++;
+            else if (t >= FOUR && t < FIVE) dayOfWeekFrequency[dayOfWeek][4]++;
+            else if (t >= FIVE && t < SIX) dayOfWeekFrequency[dayOfWeek][5]++;
+            else if (t >= SIX && t < SEVEN) dayOfWeekFrequency[dayOfWeek][6]++;
+            else if (t >= SEVEN && t < EIGHT) dayOfWeekFrequency[dayOfWeek][7]++;
+            else if (t >= EIGHT && t < NINE) dayOfWeekFrequency[dayOfWeek][8]++;
+            else if (t >= NINE && t < TEN) dayOfWeekFrequency[dayOfWeek][9]++;
+            else if (t >= TEN && t < ELEVEN) dayOfWeekFrequency[dayOfWeek][10]++;
+            else if (t >= ELEVEN && t < TWELVE) dayOfWeekFrequency[dayOfWeek][11]++;
+            else if (t >= TWELVE && t < THIRT) dayOfWeekFrequency[dayOfWeek][12]++;
+            else if (t >= THIRT && t < FOURT) dayOfWeekFrequency[dayOfWeek][13]++;
+            else if (t >= FOURT && t < FIFT) dayOfWeekFrequency[dayOfWeek][14]++;
+            else if (t >= FIFT && t < SIXT) dayOfWeekFrequency[dayOfWeek][15]++;
+            else if (t >= SIXT && t < SEVENT) dayOfWeekFrequency[dayOfWeek][16]++;
+            else if (t >= SEVENT && t < EIGHTT) dayOfWeekFrequency[dayOfWeek][17]++;
+            else if (t >= EIGHTT && t < NINET) dayOfWeekFrequency[dayOfWeek][18]++;
+            else if (t >= NINET && t < TWENTY) dayOfWeekFrequency[dayOfWeek][19]++;
+            else if (t >= TWENTY && t < TWENTONE) dayOfWeekFrequency[dayOfWeek][20]++;
+            else if (t >= TWENTONE && t < TWENTTWO) dayOfWeekFrequency[dayOfWeek][21]++;
+            else if (t >= TWENTTWO && t < TWENTTHREE) dayOfWeekFrequency[dayOfWeek][22]++;
+            else if (t >= TWENTTHREE && t < TWENTFOUR) dayOfWeekFrequency[dayOfWeek][23]++;
+        }
+
+        return dayOfWeekFrequency;
+    }
+
+    public void differenceMinMax(){
+
+        if(this.frequencyDifference < 0) {
+
+            int[][] heatMap = getDayOfWeekFrequency();
+            int min = heatMap[0][0];
+            int max = heatMap[0][0];
+            for (int i = 0; i < heatMap.length; i++) {
+                for (int j = 0; j < heatMap[i].length; j++) {
+                    if (heatMap[i][j] < min) min = heatMap[i][j];
+                    else if (heatMap[i][j] > max) max = heatMap[i][j];
+                }
+            }
+
+            this.frequencyDifference = max - min;
+        }
+
+    }
+
+    public String getColorForHeatMap(int i){
+
+        differenceMinMax();
+
+        int diff = this.frequencyDifference;
+
+        float h = .75f;
+        float s = 1f;
+        float b = 1f / (float)diff * i;
+
+
+        if(i == 0)
+            return "-fx-background-color: transparent;";
+        else
+            return "-fx-background-color: #" + Integer.toHexString((Color.HSBtoRGB(h, s, b)));
+    }
+
+    public int[][] getDayOfWeekFrequency() { return dayOfWeekFrequency; }
 
     public long getLastLogin() {
         return lastLogin;
@@ -422,4 +777,33 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public ArrayList<Email> getEmails() {
+        return emails;
+    }
+
+
+
+    public static String getDay(int i){
+        switch(i) {
+            case 0:
+                return "Sun";
+            case 1:
+                return "Mon";
+            case 2:
+                return "Tue";
+            case 3:
+                return "Wed";
+            case 4:
+                return "Thu";
+            case 5:
+                return "Fri";
+            case 6:
+                return "Sat";
+            default:
+                return "";
+        }
+    }
 }
+
+

@@ -6,6 +6,7 @@
 <?import com.jfoenix.controls.JFXMasonryPane?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -17,7 +18,11 @@
 
 <AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.DashboardController">
    <children>
-      <JFXMasonryPane fx:id="masonryPane" HSpacing="20.0" VSpacing="50.0" cellHeight="25.0" cellWidth="25.0" layoutY="57.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="543.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="57.0" />
+      <ScrollPane fx:id="scrollPane" layoutY="57.0" style="-fx-background-color: #353b48;" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="57.0">
+         <content>
+            <JFXMasonryPane fx:id="masonryPane" cellHeight="25.0" cellWidth="25.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="543.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" />
+         </content>
+      </ScrollPane>
       <JFXDrawer fx:id="filtersDrawer" defaultDrawerSize="200.0" direction="TOP" layoutY="50.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="1000.0">
          <effect>
             <DropShadow height="2.5" radius="1.375" spread="0.25" width="5.0" />

@@ -1,7 +1,5 @@
 package Engine;
 
-import com.detectlanguage.Result;
-import com.detectlanguage.errors.APIError;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;
@@ -10,26 +8,24 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
-
-import com.detectlanguage.DetectLanguage;
-
+import org.apache.tika.langdetect.OptimaizeLangDetector;
+import org.apache.tika.language.detect.LanguageDetector;
+import org.apache.tika.language.detect.LanguageResult;
 import javax.mail.*;
+import javax.mail.internet.ContentType;
+import javax.mail.internet.MimeMultipart;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
-class Email {
+public class Email {
 
     //------------------Declaring Variables------------------//
-    final   static String     API_KEY = "4f4d63ac606a0ee5e0064aa296ce88b4";
-    private double            VNEGTHRESH;
-    private double            NEGTHRESH;
-    private double            NEUTHRESH;
-    private double            POSTHRESH;
+    private double VNEGTHRESH;
+    private double NEGTHRESH;
+    private double NEUTHRESH;
+    private double POSTHRESH;
     private ArrayList<String> sentences, languages;
     private Message           message;
     Sentiment                 sentenceSentiment;
@@ -47,12 +43,18 @@ class Email {
     private int               VPOS;
     private int               VMULT;
     private int               MAXLEN;
+    private int               MINLEN;
     private String            folder;
     private String            subFolder;
+    private ArrayList<String> attachments;
     File                      serializedEmail;
+    private int               dayOfWeek;
+    private String            language;
+
 
     public Email(File f) {
         //to do: recreate emails using this constructor
+        attachments = new ArrayList<>();
         sentimentScores = new int[5];
         recoverEmail(f);
 
@@ -68,7 +70,8 @@ class Email {
         VPOS = 4;
         VMULT = 3;
         MAXLEN = 300;
-        sentimentScores = new int[5];
+        MINLEN = 10;
+
     }
 
     public void recoverEmail(File f) {
@@ -84,11 +87,21 @@ class Email {
             this.flags = new Flags(br.readLine());
 
             //add fields to reconstruct sentiment analysis
+
             this.sentimentScores[0] = Integer.parseInt(br.readLine());
             this.sentimentScores[1] = Integer.parseInt(br.readLine());
             this.sentimentScores[2] = Integer.parseInt(br.readLine());
             this.sentimentScores[3] = Integer.parseInt(br.readLine());
             this.sentimentScores[4] = Integer.parseInt(br.readLine());
+
+            String atts = br.readLine();
+            if(atts.length() > 2) {
+                String[] attsAry = ((atts.replace("[", "")).replace("]", "")).split(",");
+                if (attsAry.length > 0)
+                    this.attachments.addAll(Arrays.asList(attsAry));
+            }
+
+            this.language = br.readLine();
 
             br.close();
         } catch (FileNotFoundException e) {
@@ -101,7 +114,7 @@ class Email {
     }
 
 
-    public Email(Message m, Sender s, Boolean rs) throws APIError {
+    public Email(Message m, Sender s, Boolean rs) {
 
         VNEGTHRESH = .7;
         NEGTHRESH = .65;
@@ -117,16 +130,21 @@ class Email {
         sentimentScores = new int[5];
         sentencesAnalyzed = 0;
         MAXLEN = 300;
+        MINLEN = 10;
         boolean runSentiment = rs;
 
         try {
             //System.out.println("Content: \n" + m.getContent().toString());
 
             title = m.getSubject();
+            attachments = extractAttachments();
             sender = s;
             date = m.getSentDate();
             flags = m.getFlags();
-
+            content = getTextFromMessage(m);
+            if(content != null && !content.equals("")) {
+                language = detectLanguage(content);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -138,9 +156,9 @@ class Email {
                 e.printStackTrace();
             }
 
-            if (content != null) {
+            if (content != null && !content.equals("")) {
                 sentences = getSentences(content);
-                languages = getLanguages(sentences);
+                //languages = getLanguages(sentences);
             }
 
             //System.out.println(sentences.toString());
@@ -152,10 +170,10 @@ class Email {
         int sentenceScore;
         double probability;
         Sentiment sentenceSentiment;
-        if (sentences != null && languages.size() == 1 && languages.get(0).equals("en")) {
+        if (sentences != null) {
             for (String sentence : sentences) {
-                if (sentence.length() < MAXLEN) {
-                    //System.out.println(sentence);
+                if (this.getLanguage().equals("en") &&sentence.length() < MAXLEN && sentence.length() > MINLEN) {
+                    //System.out.println("sentence being analyzed: " + sentence);
                     sentencesAnalyzed++;
                     sentenceSentiment = analyzeSentiment(sentence);
                     sentenceScore = sentenceSentiment.score;
@@ -234,50 +252,64 @@ it appears to be whenever there is a thread of replies
 
     private String getTextFromMessage(Message message) throws IOException, MessagingException {
         String result = "";
-
-        try {
-            if (message.isMimeType("text/plain")) {
-                return message.getContent().toString();
-            } else if (message.isMimeType("text/html")) {
-                String html = (String) message.getContent();
-                return org.jsoup.Jsoup.parse(html).text();
-            } else if (message.isMimeType("multipart/*")) {
-                Multipart mp = (Multipart) message.getContent();
-                if (mp.getBodyPart(1).isMimeType("multipart/*")) {
-                    return getTextFromBodyPart(mp.getBodyPart(0));
-                }
-                return mp.getBodyPart(1).getContent().toString();
-            } else {
-                throw new Exception("Unknown content type found while extracting message from multipart");
-            }
+        if (message.isMimeType("text/plain")) {
+            result = message.getContent().toString();
+            boolean msgExists = sender.addMessage(result.hashCode());
+            if(msgExists)
+                result = "";
+        } else if (message.isMimeType("multipart/*")) {
+            MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
+            result = getTextFromMimeMultipart(mimeMultipart);
         }
-        catch(Exception e){
-            System.out.println(e.getMessage());
-        }
-        return null;
-
+        return result;
     }
 
-    private String getTextFromBodyPart(BodyPart bp) throws IOException, MessagingException {
+    private String getTextFromMimeMultipart(
+            MimeMultipart mimeMultipart) throws IOException, MessagingException {
 
-        try {
-            if (bp.isMimeType("text/plain")) {
-                return message.getContent().toString();
-            } else if (bp.isMimeType("text/html")) {
-                String html = (String) bp.getContent();
-                return org.jsoup.Jsoup.parse(html).text();
-            } else {
-                throw new Exception("Unknown content type found while extracting message from multipart");
+        int count = mimeMultipart.getCount();
+        if (count == 0)
+            throw new MessagingException("Multipart with no body parts not supported.");
+        boolean multipartAlt = new ContentType(mimeMultipart.getContentType()).match("multipart/alternative");
+        boolean multipartMix = new ContentType(mimeMultipart.getContentType()).match("multipart/mixed");
+/*        if (multipartAlt || multipartMix) {
+            System.out.println(mimeMultipart.getContentType() + " ...here are the parts");
+            for(int i = 0; i < count; i ++){
+                System.out.println(mimeMultipart.getBodyPart(i).getContentType());
             }
+        }*/
+        String result = "";
+        for (int i = 0; i < count; i++) {
+            BodyPart bodyPart = mimeMultipart.getBodyPart(i);
+            //System.out.println(bodyPart.getContentType());
+            result += getTextFromBodyPart(bodyPart);
         }
-        catch(Exception e){
-            System.out.println(e.getMessage());
+        return result;
+    }
+
+    private String getTextFromBodyPart(
+            BodyPart bodyPart) throws IOException, MessagingException {
+
+        String result = "";
+        if (bodyPart.isMimeType("text/plain")) {
+            result = (String) bodyPart.getContent();
+            if(sender.addMessage(result.hashCode()))
+                result = "";
+        } else if (bodyPart.isMimeType("text/html")) {
+            String html = (String) bodyPart.getContent();
+            result = org.jsoup.Jsoup.parse(html).text();
+            if(sender.addMessage(result.hashCode()))
+                result = "";
+        } else if (bodyPart.getContent() instanceof MimeMultipart){
+            result = getTextFromMimeMultipart((MimeMultipart)bodyPart.getContent());
         }
-        return null;
+        return result;
     }
 
     private ArrayList<String> getSentences(String result) {
+        //System.out.println("before: " + result);
         result = filter(result);
+        //System.out.println("after: " + result);
         //System.out.println("\nresults: " + result);
         ArrayList<String> sentences = new ArrayList<String>();
         String[] split = result.split("~|\\n");
@@ -365,7 +397,7 @@ it appears to be whenever there is a thread of replies
         return newText;
     }
 
-    private ArrayList<String> getLanguages(ArrayList<String> sentences) throws APIError {
+/*    private ArrayList<String> getLanguages(ArrayList<String> sentences) throws APIError {
 
         DetectLanguage.apiKey = API_KEY;
 
@@ -384,7 +416,51 @@ it appears to be whenever there is a thread of replies
         }
 
         return langs;
+    }*/
+
+    public int getDayOfWeek() {
+        if (getDate() != null) {
+            Calendar c = Calendar.getInstance();
+            c.setTime(getDate());
+            return c.get(Calendar.DAY_OF_WEEK);
+        }
+
+        return -1;
     }
+
+    public ArrayList<String> extractAttachments() throws MessagingException, IOException {
+        ArrayList<String> attachments = new ArrayList<>();
+        if(message.isMimeType("multipart/*")){
+            MimeMultipart mp = (MimeMultipart) message.getContent();
+            int count = mp.getCount();
+            for(int i = 0; i < count; i ++){
+                String fileName = mp.getBodyPart(i).getFileName();
+                if(fileName != null) attachments.add(fileName.substring(fileName.lastIndexOf(".")));
+            }
+        }
+        return attachments;
+    }
+
+
+    private String detectLanguage(String text) {
+        LanguageDetector ld = new OptimaizeLangDetector().loadModels();
+        ld.addText(text);
+        LanguageResult detected = ld.detect();
+        return detected.getLanguage();
+    }
+
+    private ArrayList<String> detectLanguages(ArrayList<String> sentences) {
+        ArrayList<String> languages = new ArrayList<>();
+        LanguageDetector ld = new OptimaizeLangDetector().loadModels();
+        for(String s : sentences) {
+            ld.addText(s);
+            languages.add(ld.detect().getLanguage());
+        }
+
+        return languages;
+    }
+
+    public void addEmailToSender(){ getSender().addEmail(this);}
 
     public ArrayList<String> getSentences() {
         return sentences;
@@ -429,8 +505,17 @@ it appears to be whenever there is a thread of replies
     public String getFolder() {
         return folder;
     }
+
     public String getSubFolder() {
         return subFolder;
+    }
+
+    public ArrayList<String> getAttachments() {
+        return attachments;
+    }
+
+    public String getLanguage() {
+        return language;
     }
 
     public String toString() {
@@ -441,5 +526,6 @@ it appears to be whenever there is a thread of replies
             return "From: " + this.sender + "\nTitle:" + this.title + "\nDate: " + date + "\nFlags: " + flags.toString()
                     + "\n" + content;
     }
+
 }
 
