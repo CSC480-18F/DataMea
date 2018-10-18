@@ -22,7 +22,6 @@ import java.util.*;
 public class Email {
 
     //------------------Declaring Variables------------------//
-    //final   static String     API_KEY = "4f4d63ac606a0ee5e0064aa296ce88b4";
     private double VNEGTHRESH;
     private double NEGTHRESH;
     private double NEUTHRESH;
@@ -54,6 +53,7 @@ public class Email {
 
     public Email(File f) {
         //to do: recreate emails using this constructor
+        attachments = new ArrayList<>();
         sentimentScores = new int[5];
         recoverEmail(f);
 
@@ -93,6 +93,12 @@ public class Email {
             this.sentimentScores[3] = Integer.parseInt(br.readLine());
             this.sentimentScores[4] = Integer.parseInt(br.readLine());
 
+            String atts = br.readLine();
+            if(atts.length() > 2) {
+                String[] attsAry = ((atts.replace("[", "")).replace("]", "")).split(",");
+                if (attsAry.length > 0)
+                    this.attachments.addAll(Arrays.asList(attsAry));
+            }
             br.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -423,7 +429,7 @@ it appears to be whenever there is a thread of replies
             int count = mp.getCount();
             for(int i = 0; i < count; i ++){
                 String fileName = mp.getBodyPart(i).getFileName();
-                if(fileName != null) attachments.add(fileName);
+                if(fileName != null) attachments.add(fileName.substring(fileName.lastIndexOf(".")));
             }
         }
         return attachments;

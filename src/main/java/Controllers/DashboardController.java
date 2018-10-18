@@ -93,6 +93,7 @@ public class DashboardController implements Initializable {
     private static BooleanProperty homeOnCloseRequest = new SimpleBooleanProperty(false);
     private Tile domainDonutChart;
     private Map<String, Long> domains;
+    private Map<String, Long> attachments;
     private ArrayList<ChartData> domainsChartData = new ArrayList<>();
 
 
@@ -319,6 +320,7 @@ public class DashboardController implements Initializable {
                     masonryPane.getChildren().add(foldersSunburstChart);
 
                     domains = currentUser.getDomainFreq(currentUser.getEmails());
+                    attachments = currentUser.getAttachmentFreq(currentUser.getEmails());
                     int colorCount = 0;
                     for (Map.Entry<String, Long> entry : domains.entrySet()) {
                         ChartData temp = new ChartData();

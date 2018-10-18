@@ -63,6 +63,25 @@ public class User {
         return freqs;
     }
 
+    public Map<String, Long> getAttachmentFreq(ArrayList<Email> emails){
+        ArrayList<String> aTypes = new ArrayList<>();
+        for (Email e: emails) {
+            //get everything after the @ symbol
+            ArrayList<String> atts = e.getAttachments();
+            if(atts != null){
+                aTypes.addAll(atts);
+            }
+        }
+        String [] aTypesAry = new String[aTypes.size()];
+        aTypesAry = aTypes.toArray(aTypesAry);
+
+
+        Map<String, Long> freqs =
+                Stream.of(aTypesAry)
+                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        return freqs;
+    }
+
 
     public ArrayList<Email> getEmailsFromFolder(String folderName, String subFolderName) {
         ArrayList<Email> filteredEmails = new ArrayList<>();
@@ -428,6 +447,7 @@ public class User {
                     bw.newLine();
 
                     //write attachments
+                    bw.write(e.getAttachments().toString());
 
                     //
                     bw.close();
@@ -465,7 +485,7 @@ public class User {
 
         for (int i = 0; i < folders.length; i++) {
             String name = folders[i].getName();
-            if (!name.equalsIgnoreCase("[Gmail]") /*&& !name.equalsIgnoreCase("inbox")*/) {
+            if (!name.equalsIgnoreCase("[Gmail]") && !name.equalsIgnoreCase("inbox") ) {
                 readFolderAndSerializeEmails(folders[i], runSentiment);
             }
 
@@ -500,20 +520,24 @@ public class User {
 
     public static String decrypt(String strEncrypted) {
         String result = "";
-        int length = strEncrypted.length();
-        char ch;
-        int ck = 0;
-        for (int i = 0; i < length; i++) {
-            if (ck >= randomizer.length - 1) {
-                ck = 0;
+        try {
+            int length = strEncrypted.length();
+            char ch;
+            int ck = 0;
+            for (int i = 0; i < length; i++) {
+                if (ck >= randomizer.length - 1) {
+                    ck = 0;
+                }
+
+                ch = strEncrypted.charAt(i);
+                ch -= randomizer[ck];
+                result += ch;
+                ck++;
             }
-
-            ch = strEncrypted.charAt(i);
-            ch -= randomizer[ck];
-            result += ch;
-            ck++;
         }
-
+        catch(NullPointerException e){
+            System.out.println("Null Pointer encountered while decrypting in User.decrypt()");
+        }
         return result;
     }
 
@@ -652,6 +676,8 @@ public class User {
     public ArrayList<Email> getEmails() {
         return emails;
     }
+
+
 
     public static String getDay(int i){
         switch(i) {
