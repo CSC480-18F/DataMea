@@ -104,6 +104,23 @@ public class User {
         return filteredEmails;
     }
 
+    public ArrayList<Email> getEmailsFromSender(String sender, ArrayList<Email> emailsToFilter){
+        for(Email e: emailsToFilter){
+            if (!(e.getSender().getAddress().equalsIgnoreCase(sender))){
+                emailsToFilter.remove(e);
+            }
+        }
+        return emailsToFilter;
+    }
+    //Date Filter using start and end date
+    public ArrayList<Email> getEmailsWithinDate(Date startDate, Date endDate, ArrayList<Email> emailsToFilter){
+        for (Email e: emailsToFilter){
+            if(e.getDate().before(startDate) || e.getDate().after(endDate)){
+                emailsToFilter.remove(e);
+            }
+        }
+        return emailsToFilter;
+    }
 
     public TreeNode getFoldersCountForSunburst(){
 
