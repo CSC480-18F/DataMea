@@ -261,9 +261,9 @@ public class DashboardController implements Initializable {
                     Label heatMapTitle = new Label("Received Email Frequency");
                     heatMapTitle.setTextFill(Color.LIGHTGRAY);
                     heatMapTitle.setStyle("-fx-font: 24 System;");
-                    heatMapPane.setPrefSize(500, 250);
+                    heatMapPane.setPrefSize(600, 250);
                     heatMapGridPane = new GridPane();
-                    heatMapGridPane.setPrefSize(500, 250);
+                    heatMapGridPane.setPrefSize(600, 250);
 
                     for (int i = 0; i < heatMapData.length; i++) {
                         Label day = new Label(Main.getCurrentUser().getDay(i));
@@ -312,6 +312,8 @@ public class DashboardController implements Initializable {
                     heatMapAndTitle.getChildren().addAll(heatMapTitle, heatMapPane);
                     heatMapAndTitle.setSpacing(5);
                     heatMapAndTitle.setPadding(new Insets(20));
+                    heatMapAndTitle.setPrefSize(600,250);
+                    heatMapAndTitle.setMaxSize(600,250);
                     masonryPane.getChildren().add(heatMapAndTitle);
 
                     //Folders SunburstChart:
@@ -356,10 +358,10 @@ public class DashboardController implements Initializable {
                     domainDonutChart.setLabelsVisible(true);
                     domainDonutChart.getData().stream().forEach(data -> {
                         Tooltip tooltip = new Tooltip();
-                        tooltip.setText(data.getPieValue() + " emails");
+                        tooltip.setText((int) data.getPieValue() + " emails");
                         Tooltip.install(data.getNode(), tooltip);
                         data.pieValueProperty().addListener((observableTwo, oldValueTwo, newValueTwo) ->
-                                tooltip.setText(newValueTwo + " emails"));
+                                tooltip.setText((int) newValueTwo + " emails"));
                     });
                     for (PieChart.Data d : domainsData) {
                         d.getNode().addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
@@ -404,6 +406,7 @@ public class DashboardController implements Initializable {
                             .build();
                     masonryPane.getChildren().add(attachmentsRadialChart);
 
+                    //Sentiment Gauge:
                     sentimentGauge = TileBuilder.create()
                             .skinType(Tile.SkinType.BAR_GAUGE)
                             .backgroundColor(Color.TRANSPARENT)
@@ -425,6 +428,7 @@ public class DashboardController implements Initializable {
                             .animated(true)
                             .build();
                     masonryPane.getChildren().add(sentimentGauge);
+                    //Emulate Data
                     lastTimerCall = System.nanoTime();
                     timer = new AnimationTimer() {
                         @Override
@@ -437,6 +441,8 @@ public class DashboardController implements Initializable {
                         }
                     };
                     timer.start();
+
+
                     //Allows the scroll pane to resize the masonry pane after nodes are added, keep at bottom!
                     Platform.runLater(() -> scrollPane.requestLayout());
                 }
