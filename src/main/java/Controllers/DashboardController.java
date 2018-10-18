@@ -31,15 +31,13 @@ import javafx.scene.effect.BoxBlur;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -93,6 +91,9 @@ public class DashboardController implements Initializable {
     private Tile foldersSunburstChart;
     private User currentUser;
     private static BooleanProperty homeOnCloseRequest = new SimpleBooleanProperty(false);
+    private Tile domainDonutChart;
+    private Map<String, Long> domains;
+    private ArrayList<ChartData> domainsChartData = new ArrayList<>();
 
 
     public static void setStage(Stage s) {
@@ -317,6 +318,35 @@ public class DashboardController implements Initializable {
                             .build();
                     masonryPane.getChildren().add(foldersSunburstChart);
 
+                    domains = currentUser.getDomainFreq(currentUser.getEmails());
+                    int colorCount = 0;
+                    for (Map.Entry<String, Long> entry : domains.entrySet()) {
+                        ChartData temp = new ChartData();
+                        temp.setName(entry.getKey());
+                        temp.setValue(entry.getValue());
+                        temp.setFillColor(User.colors.get(colorCount));
+                        domainsChartData.add(temp);
+                        if (colorCount < 19) {
+                            colorCount++;
+                        }else{
+                            colorCount = 0;
+                        }
+                    }
+
+                    domainDonutChart = TileBuilder.create()
+                            .animationDuration(10000)
+                            .skinType(Tile.SkinType.DONUT_CHART)
+                            .backgroundColor(Color.TRANSPARENT)
+                            .title("Domain's")
+                            .textVisible(true)
+                            .titleAlignment(TextAlignment.CENTER)
+                            .prefSize(400, 400)
+                            .chartData(domainsChartData)
+                            .animated(true)
+                            .build();
+                    //domainDonutChart.setCursor(Cursor.HAND);
+                    masonryPane.getChildren().add(domainDonutChart);
+
                     //Allows the scroll pane to resize the masonry pane after nodes are added
                     Platform.runLater(()->scrollPane.requestLayout());
                 }
@@ -337,6 +367,5 @@ public class DashboardController implements Initializable {
                 }
             }
         });
-
     }
 }

@@ -24,7 +24,7 @@ public class User {
     private ArrayList<UserFolder>   folders;
     private int[][] dayOfWeekFrequency;
     private int frequencyDifference = -1;
-    private ArrayList<javafx.scene.paint.Color> colors = new ArrayList<>();
+    public static ArrayList<javafx.scene.paint.Color> colors = new ArrayList<>();
 
 
     public User(String email, String password, Boolean runSentimentAnalysis) {
