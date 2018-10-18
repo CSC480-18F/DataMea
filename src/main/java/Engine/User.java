@@ -117,6 +117,30 @@ public class User {
         return sorted;
     }
 
+    public Map<String, Long> getLanguageFreq(ArrayList<Email> emails){
+        ArrayList<String> langs = new ArrayList<>();
+        for (Email e: emails) {
+            //get everything after the @ symbol
+            String l = e.getLanguage();
+            if(!l.equals("unk")){
+                langs.add(l);
+            }
+        }
+        String [] langsAry = new String[langs.size()];
+        langsAry = langs.toArray(langsAry);
+
+
+        Map<String, Long> freqs =
+                Stream.of(langsAry)
+                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        freqs = new TreeMap<String, Long>(freqs);
+
+        Map sorted = sortByValues(freqs);
+
+        return sorted;
+    }
+
     public static <K, V extends Comparable<V>> Map<K, V>
     sortByValues(final Map<K, V> map) {
         Comparator<K> valueComparator =
@@ -502,6 +526,14 @@ public class User {
 
                     //write attachments
                     bw.write(e.getAttachments().toString());
+                    bw.newLine();
+
+                    //write language
+                    String l = e.getLanguage();
+                    if(l != null)
+                        bw.write(l);
+                    else
+                        bw.write("unk");
 
                     //
                     bw.close();

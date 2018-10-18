@@ -99,6 +99,8 @@ public class DashboardController implements Initializable {
     private ObservableList<PieChart.Data> domainsData = FXCollections.observableArrayList();
     private Map<String, Long> attachments;
     private ArrayList<ChartData> attachmentsData = new ArrayList<>();
+    private Map<String, Long> languages;
+    private ArrayList<ChartData> languagesData = new ArrayList<>();
     private Tile attachmentsRadialChart;
 
     public static void setStage(Stage s) {

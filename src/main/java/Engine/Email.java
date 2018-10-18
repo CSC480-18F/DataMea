@@ -49,6 +49,7 @@ public class Email {
     private ArrayList<String> attachments;
     File                      serializedEmail;
     private int               dayOfWeek;
+    private String            language;
 
 
     public Email(File f) {
@@ -99,6 +100,9 @@ public class Email {
                 if (attsAry.length > 0)
                     this.attachments.addAll(Arrays.asList(attsAry));
             }
+
+            this.language = br.readLine();
+
             br.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -137,7 +141,10 @@ public class Email {
             sender = s;
             date = m.getSentDate();
             flags = m.getFlags();
-
+            content = getTextFromMessage(m);
+            if(content != null && !content.equals("")) {
+                language = detectLanguage(content);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -165,8 +172,7 @@ public class Email {
         Sentiment sentenceSentiment;
         if (sentences != null) {
             for (String sentence : sentences) {
-                String lang = detectLanguage(sentence);
-                if (sentence.length() < MAXLEN && sentence.length() > MINLEN && lang.equals("en")) {
+                if (this.getLanguage().equals("en") &&sentence.length() < MAXLEN && sentence.length() > MINLEN) {
                     //System.out.println("sentence being analyzed: " + sentence);
                     sentencesAnalyzed++;
                     sentenceSentiment = analyzeSentiment(sentence);
@@ -443,6 +449,17 @@ it appears to be whenever there is a thread of replies
         return detected.getLanguage();
     }
 
+    private ArrayList<String> detectLanguages(ArrayList<String> sentences) {
+        ArrayList<String> languages = new ArrayList<>();
+        LanguageDetector ld = new OptimaizeLangDetector().loadModels();
+        for(String s : sentences) {
+            ld.addText(s);
+            languages.add(ld.detect().getLanguage());
+        }
+
+        return languages;
+    }
+
     public void addEmailToSender(){ getSender().addEmail(this);}
 
     public ArrayList<String> getSentences() {
@@ -495,6 +512,10 @@ it appears to be whenever there is a thread of replies
 
     public ArrayList<String> getAttachments() {
         return attachments;
+    }
+
+    public String getLanguage() {
+        return language;
     }
 
     public String toString() {
