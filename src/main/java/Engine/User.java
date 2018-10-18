@@ -12,6 +12,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Map.Entry.*;
+
 public class User {
 
     //------------------Declaring Variables------------------//
@@ -47,12 +49,17 @@ public class User {
 
 
     public Map<String, Long> getDomainFreq(ArrayList<Email> emails){
+        //TODO; refine filters to remove weird chars
+
         ArrayList<String> domains = new ArrayList<>();
         for (Email e: emails) {
             //get everything after the @ symbol
-            String domain = e.getSender().getAddress().substring(e.getSender().getAddress().indexOf("@"));
-            domains.add(domain);
+
+                String domain = e.getSender().getAddress().substring(e.getSender().getAddress().indexOf("@"));
+                domains.add(domain);
+
         }
+
         String [] doms = new String[domains.size()];
         doms = domains.toArray(doms);
 
@@ -60,9 +67,32 @@ public class User {
         Map<String, Long> freqs =
                 Stream.of(doms)
                         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-        return freqs;
+        freqs = new TreeMap<String, Long>(freqs);
+
+        Map sorted = sortByValues(freqs);
+
+        return sorted;
     }
 
+    public static <K, V extends Comparable<V>> Map<K, V>
+    sortByValues(final Map<K, V> map) {
+        Comparator<K> valueComparator =
+                new Comparator<K>() {
+                    public int compare(K k1, K k2) {
+                        int compare =
+                                map.get(k2).compareTo(map.get(k1));
+                        if (compare == 0)
+                            return 1;
+                        else
+                            return compare;
+                    }
+                };
+
+        Map<K, V> sortedByValues =
+                new TreeMap<K, V>(valueComparator);
+        sortedByValues.putAll(map);
+        return sortedByValues;
+    }
 
     public ArrayList<Email> getEmailsFromFolder(String folderName, String subFolderName) {
         ArrayList<Email> filteredEmails = new ArrayList<>();
