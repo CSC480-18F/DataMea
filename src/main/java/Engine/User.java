@@ -172,21 +172,23 @@ public class User {
     }
 
     public ArrayList<Email> getEmailsFromSender(String sender, ArrayList<Email> emailsToFilter){
+        ArrayList<Email> filteredEmails = new ArrayList<Email>();
         for(Email e: emailsToFilter){
-            if (!(e.getSender().getAddress().equalsIgnoreCase(sender))){
-                emailsToFilter.remove(e);
+            if (e.getSender().getAddress().equalsIgnoreCase(sender)){
+                filteredEmails.add(e);
             }
         }
-        return emailsToFilter;
+        return filteredEmails;
     }
     //Date Filter using start and end date
     public ArrayList<Email> getEmailsWithinDate(Date startDate, Date endDate, ArrayList<Email> emailsToFilter){
+        ArrayList<Email> filteredEmails = new ArrayList<Email>();
         for (Email e: emailsToFilter){
-            if(e.getDate().before(startDate) || e.getDate().after(endDate)){
-                emailsToFilter.remove(e);
+            if(e.getDate().after(startDate) && e.getDate().before(endDate)){
+                filteredEmails.add(e);
             }
         }
-        return emailsToFilter;
+        return filteredEmails;
     }
 
     public TreeNode getFoldersCountForSunburst(){
