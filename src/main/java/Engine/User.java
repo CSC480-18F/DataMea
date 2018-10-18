@@ -53,10 +53,29 @@ public class User {
 
         ArrayList<String> domains = new ArrayList<>();
         for (Email e: emails) {
-            //get everything after the @ symbol
+                String address = e.getSender().getAddress().substring(e.getSender().getAddress().indexOf("@"));
+                int quoteLocation = address.indexOf("\"" /*,address.indexOf("\"")+1*/);
+                int caratLocation = address.indexOf(">");
+                String d;
 
-                String domain = e.getSender().getAddress().substring(e.getSender().getAddress().indexOf("@"));
-                domains.add(domain);
+                int earlierLocation = -1;
+
+                if (quoteLocation < caratLocation && quoteLocation!=-1) {
+                    earlierLocation = quoteLocation;
+                } else {
+                    if (caratLocation != -1) {
+                        earlierLocation = caratLocation;
+                    }
+                }
+
+                if (earlierLocation == -1) {
+                    //none of the weird characters are found
+                    domains.add(address);
+                } else {
+                    //some weird characters are found
+                    d = address.substring(address.indexOf("@"), earlierLocation);
+                    domains.add(d);
+                }
 
         }
 
