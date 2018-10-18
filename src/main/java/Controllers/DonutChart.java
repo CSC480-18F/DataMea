@@ -19,7 +19,7 @@ public class DonutChart extends PieChart {
         innerCircle = new Circle();
         innerCircle.setFill(Color.valueOf("#353b48"));
         innerCircle.setStroke(Color.WHITE);
-        innerCircle.setStrokeWidth(3);
+        innerCircle.setStrokeWidth(1);
     }
 
     @Override

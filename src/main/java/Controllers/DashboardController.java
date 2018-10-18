@@ -29,12 +29,14 @@ import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -82,19 +84,19 @@ public class DashboardController implements Initializable {
 
 
     //------------------Declaring Variables------------------//
-    private static Stage                         myStage;
-    private        DashboardDrawer               dashboardDrawer;
-    private        FilterDrawer                  filterDrawerClass;
-    private static BooleanProperty               loadedFromLoginScreen = new SimpleBooleanProperty(false);
-    private static ArrayList<ChartData>          topSendersData = new ArrayList<>();
-    private        Tile                          topSendersRadialChart;
-    private        GridPane                      heatMapGridPane;
-    private        Tile                          foldersSunburstChart;
-    private        User                          currentUser;
-    private static BooleanProperty               homeOnCloseRequest = new SimpleBooleanProperty(false);
-    private        DonutChart                    domainDonutChart;
-    private        Map<String, Long>             domains;
-    private        ObservableList<PieChart.Data> domainsData = FXCollections.observableArrayList();
+    private static Stage myStage;
+    private DashboardDrawer dashboardDrawer;
+    private FilterDrawer filterDrawerClass;
+    private static BooleanProperty loadedFromLoginScreen = new SimpleBooleanProperty(false);
+    private static ArrayList<ChartData> topSendersData = new ArrayList<>();
+    private Tile topSendersRadialChart;
+    private GridPane heatMapGridPane;
+    private Tile foldersSunburstChart;
+    private User currentUser;
+    private static BooleanProperty homeOnCloseRequest = new SimpleBooleanProperty(false);
+    private DonutChart domainDonutChart;
+    private Map<String, Long> domains;
+    private ObservableList<PieChart.Data> domainsData = FXCollections.observableArrayList();
 
     public static void setStage(Stage s) {
         myStage = s;
@@ -109,7 +111,7 @@ public class DashboardController implements Initializable {
         loadedFromLoginScreen.setValue(true);
     }
 
-    public static void setHomeOnCloseRequest(Boolean b){
+    public static void setHomeOnCloseRequest(Boolean b) {
         homeOnCloseRequest.setValue(b);
     }
 
@@ -121,7 +123,7 @@ public class DashboardController implements Initializable {
 
         //Resizing crap, this took way to long to figure out thanks javafx
         scrollPane.setFitToWidth(true);
-        Platform.runLater(()->scrollPane.requestLayout());
+        Platform.runLater(() -> scrollPane.requestLayout());
         topBarGridPane.prefWidthProperty().bind(anchorPane.widthProperty());
         masonryPane.prefWidthProperty().bind(anchorPane.widthProperty());
         centerColumn.maxWidthProperty().bind(topBarGridPane.widthProperty());
@@ -202,7 +204,9 @@ public class DashboardController implements Initializable {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if (newValue) {
+                    //Get Current user
                     currentUser = Main.getCurrentUser();
+
                     //Top senders Radial Chart:
                     topSendersRadialChart = TileBuilder.create()
                             .animationDuration(10000)
@@ -212,6 +216,7 @@ public class DashboardController implements Initializable {
                             .textVisible(true)
                             .titleAlignment(TextAlignment.LEFT)
                             .prefSize(400, 400)
+                            .maxSize(400, 400)
                             .chartData(topSendersData)
                             .animated(true)
                             .build();
@@ -300,7 +305,6 @@ public class DashboardController implements Initializable {
                     heatMapAndTitle.setPadding(new Insets(20));
                     masonryPane.getChildren().add(heatMapAndTitle);
 
-
                     //Folders SunburstChart:
                     foldersSunburstChart = TileBuilder.create()
                             .skinType(Tile.SkinType.SUNBURST)
@@ -320,31 +324,47 @@ public class DashboardController implements Initializable {
 
                     //Domains donut chart
                     domains = currentUser.getDomainFreq(currentUser.getEmails());
-                    PieChart.Data domainOther = new PieChart.Data("Other",0);
+                    PieChart.Data domainOther = new PieChart.Data("Other", 0);
                     int domainCount = 0;
                     for (Map.Entry<String, Long> entry : domains.entrySet()) {
-                        if (domainCount<5){
-                            PieChart.Data temp = new PieChart.Data(entry.getKey(),entry.getValue());
+                        if (domainCount < 5) {
+                            PieChart.Data temp = new PieChart.Data(entry.getKey(), entry.getValue());
                             domainsData.add(temp);
                             domainCount++;
-                        }else{
+                        } else {
                             double otherValue = domainOther.getPieValue();
                             domainOther = new PieChart.Data("Other", otherValue);
                         }
                     }
                     domainsData.add(domainOther);
                     domainDonutChart = new DonutChart(domainsData);
-                    domainDonutChart.setMaxSize(400,400);
+                    domainDonutChart.setPrefSize(400, 400);
+                    domainDonutChart.setMaxSize(400, 400);
                     domainDonutChart.setTitle("Domains");
                     domainDonutChart.setLegendVisible(true);
                     domainDonutChart.setLegendSide(Side.BOTTOM);
                     domainDonutChart.setLabelsVisible(true);
+                    domainDonutChart.getData().stream().forEach(data -> {
+                        Tooltip tooltip = new Tooltip();
+                        tooltip.setText(data.getPieValue() + " emails");
+                        Tooltip.install(data.getNode(), tooltip);
+                        data.pieValueProperty().addListener((observableTwo, oldValueTwo, newValueTwo) ->
+                                tooltip.setText(newValueTwo + " emails"));
+                    });
+                    for (PieChart.Data d : domainsData) {
+                        d.getNode().addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
+                            @Override
+                            public void handle(MouseEvent e) {
+                                d.getNode().setCursor(Cursor.HAND);
+                            }
+                        });
+                    }
                     domainDonutChart.getStylesheets().add(this.getClass().getClassLoader().getResource("donutchart.css").toExternalForm());
                     masonryPane.getChildren().add(domainDonutChart);
 
 
                     //Allows the scroll pane to resize the masonry pane after nodes are added, keep at bottom!
-                    Platform.runLater(()->scrollPane.requestLayout());
+                    Platform.runLater(() -> scrollPane.requestLayout());
                 }
             }
         });

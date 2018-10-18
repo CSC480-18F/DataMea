@@ -22,6 +22,20 @@
     -fx-pie-color: #d1d8e0;
 }
 
+.chart-title {
+    -fx-text-fill: lightgrey;
+    -fx-font-size: 22px
+
+}
+
 .chart-legend {
     -fx-background-color: #2f3640;
+}
+
+.chart-legend-item{
+    -fx-text-fill: lightgrey;
+}
+
+.chart-pie-label { /*this is what you need for labels*/
+    -fx-fill: lightgrey;
 }
