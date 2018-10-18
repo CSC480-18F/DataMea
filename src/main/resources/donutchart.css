@@ -28,6 +28,10 @@
 
 }
 
+.chart-pie{
+    -fx-border-width: 0px;
+}
+
 .chart-legend {
     -fx-background-color: #2f3640;
 }
