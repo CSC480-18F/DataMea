@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.io.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class User {
 
@@ -40,6 +43,24 @@ public class User {
         emails = recoverSerializedEmails();
         folders = recoverFolders();
 
+    }
+
+
+    public Map<String, Long> getDomainFreq(ArrayList<Email> emails){
+        ArrayList<String> domains = new ArrayList<>();
+        for (Email e: emails) {
+            //get everything after the @ symbol
+            String domain = e.getSender().getAddress().substring(e.getSender().getAddress().indexOf("@"));
+            domains.add(domain);
+        }
+        String [] doms = new String[domains.size()];
+        doms = domains.toArray(doms);
+
+
+        Map<String, Long> freqs =
+                Stream.of(doms)
+                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        return freqs;
     }
 
 
