@@ -56,7 +56,7 @@
                               </Pane>
                               <HBox alignment="CENTER" layoutX="55.0" layoutY="-3.0" style="-fx-spacing: 15;">
                                  <children>
-                                    <JFXCheckBox fx:id="rememberEmail" checkedColor="#ff931e" text="Remember my Email" textFill="#ebe5e5" unCheckedColor="#e0e0e0" />
+                                    <JFXCheckBox fx:id="rememberEmail" onMouseClicked="#erasePreviousLogin" checkedColor="#ff931e" text="Remember my Email" textFill="#ebe5e5" unCheckedColor="#e0e0e0" />
                                     <JFXButton fx:id="loginButton" alignment="CENTER" contentDisplay="RIGHT" onAction="#login" prefHeight="35.0" prefWidth="125.0" ripplerFill="#ff931e" style="-fx-background-color: #f5f6fa; -fx-padding: 5; -fx-border-color: #a4b0be; -fx-border-radius: 5; -fx-background-radius: 5;" text="Login with">
                                        <graphic>
                                           <FontAwesomeIconView glyphName="GOOGLE" opacity="0.6" />

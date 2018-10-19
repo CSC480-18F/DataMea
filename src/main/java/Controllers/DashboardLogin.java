@@ -1,6 +1,7 @@
 package Controllers;
 
 import Engine.Main;
+import Engine.User;
 import com.jfoenix.controls.*;
 import com.jfoenix.controls.events.JFXDialogEvent;
 import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
@@ -19,6 +20,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.effect.BoxBlur;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -73,6 +75,20 @@ public class DashboardLogin implements Initializable {
         emailField.setText(lastEmail);
     }
 
+    @FXML
+    public void erasePreviousLogin(MouseEvent event){
+        if (!rememberEmail.isSelected()) {
+            String fileName = "TextFiles/lastLogin.txt";
+            boolean exists = new File(fileName).isFile();
+            if (exists) {
+                (new File(fileName)).delete();
+            }
+
+        }
+    }
+
+
+
     public void checkRememberedEmail(){
         rememberEmail.setSelected(true);
     }
@@ -96,7 +112,7 @@ public class DashboardLogin implements Initializable {
             try {
                 BufferedWriter br = new BufferedWriter(new FileWriter(fileName));
                 if (rem) {
-                    br.write(userName);
+                    br.write(User.encrypt(userName));
                     br.close();
                 } else {
                     br.write(">");
@@ -123,8 +139,8 @@ public class DashboardLogin implements Initializable {
 
                 return false;
             } else {
-                lastEmail = last;
-                email=last;
+                lastEmail = User.decrypt(last);
+                email=User.decrypt(last);
                 checkRememberedEmail();
                 return true;
             }
@@ -134,6 +150,7 @@ public class DashboardLogin implements Initializable {
 
         return false;
     }
+
 
 
 
