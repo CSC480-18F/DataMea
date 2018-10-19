@@ -119,6 +119,10 @@ public class DashboardController implements Initializable {
         topSendersData.add(d);
     }
 
+    public User getUser(){
+        return currentUser;
+    }
+
     public static void setLoadedFromLoginScreenToTrue() {
         loadedFromLoginScreen.setValue(true);
     }

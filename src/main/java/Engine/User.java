@@ -599,6 +599,7 @@ public class User {
             String name = folders[i].getName();
             if (!name.equalsIgnoreCase("[Gmail]") /* && !name.equalsIgnoreCase("inbox")*/ ) {
                 readFolderAndSerializeEmails(folders[i], runSentiment);
+
             }
 
         }

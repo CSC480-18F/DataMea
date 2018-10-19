@@ -56,7 +56,6 @@ public class DashboardLogin implements Initializable {
     private static Stage myStage;
     private        BooleanProperty loginSuccessful = new SimpleBooleanProperty(false);
     private        boolean opened = false;
-    private        boolean rememberEmailBool;
     private        static String lastEmail;
 
     @FXML
