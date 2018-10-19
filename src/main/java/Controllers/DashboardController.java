@@ -142,6 +142,7 @@ public class DashboardController implements Initializable {
         gridPaneLeft.maxWidthProperty().bind(topBarGridPane.widthProperty());
         gridPaneRight.maxWidthProperty().bind(topBarGridPane.widthProperty());
         drawer.prefHeightProperty().bind(anchorPane.heightProperty());
+        filtersDrawer.prefWidthProperty().bind(anchorPane.widthProperty());
 
         drawer.setVisible(false);
         filtersDrawer.setVisible(false);
@@ -152,8 +153,7 @@ public class DashboardController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("Dashboard_Drawer.fxml"));
             VBox box = loader.load();
             dashboardDrawer = loader.getController();
-            //dashboardDrawer.dashboardDrawerVBox.maxHeightProperty().bind(anchorPane.heightProperty());
-            dashboardDrawer.dashboardDrawerVBox.prefHeightProperty().bind(anchorPane.heightProperty());
+            dashboardDrawer.dashboardDrawerVBox.maxHeightProperty().bind(anchorPane.heightProperty());
             drawer.setSidePane(box);
         } catch (IOException ex) {
             Logger.getLogger(DashboardController.class.getName()).log(Level.SEVERE, null, ex);
@@ -161,10 +161,10 @@ public class DashboardController implements Initializable {
 
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("Filters_Drawer.fxml"));
-            HBox box = loader.load();
+            AnchorPane filtersPane = loader.load();
             filterDrawerClass = loader.getController();
-            filterDrawerClass.filterHbox.maxWidthProperty().bind(topBarGridPane.widthProperty());
-            filtersDrawer.setSidePane(box);
+            filterDrawerClass.filtersAnchorPane.maxWidthProperty().bind(anchorPane.widthProperty());
+            filtersDrawer.setSidePane(filtersPane);
         } catch (IOException ex) {
             Logger.getLogger(DashboardController.class.getName()).log(Level.SEVERE, null, ex);
         }

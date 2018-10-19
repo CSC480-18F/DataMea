@@ -6,6 +6,7 @@
 
 .scroll-bar:vertical > .track-background, .scroll-bar:horizontal > .track-background {
     -fx-background-color: #353b48;
+    -fx-stroke: lightgrey;
     -fx-background-insets: 0.0;
 }
 
