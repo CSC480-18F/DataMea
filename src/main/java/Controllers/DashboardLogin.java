@@ -3,6 +3,7 @@ package Controllers;
 import Engine.Main;
 import com.jfoenix.controls.*;
 import com.jfoenix.controls.events.JFXDialogEvent;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -30,6 +31,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.io.*;
 
 public class DashboardLogin implements Initializable {
     @FXML
@@ -52,6 +54,8 @@ public class DashboardLogin implements Initializable {
     private static Stage myStage;
     private        BooleanProperty loginSuccessful = new SimpleBooleanProperty(false);
     private        boolean opened = false;
+    private        boolean rememberEmailBool;
+    private        static String lastEmail;
 
     @FXML
     public void getEmailField(KeyEvent event) {
@@ -61,6 +65,16 @@ public class DashboardLogin implements Initializable {
     @FXML
     public void getPasswordField(KeyEvent event) {
         password = passwordField.getText();
+    }
+
+
+    @FXML
+    public void setEmail() {
+        emailField.setText(lastEmail);
+    }
+
+    public void checkRememberedEmail(){
+        rememberEmail.setSelected(true);
     }
 
     public static String getEmail() {
@@ -75,6 +89,55 @@ public class DashboardLogin implements Initializable {
         myStage = stage;
     }
 
+    public static void rememeberUserName(String userName, boolean rem) {
+
+            String fileName = "TextFiles/lastLogin.txt";
+
+            try {
+                BufferedWriter br = new BufferedWriter(new FileWriter(fileName));
+                if (rem) {
+                    br.write(userName);
+                    br.close();
+                } else {
+                    br.write(">");
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("File does not exist");
+            }
+
+        }
+
+    public boolean previousLoginRemembered() {
+        String fileName = "TextFiles/lastLogin.txt";
+        try{
+            boolean exists = new File(fileName).isFile();
+            if (!exists) {
+                (new File(fileName)).createNewFile();
+            }
+            BufferedReader br = new BufferedReader(new FileReader(fileName));
+            String last = br.readLine();
+
+            if (last == null) {
+
+                return false;
+            } else {
+                lastEmail = last;
+                email=last;
+                checkRememberedEmail();
+                return true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+
+
+
     public void login(ActionEvent event) throws IOException {
         final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(2);
         executor.schedule(new Runnable() {
@@ -82,6 +145,7 @@ public class DashboardLogin implements Initializable {
             public void run() {
                 Platform.runLater(() -> {
                     try{
+
                         Properties props = System.getProperties();
                         props.setProperty("mail.store.protocol", "imaps");
                         props.setProperty("mail.store.protocol", "imaps");
@@ -89,6 +153,8 @@ public class DashboardLogin implements Initializable {
                         Store store = session.getStore("imaps");
                         store.connect("imap.gmail.com", DashboardLogin.getEmail(), DashboardLogin.getPassword());
                         //User currentUser = new User(DashboardLogin.getEmail(), DashboardLogin.getPassword(), true);
+                        rememeberUserName(DashboardLogin.getEmail(),rememberEmail.isSelected());
+
                         loginSuccessful.setValue(true);
                         Main.setStartLoadingToTrue();
                     }
@@ -129,6 +195,10 @@ public class DashboardLogin implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         rememberEmail.setCursor(Cursor.HAND);
+        if (previousLoginRemembered()) {
+            setEmail();
+            checkRememberedEmail();
+        }
         try {
             DashboardLoading.setStage(myStage);
             Parent homePageParent = FXMLLoader.load(getClass().getClassLoader().getResource("Loading_Screen.fxml"));
