@@ -7,13 +7,11 @@ import javafx.concurrent.Task;
 import javax.mail.Folder;
 import javax.mail.Session;
 import javax.mail.Store;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Properties;
 
-public class backgroundSentiment extends Task<Void> {
+public class BackgroundSentiment extends Task<Void> {
 
         /*TODO
         *1. Look at the text file that the user has keeping track of how far sentiment analysis has gotten
@@ -37,8 +35,8 @@ public class backgroundSentiment extends Task<Void> {
         *
         */
 
-    String lastReadSentimentFile = "TextFiles/sentimentProgress.txt";
     User currentUser = Main.getCurrentUser();
+    String lastReadSentimentFile = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/sentimentProgress.txt";
 
 
     @Override
@@ -81,33 +79,18 @@ public class backgroundSentiment extends Task<Void> {
             }
 
 
-
-
-
-
-
-
-
         } else {
             //the user is not new. Simply go ahead and start the sentiment analysis from where it left off
+            ArrayList<UserFolder> folders = currentUser.recoverFolders();
 
+            for (UserFolder fold : folders) {
+                for (String s: fold.subFolders) {
+                    continueSerialization(foldersList, fold.folderName, s, getStartingPointForFolder(fold.folderName,s));
+                }
 
-
-
-
+            }
 
         }
-
-
-
-
-
-
-
-
-
-
-
 
         return null;
     }
@@ -117,7 +100,7 @@ public class backgroundSentiment extends Task<Void> {
     public void continueSerialization(Folder [] folders, String folder, String subFolder, int startIndex) {
         //basically just go to the folder and subfolder, start at the startindex, and process sentiment analysis
         //each time the sentiment is process, update the textFile through the updateEmailFile function
-
+        
 
 
     }
@@ -128,6 +111,38 @@ public class backgroundSentiment extends Task<Void> {
         //  basically go find the email file, and then go rewrite the sentiment part
 
 
+
+    }
+
+
+    public int getStartingPointForFolder(String folder, String subFolder) {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(lastReadSentimentFile)));
+            for (String line = ""; line!= null; line=br.readLine()) {
+                String [] parts = line.split(" ---> ");
+                if (parts[0].equals(folder) && parts[1].equals(subFolder)) {
+
+                    //the folder has been found, return the starting location (aka, the last email it read)
+                    return Integer.parseInt(parts[2]);
+                }
+            }
+
+            br.close();
+
+            //folder is not found, meaning it is probably a new folder, so write it into the file
+            BufferedWriter bw = new BufferedWriter(new FileWriter(new File(lastReadSentimentFile), true));
+            //this might need some debugging but basically append the folder to the end
+            String toWrite =  folder + " ---> " + subFolder + " ---> " + 0;
+            bw.write(toWrite);
+            bw.newLine();
+            bw.close();
+
+            return 0;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return 0;
+        }
 
     }
 
