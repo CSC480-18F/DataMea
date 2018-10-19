@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.JFXChipView?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 
-
-<HBox fx:id="filterHbox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="1000.0" style="-fx-background-color: #2f3640;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.FilterDrawer">
+<AnchorPane fx:id="filtersAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="1000.0" style="-fx-background-color: #2f3640;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.FilterDrawer">
    <children>
-      <JFXChipView prefHeight="50.0" prefWidth="650.0" />
+      <HBox fx:id="filterHbox" alignment="BOTTOM_CENTER" fillHeight="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="1000.0" AnchorPane.leftAnchor="0.0">
+         <children>
+            <JFXChipView maxHeight="-Infinity" maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT" prefHeight="50.0" prefWidth="1000.0" HBox.hgrow="ALWAYS">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor></JFXChipView>
+         </children>
+      </HBox>
    </children>
-</HBox>
+</AnchorPane>
