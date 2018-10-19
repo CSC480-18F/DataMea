@@ -4,9 +4,7 @@ import Controllers.DashboardController;
 import Controllers.DashboardLogin;
 import javafx.concurrent.Task;
 
-import javax.mail.Folder;
-import javax.mail.Session;
-import javax.mail.Store;
+import javax.mail.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -100,7 +98,34 @@ public class BackgroundSentiment extends Task<Void> {
     public void continueSerialization(Folder [] folders, String folder, String subFolder, int startIndex) {
         //basically just go to the folder and subfolder, start at the startindex, and process sentiment analysis
         //each time the sentiment is process, update the textFile through the updateEmailFile function
-        
+        try {
+
+            for (Folder f : folders) {
+                if (f.getName().equals(folder)) {
+                    f.open(Folder.READ_ONLY);
+                    Folder [] subFolders = f.list();
+                    for (Folder sub : subFolders) {
+                        if (sub.getName().equals(subFolder)) {
+                            sub.open(Folder.READ_ONLY);
+                            Message [] messages = sub.getMessages();
+
+                            //start at the starting index and go from there
+                            for (int i = startIndex; i<messages.length; i++) {
+
+                                //do sentiment stuff and update file with the corect info
+
+
+                            }
+
+                        }
+                    }
+                }
+            }
+
+        } catch (MessagingException e) {
+             e.printStackTrace();
+            System.out.println("Cannot open folder..");
+        }
 
 
     }
