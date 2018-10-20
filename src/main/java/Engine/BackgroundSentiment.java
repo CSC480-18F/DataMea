@@ -112,8 +112,10 @@ public class BackgroundSentiment extends Task<Void> {
                             //start at the starting index and go from there
                             for (int i = startIndex; i<messages.length; i++) {
 
-                                //do sentiment stuff and update file with the corect info
+                                //do sentiment stuff and update file with the correct info
+                                Message currentMessage = messages[i];
 
+                                
 
                             }
 
