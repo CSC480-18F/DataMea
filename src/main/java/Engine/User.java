@@ -603,6 +603,7 @@ public class User {
                 folders[i].open(Folder.READ_ONLY);
                 Message [] messages = folders[i].getMessages();
                 totalNumberOfEmails += messages.length;
+                folders[i].close();
             }
 
         }
