@@ -6,6 +6,7 @@ import javafx.concurrent.Task;
 
 import javax.mail.*;
 import java.io.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Properties;
 
@@ -114,8 +115,9 @@ public class BackgroundSentiment extends Task<Void> {
 
                                 //do sentiment stuff and update file with the correct info
                                 Message currentMessage = messages[i];
-
-                                
+                                Email tempEmail = new Email(currentMessage, null, true);
+                                String fileName = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/" + currentMessage.getReceivedDate().getTime() + ".txt";
+                                updateEmailFile(fileName, tempEmail.getSentimentScores());
 
                             }
 
@@ -136,6 +138,43 @@ public class BackgroundSentiment extends Task<Void> {
 
     public void updateEmailFile(String fileName, int [] sentiment) {
         //  basically go find the email file, and then go rewrite the sentiment part
+
+        File f = new File(fileName);
+        try {
+
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            ArrayList<String> fileStrings = new ArrayList<>();
+
+            for (String line = ""; line!=null ; line = br.readLine()) {
+                fileStrings.add(line);
+            }
+
+            br.close();
+
+            BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+
+            try {
+                int sentimentCount = 0;
+                for (int i = 5  ; i<10; i++) {
+                    //replace the old sentiment ones to be the new ones given from the sentiment int [];
+                    //if this line below breaks, the something was wrong with the file, so just pass on it
+                    int test = Integer.parseInt(fileStrings.get(i));
+                    fileStrings.set(i, Integer.toString(sentiment[sentimentCount]));
+                    sentimentCount++;
+                }
+            } catch (Exception e) {
+                System.out.println("Something went wrong with fixing the email..... Cannot be processed");
+            }
+
+
+
+
+
+        } catch ( FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
 
@@ -172,9 +211,6 @@ public class BackgroundSentiment extends Task<Void> {
         }
 
     }
-
-
-
 
 
 
