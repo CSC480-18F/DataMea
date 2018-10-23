@@ -28,6 +28,8 @@ public class User {
     private int frequencyDifference = -1;
     public static ArrayList<javafx.scene.paint.Color> colors = new ArrayList<>();
 
+    public int totalNumberOfEmails = 0;
+
 
     public User(String email, String password, Boolean runSentimentAnalysis) {
         this.email = email;
@@ -594,10 +596,23 @@ public class User {
 
         Folder[] folders = store.getDefaultFolder().list();
 
+        //this right below is simply used to calculate how many emails are in total in the account (look at all folders)
+        for (int i = 0; i<folders.length; i++) {
+            String name = folders[i].getName();
+            if (!name.equalsIgnoreCase("[Gmail]")) {
+                folders[i].open(Folder.READ_ONLY);
+                Message [] messages = folders[i].getMessages();
+                totalNumberOfEmails += messages.length;
+            }
+
+        }
+
+
 
         for (int i = 0; i < folders.length; i++) {
             String name = folders[i].getName();
             if (!name.equalsIgnoreCase("[Gmail]") /* && !name.equalsIgnoreCase("inbox")*/ ) {
+                /// Create a new thread to do this!!!!!!!
                 readFolderAndSerializeEmails(folders[i], runSentiment);
 
             }

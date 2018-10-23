@@ -168,6 +168,10 @@ public class BackgroundSentiment extends Task<Void> {
 
 
 
+            ///TODO: update the file which keeps track of the last email that was processed in the folder.
+
+
+
 
 
         } catch ( FileNotFoundException e) {
