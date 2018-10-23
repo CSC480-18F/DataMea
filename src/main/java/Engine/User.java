@@ -27,6 +27,7 @@ public class User {
     private int[][] dayOfWeekFrequency;
     private int frequencyDifference = -1;
     public static ArrayList<javafx.scene.paint.Color> colors = new ArrayList<>();
+    private int totalNumberOfEmails = 0;
 
 
     public User(String email, String password, Boolean runSentimentAnalysis) {
@@ -595,6 +596,18 @@ public class User {
         Folder[] folders = store.getDefaultFolder().list();
 
 
+        //this right below is simply used to calculate how many emails are in total in the account (look at all folders)
+        for (int i = 0; i<folders.length; i++) {
+            String name = folders[i].getName();
+            if (!name.equalsIgnoreCase("[Gmail]")) {
+                folders[i].open(Folder.READ_ONLY);
+                Message [] messages = folders[i].getMessages();
+                totalNumberOfEmails += messages.length;
+                folders[i].close();
+            }
+
+        }
+
         for (int i = 0; i < folders.length; i++) {
             String name = folders[i].getName();
             if (!name.equalsIgnoreCase("[Gmail]") /* && !name.equalsIgnoreCase("inbox")*/ ) {
@@ -787,6 +800,10 @@ public class User {
 
     public ArrayList<Email> getEmails() {
         return emails;
+    }
+
+    public int getTotalNumberOfEmails() {
+        return totalNumberOfEmails;
     }
 
 
