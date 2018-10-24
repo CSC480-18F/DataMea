@@ -1,7 +1,10 @@
 package Engine;
 
+import Controllers.DashboardLoading;
 import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.tools.TreeNode;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
 import javax.mail.*;
 import java.awt.*;
 import java.io.IOException;
@@ -11,8 +14,6 @@ import java.io.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static java.util.Map.Entry.*;
 
 public class User {
 
@@ -28,6 +29,8 @@ public class User {
     private int frequencyDifference = -1;
     public static ArrayList<javafx.scene.paint.Color> colors = new ArrayList<>();
     private int totalNumberOfEmails = 0;
+    private DashboardLoading dashboardLoading;
+    private int totalProgress = 0;
 
 
     public User(String email, String password, Boolean runSentimentAnalysis) {
@@ -504,6 +507,12 @@ public class User {
         int numMessages = messages.length;
         for (int i = numMessages - 1; i >= 0; i--) {
 
+            totalProgress += i;
+            /*Platform.runLater(()->{
+                FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("Loading_Screen.fxml"));
+                dashboardLoading = loader.getController();
+                dashboardLoading.progressBar.setProgress(totalProgress/getTotalNumberOfEmails());
+                    });*/
             System.out.println("processing: " + i);
             Message m = messages[i];
             String sender = "Unknown";

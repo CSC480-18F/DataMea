@@ -1,0 +1,7 @@
+.jfx-progress-bar > .bar {
+    -fx-background-color: #ff931e;
+}
+
+.jfx-progress-bar > .track {
+    -fx-background-color: #353b48;
+}

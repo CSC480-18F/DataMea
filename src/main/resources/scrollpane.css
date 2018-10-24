@@ -6,15 +6,15 @@
 
 .scroll-bar:vertical > .track-background, .scroll-bar:horizontal > .track-background {
     -fx-background-color: #353b48;
-    -fx-stroke: lightgrey;
     -fx-background-insets: 0.0;
 }
 
 .scroll-bar:vertical > .thumb, .scroll-bar:horizontal > .thumb {
-    -fx-background-color: #252a32;
+    -fx-background-color: #20252d;
     -fx-pref-width: 6.0;
     -fx-background-insets: 0.0;
     -fx-background-radius: 5.0;
+    -fx-padding: 5;
 }
 
 /* Up- and Down-Button Padding */

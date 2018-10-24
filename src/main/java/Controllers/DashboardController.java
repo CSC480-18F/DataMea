@@ -22,23 +22,25 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Stop;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -85,6 +87,9 @@ public class DashboardController implements Initializable {
     @FXML
     private JFXButton filtersButton;
 
+    @FXML
+    private JFXProgressBar progressBar;
+
 
     //------------------Declaring Variables------------------//
     private static Stage myStage;
@@ -127,6 +132,14 @@ public class DashboardController implements Initializable {
         homeOnCloseRequest.setValue(b);
     }
 
+    private void addFilter(String name){
+        if(!filterDrawerClass.filtersChipView.getChips().contains(name)){
+            filterDrawerClass.filtersChipView.getChips().add(name);
+        }else{
+            System.out.println("Filter already added");
+        }
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
@@ -143,6 +156,7 @@ public class DashboardController implements Initializable {
         gridPaneRight.maxWidthProperty().bind(topBarGridPane.widthProperty());
         drawer.prefHeightProperty().bind(anchorPane.heightProperty());
         filtersDrawer.prefWidthProperty().bind(anchorPane.widthProperty());
+        progressBar.prefWidthProperty().bind(anchorPane.widthProperty());
 
         drawer.setVisible(false);
         filtersDrawer.setVisible(false);
@@ -168,6 +182,23 @@ public class DashboardController implements Initializable {
         } catch (IOException ex) {
             Logger.getLogger(DashboardController.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        /*Node scrollbar = scrollPane.lookup(".scroll-bar:vertical .thumb");
+        ChangeListener<Object> changeListener = new ChangeListener<Object>() {
+            @Override
+            public void changed(ObservableValue<? extends Object> observable, Object oldValue, Object newValue) {
+                Bounds bounds = scrollPane.getViewportBounds();
+                int left = -1 * (int) bounds.getMinX();
+                int right = left + (int) bounds.getWidth();
+                System.out.println("hval:" + scrollPane.getHvalue() + " left:" + left + " right:" + right);
+                Platform.runLater(()->{
+                    scrollbar.setOpacity(0.1);
+                });
+            }
+        };
+        scrollPane.viewportBoundsProperty().addListener(changeListener);
+        scrollPane.hvalueProperty().addListener(changeListener);
+        scrollPane.vvalueProperty().addListener(changeListener);*/
 
         HamburgerBasicCloseTransition basicCloseTransition = new HamburgerBasicCloseTransition(hamburger);
         basicCloseTransition.setRate(-1);
@@ -239,7 +270,8 @@ public class DashboardController implements Initializable {
                             DashboardDrawer.setLoadFolderList(false);
                             ChartData data = e.getData();
                             System.out.println("Selected " + data.getName());
-                            try {
+                            addFilter(data.getName());
+                            /*try {
                                 loadedFromLoginScreen.setValue(false);
                                 AnchorPane newScenePane = FXMLLoader.load(getClass().getClassLoader().getResource("Dashboard_Home.fxml"));
                                 Scene newScene = new Scene(newScenePane, 1000, 600);
@@ -248,7 +280,7 @@ public class DashboardController implements Initializable {
                                 DashboardDrawer.setLoadFolderList(true);
                             } catch (IOException error) {
                                 error.printStackTrace();
-                            }
+                            }*/
                         }
                     });
 
@@ -263,9 +295,9 @@ public class DashboardController implements Initializable {
                     Label heatMapTitle = new Label("Received Email Frequency");
                     heatMapTitle.setTextFill(Color.LIGHTGRAY);
                     heatMapTitle.setStyle("-fx-font: 24 System;");
-                    heatMapPane.setPrefSize(600, 250);
+                    heatMapPane.setPrefSize(600, 400);
                     heatMapGridPane = new GridPane();
-                    heatMapGridPane.setPrefSize(600, 250);
+                    heatMapGridPane.setPrefSize(600, 400);
 
                     for (int i = 0; i < heatMapData.length; i++) {
                         Label day = new Label(Main.getCurrentUser().getDay(i));
@@ -314,8 +346,8 @@ public class DashboardController implements Initializable {
                     heatMapAndTitle.getChildren().addAll(heatMapTitle, heatMapPane);
                     heatMapAndTitle.setSpacing(5);
                     heatMapAndTitle.setPadding(new Insets(20));
-                    heatMapAndTitle.setPrefSize(600,250);
-                    heatMapAndTitle.setMaxSize(600,250);
+                    heatMapAndTitle.setPrefSize(600,400);
+                    heatMapAndTitle.setMaxSize(600,400);
                     masonryPane.getChildren().add(heatMapAndTitle);
 
                     //Folders SunburstChart:
@@ -370,6 +402,7 @@ public class DashboardController implements Initializable {
                             @Override
                             public void handle(MouseEvent e) {
                                 d.getNode().setCursor(Cursor.HAND);
+                                addFilter(d.getName());
                             }
                         });
                     }
@@ -406,6 +439,14 @@ public class DashboardController implements Initializable {
                             .chartData(attachmentsData)
                             .animated(true)
                             .build();
+                    attachmentsRadialChart.setOnTileEvent((e) -> {
+                        if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
+                            DashboardDrawer.setLoadFolderList(false);
+                            ChartData data = e.getData();
+                            System.out.println("Selected " + data.getName());
+                            addFilter(data.getName());
+                        }
+                    });
                     masonryPane.getChildren().add(attachmentsRadialChart);
 
                     //Sentiment Gauge:
