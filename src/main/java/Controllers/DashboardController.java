@@ -38,7 +38,6 @@ import javafx.scene.paint.Stop;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -105,7 +104,7 @@ public class DashboardController implements Initializable {
     private ArrayList<ChartData> attachmentsData = new ArrayList<>();
     private Map<String, Long> languages;
     private ArrayList<ChartData> languagesData = new ArrayList<>();
-    private Tile sentimentGauge;
+    public static Tile sentimentGauge;
     private long              lastTimerCall;
     private AnimationTimer    timer;
     private static final Random RND = new Random();
@@ -436,7 +435,7 @@ public class DashboardController implements Initializable {
                     masonryPane.getChildren().add(sentimentGauge);
                     //Emulate Data
                     lastTimerCall = System.nanoTime();
-                    timer = new AnimationTimer() {
+                    /*timer = new AnimationTimer() {
                         @Override
                         public void handle(final long now) {
                             if (now > lastTimerCall + 2_000_000_000) {
@@ -446,7 +445,7 @@ public class DashboardController implements Initializable {
                             }
                         }
                     };
-                    timer.start();
+                    timer.start();*/
 
 
                     //Allows the scroll pane to resize the masonry pane after nodes are added, keep at bottom!

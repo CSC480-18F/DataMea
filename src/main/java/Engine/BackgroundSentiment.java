@@ -118,8 +118,9 @@ public class BackgroundSentiment extends Task<Void> {
                                 Message currentMessage = messages[i];
                                 Email tempEmail = new Email(currentMessage, null, true);
                                 String fileName = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/" + currentMessage.getReceivedDate().getTime() + ".txt";
+                                System.out.println("Analysing email: " + i);
                                 updateEmailFile(fileName, tempEmail.getSentimentScores());
-
+                                //DashboardController.sentimentGauge.setValue(tempEmail.getSentimentScores());
                             }
 
                         }
@@ -150,8 +151,6 @@ public class BackgroundSentiment extends Task<Void> {
             }
 
             br.close();
-
-            BufferedWriter bw = new BufferedWriter(new FileWriter(f));
 
             try {
                 int sentimentCount = 0;

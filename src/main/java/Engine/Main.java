@@ -26,10 +26,12 @@ public class Main extends Application {
 
     //------------------Declaring Variables------------------//
     private static User                     currentUser;
-    private        Main.ResourceLoadingTask task         = new Main.ResourceLoadingTask();
-    private static BooleanProperty          startLoading = new SimpleBooleanProperty(false);
+    private        Main.ResourceLoadingTask task                = new Main.ResourceLoadingTask();
+    private static BooleanProperty          startLoading        = new SimpleBooleanProperty(false);
     private static ArrayList<UserFolder>    folders;
-    private        ArrayList<Color>         colors       = new ArrayList<>();
+    private        ArrayList<Color>         colors              = new ArrayList<>();
+    private        BackgroundSentiment      backgroundSentiment;
+
 
     public static ArrayList<UserFolder> getFolders() {
         return folders;
@@ -99,6 +101,14 @@ public class Main extends Application {
                                     temp.setFillColor(colors.get(i));
                                     DashboardController.addTopSendersData(temp);
                                 }
+
+                            backgroundSentiment = new BackgroundSentiment();
+                            Thread t2 = new Thread(backgroundSentiment);
+                            backgroundSentiment.setOnSucceeded(f -> {
+
+                            });
+                            t2.start();
+
                             setLoadedFromLoginScreenToTrue();
                             DashboardLoading.setStopVideoToTrue();
                             DashboardLoading.setLoadingOnCloseRequest(false);
