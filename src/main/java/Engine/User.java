@@ -5,6 +5,7 @@ import eu.hansolo.tilesfx.tools.TreeNode;
 import javax.mail.*;
 import java.awt.*;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.io.*;
@@ -168,17 +169,29 @@ public class User {
         return sortedByValues;
     }
 
-    public ArrayList<Email> getEmailsFromFolder(String folderName, String subFolderName) {
+    /**
+     *
+     * @param folderName Name of the folder to filter by
+     * @param subFolderName Name of the subfolder to filter by
+     * @param emailsToFilter ArrayList of emails to filter
+     * @return ArrayList of filtered emails
+     */
+
+    public ArrayList<Email> filterByFolder(String folderName, String subFolderName, ArrayList<Email> emailsToFilter) {
         ArrayList<Email> filteredEmails = new ArrayList<>();
-        for (Email e: this.emails) {
+        for (Email e: emailsToFilter) {
             if (e.getFolder().equalsIgnoreCase(folderName) && e.getSubFolder().equalsIgnoreCase(subFolderName)) {
                 filteredEmails.add(e);
             }
         }
         return filteredEmails;
     }
-
-    public ArrayList<Email> getEmailsFromSender(String sender, ArrayList<Email> emailsToFilter){
+    /** filter for returning emails from a specific sender
+     * @param sender
+     * @param emailsToFilter current list of emails
+     * @return  ArrayList of filtered emails
+     **/
+    public ArrayList<Email> filterbySender(String sender, ArrayList<Email> emailsToFilter){
         ArrayList<Email> filteredEmails = new ArrayList<Email>();
         for(Email e: emailsToFilter){
             if (e.getSender().getAddress().equalsIgnoreCase(sender)){
@@ -187,9 +200,16 @@ public class User {
         }
         return filteredEmails;
     }
-    //Date Filter using start and end date
-    public ArrayList<Email> getEmailsWithinDate(Date startDate, Date endDate, ArrayList<Email> emailsToFilter){
-        ArrayList<Email> filteredEmails = new ArrayList<Email>();
+
+    /**
+     * Filter for returning emails within a date range
+     * @param startDate only emails after this date will be returned
+     * @param endDate only emails before this date will be returned
+     * @param emailsToFilter ArrayList of emails to filter
+     * @return ArrayList of filtered emails
+     */
+    public ArrayList<Email> filterByDate(Date startDate, Date endDate, ArrayList<Email> emailsToFilter){
+        ArrayList<Email> filteredEmails = new ArrayList<>();
         for (Email e: emailsToFilter){
             if(e.getDate().after(startDate) && e.getDate().before(endDate)){
                 filteredEmails.add(e);
@@ -197,6 +217,84 @@ public class User {
         }
         return filteredEmails;
     }
+
+    /**
+     * Filter for returning emails sent from specified domain
+     * @param domain domain to filter by
+     * @param emailsToFilter ArrayList of emails to filter
+     * @return ArrayList of filtered emails
+     */
+    public ArrayList<Email> filterByDomain(String domain, ArrayList<Email> emailsToFilter){
+        ArrayList<Email> filteredEmails = new ArrayList<>();
+        for (Email e: emailsToFilter){
+            if(e.getDomain().equalsIgnoreCase(domain)){
+                filteredEmails.add(e);
+            }
+        }
+        return filteredEmails;
+    }
+
+    /**
+     * Filter for returning emails sent with specified attachment
+     * @param attachmentType attachment to filter by
+     * @param emailsToFilter ArrayList of emails to filter
+     * @return ArrayList of filtered emails
+     */
+
+    public ArrayList<Email> filterByAttachmentType(String attachmentType, ArrayList<Email> emailsToFilter){
+        ArrayList<Email> filteredEmails = new ArrayList<>();
+        for (Email e: emailsToFilter){
+            if(e.getAttachments().size() != 0){
+                for(String attachment: e.getAttachments()){
+                    if(attachmentType.equalsIgnoreCase(attachment))
+                        filteredEmails.add(e);
+                }
+            }
+        }
+        return filteredEmails;
+    }
+
+    /**
+     * function to control the filters
+     * @param folder folder to filter by
+     * @param subfolder subfolder to filter by
+     * @param startDate beginning date to filter by
+     * @param endDate ending date to filter by
+     * @param sender sender to filter by
+     * @param domain domain to filter by
+     * @param attachment attachment to filter by
+     * @return ArrayList of emails after each of the filters
+     */
+
+    public ArrayList<Email> filter(String folder, String subfolder, Date startDate, Date endDate, String sender, String domain, String attachment){
+        ArrayList<Email> filteredEmails = new ArrayList<>();
+        if(folder != null && subfolder != null)
+            filteredEmails = filterByFolder(folder, subfolder, this.emails);
+        if(startDate != null && endDate != null){
+            if (filteredEmails.size() == 0)
+                filteredEmails = filterByDate(startDate, endDate, this.emails);
+            else filteredEmails = filterByDate(startDate, endDate, filteredEmails);
+        }
+        if(sender != null){
+            if(filteredEmails.size() == 0){
+                filteredEmails = filterbySender(sender, this.emails);
+            }else filteredEmails = filterbySender(sender, filteredEmails);
+        }
+        if(domain != null){
+            if(filteredEmails.size()==0){
+                filteredEmails = filterByDomain(domain, this.emails);
+            }else filteredEmails = filterByDomain(domain, filteredEmails);
+        }
+        if(attachment != null){
+            if(filteredEmails.size()==0){
+                filteredEmails = filterByAttachmentType(attachment, this.emails);
+            }else filteredEmails = filterByAttachmentType(attachment, filteredEmails);
+        }
+
+        return filteredEmails;
+    }
+
+    // domain filter, attachment filter,
 
     public TreeNode getFoldersCountForSunburst(){
 
