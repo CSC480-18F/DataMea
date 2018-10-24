@@ -333,6 +333,7 @@ public class User {
         File[] e = temp.listFiles();
         emails = new ArrayList<Email>();
         for (File f : e) {
+            if (!f.getName().equals("sentimentProgress.txt"))
             try {
                 Email em = new Email(f);
                 this.emails.add(em);

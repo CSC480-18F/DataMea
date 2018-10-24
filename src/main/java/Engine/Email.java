@@ -143,7 +143,7 @@ public class Email {
             flags = m.getFlags();
             content = getTextFromMessage(m);
             if(content != null && !content.equals("")) {
-                language = detectLanguage(content);
+                //language = detectLanguage(content);
             }
         } catch (Exception e) {
             e.printStackTrace();

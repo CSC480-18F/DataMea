@@ -106,6 +106,27 @@ public class BackgroundSentiment extends Task<Void> {
                 if (f.getName().equals(folder)) {
                     f.open(Folder.READ_ONLY);
                     Folder [] subFolders = f.list();
+                    if (f.getName().equals(subFolder)) {
+                        Message [] messages = f.getMessages();
+
+                        for (int i = startIndex; i<messages.length; i++) {
+
+                            //do sentiment stuff and update file with the correct info
+                            Message currentMessage = messages[i];
+
+                            try {
+                                Email tempEmail = new Email(currentMessage, new Sender(currentMessage.getFrom()[0].toString()), true);
+                                String fileName = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/" + currentMessage.getReceivedDate().getTime() + ".txt";
+                                System.out.println("Analysing email: " + i);
+                                updateEmailFile(fileName, tempEmail.getSentimentScores());
+                                //DashboardController.sentimentGauge.setValue(tempEmail.getSentimentScores());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+
+                    }
                     for (Folder sub : subFolders) {
                         if (sub.getName().equals(subFolder)) {
                             sub.open(Folder.READ_ONLY);
@@ -125,7 +146,9 @@ public class BackgroundSentiment extends Task<Void> {
 
                         }
                     }
+                    f.close();
                 }
+
             }
 
         } catch (MessagingException e) {
@@ -147,7 +170,9 @@ public class BackgroundSentiment extends Task<Void> {
             ArrayList<String> fileStrings = new ArrayList<>();
 
             for (String line = ""; line!=null ; line = br.readLine()) {
-                fileStrings.add(line);
+                if (line != "") {
+                    fileStrings.add(line);
+                }
             }
 
             br.close();
@@ -165,6 +190,15 @@ public class BackgroundSentiment extends Task<Void> {
                 System.out.println("Something went wrong with fixing the email..... Cannot be processed");
             }
 
+            BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
+
+            for (String s: fileStrings) {
+                bw.write(s);
+                bw.newLine();
+            }
+
+            bw.close();
+
 
             ///TODO: update the file which keeps track of the last email that was processed in the folder.
             incrementFolder(fileStrings.get(0), fileStrings.get(1));
@@ -181,16 +215,19 @@ public class BackgroundSentiment extends Task<Void> {
             BufferedReader br = new BufferedReader(new FileReader(lastReadSentimentFile));
             //store a copy of the lines
             for (String line = ""; line!= null; line=br.readLine()) {
-                lines.add(line);
+                if (line != "") {
+                    lines.add(line);
+                }
             }
 
             br.close();
 
             for (String l: lines) {
                 String [] parts = l.split(" ---> ");
-                if (User.decrypt(parts[0]).equals(folder) && User.decrypt(parts[1]).equals(subFolder)) {
+                if (User.encrypt(parts[0]).equals(folder) && User.encrypt(parts[1]).equals(subFolder)) {
                     int location = Integer.parseInt(parts[2]) + 1;
                     lines.set(lines.indexOf(l), parts[0] + " ---> " + parts[1] + " ---> " + location);
+                    break;
                 }
             }
 
