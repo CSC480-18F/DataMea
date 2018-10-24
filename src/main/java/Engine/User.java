@@ -170,7 +170,7 @@ public class User {
         return sortedByValues;
     }
 
-    public ArrayList<Email> getEmailsFromFolder(String folderName, String subFolderName) {
+    public ArrayList<Email> getEmailsFromFolder(String folderName, String subFolderName ) {
         ArrayList<Email> filteredEmails = new ArrayList<>();
         for (Email e: this.emails) {
             if (e.getFolder().equalsIgnoreCase(folderName) && e.getSubFolder().equalsIgnoreCase(subFolderName)) {

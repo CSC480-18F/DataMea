@@ -6,6 +6,7 @@ import javafx.concurrent.Task;
 
 import javax.mail.*;
 import java.io.*;
+import java.nio.Buffer;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -131,7 +132,6 @@ public class BackgroundSentiment extends Task<Void> {
             System.out.println("Cannot open folder..");
         }
 
-
     }
 
 
@@ -162,20 +162,48 @@ public class BackgroundSentiment extends Task<Void> {
                     fileStrings.set(i, Integer.toString(sentiment[sentimentCount]));
                     sentimentCount++;
                 }
-            } catch (Exception e) {
+            } catch (NumberFormatException e) {
                 System.out.println("Something went wrong with fixing the email..... Cannot be processed");
             }
 
 
-
             ///TODO: update the file which keeps track of the last email that was processed in the folder.
+            incrementFolder(fileStrings.get(0), fileStrings.get(1));
 
-
-
-
-
-        } catch ( FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
+        }
+
+    }
+
+    public void incrementFolder (String folder, String subFolder) {
+        ArrayList<String> lines = new ArrayList<>();
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(lastReadSentimentFile));
+            //store a copy of the lines
+            for (String line = ""; line!= null; line=br.readLine()) {
+                lines.add(line);
+            }
+
+            br.close();
+
+            for (String l: lines) {
+                String [] parts = l.split(" ---> ");
+                if (User.decrypt(parts[0]).equals(folder) && User.decrypt(parts[1]).equals(subFolder)) {
+                    int location = Integer.parseInt(parts[2]) + 1;
+                    lines.set(lines.indexOf(l), parts[0] + " ---> " + parts[1] + " ---> " + location);
+                }
+            }
+
+            BufferedWriter bw = new BufferedWriter(new FileWriter(lastReadSentimentFile));
+
+            for (String s : lines) {
+                bw.write(s);
+                bw.newLine();
+            }
+
+            bw.close();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -183,7 +211,6 @@ public class BackgroundSentiment extends Task<Void> {
 
 
     }
-
 
     public int getStartingPointForFolder(String folder, String subFolder) {
         try {
@@ -217,7 +244,5 @@ public class BackgroundSentiment extends Task<Void> {
     }
 
 
-
-
-
+    
 }
