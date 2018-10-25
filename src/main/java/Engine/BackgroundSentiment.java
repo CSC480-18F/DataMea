@@ -2,6 +2,7 @@ package Engine;
 
 import Controllers.DashboardController;
 import Controllers.DashboardLogin;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 
 import javax.mail.*;
@@ -141,7 +142,9 @@ public class BackgroundSentiment extends Task<Void> {
                                 String fileName = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/" + currentMessage.getReceivedDate().getTime() + ".txt";
                                 System.out.println("Analysing email: " + i);
                                 updateEmailFile(fileName, tempEmail.getSentimentScores());
-                                //DashboardController.sentimentGauge.setValue(tempEmail.getSentimentScores());
+                                Platform.runLater(()->{
+                                    DashboardController.sentimentGauge.setValue(Email.getOverallSentimentDbl(tempEmail.getSentimentScores(),tempEmail.getSentencesAnalyzed()));
+                                });
                             }
 
                         }
