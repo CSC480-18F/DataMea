@@ -155,7 +155,7 @@ public class BackgroundSentiment extends Task<Void> {
                                     updateEmailFile(fileName, tempEmail.getSentimentScores(), tempEmail.getLanguage());
                                     final Email temp = tempEmail;
                                     Platform.runLater(()->{
-                                        DashboardController.sentimentGauge.setValue(Email.getOverallSentimentDbl(temp.getSentimentScores(),temp.getSentencesAnalyzed()));
+                                        DashboardController.sentimentGauge.setValue(Email.getOverallSentimentDbl(currentUser.getOverallSentiment()));
                                     });
                                 } catch (IOException e) {
                                     e.printStackTrace();

@@ -1,8 +1,11 @@
 package Engine;
 
+import Controllers.DashboardController;
 import Controllers.DashboardLoading;
 import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.tools.TreeNode;
+import javafx.application.Platform;
+
 import javax.mail.*;
 import java.awt.*;
 import java.io.IOException;
@@ -49,6 +52,29 @@ public class User {
 
     }
 
+
+
+    //TODO | have the sentiment guage take in a paramater - notably, the filtered list of emails so a user can
+    //TODO | filter sentiment scores while background sentimenet analysis is running
+    public void updateSentimentGaugeFiltered(ArrayList<Email> emails) {
+
+        Platform.runLater(()->{
+            DashboardController.sentimentGauge.setValue(Email.getOverallSentimentDbl(getOverallSentiment()));
+        });
+    }
+
+
+
+    public int [] getOverallSentiment() {
+        ArrayList <Email> emails = recoverSerializedEmails();
+        int [] sentiment = {0,0,0,0,0};
+        for (Email e: emails) {
+            for (int i = 0; i<sentiment.length;i++) {
+                sentiment[i] += e.getSentimentScores()[i];
+            }
+        }
+        return sentiment;
+    }
 
     //TODO
     public int getReplyFrequency(ArrayList<Email> emails){

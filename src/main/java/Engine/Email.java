@@ -230,14 +230,14 @@ public class Email {
                     }
                 }
 
-                sentimentPct = getOverallSentimentDbl(sentimentScores, sentencesAnalyzed);
+                sentimentPct = getOverallSentimentDbl(sentimentScores);
             }
         }
     }
 
 
-    public static double getOverallSentimentDbl(int [] sentimentScores, int sentencesAnalyzed){
-
+    public static double getOverallSentimentDbl(int [] sentimentScores){
+        int sentencesAnalyzed = sentimentScores[0] + sentimentScores[1] + sentimentScores[2] + sentimentScores[3] + sentimentScores[4];
         double sentimentDbl;
 
         int overallSentiment = sentimentScores[VPOS] * VMULT + sentimentScores[POS] -
