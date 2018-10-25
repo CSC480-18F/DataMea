@@ -122,6 +122,7 @@ public class BackgroundSentiment extends Task<Void> {
                                 //DashboardController.sentimentGauge.setValue(tempEmail.getSentimentScores());
                             } catch (Exception e) {
                                 e.printStackTrace();
+                                break;
                             }
 
                         }
@@ -137,10 +138,21 @@ public class BackgroundSentiment extends Task<Void> {
 
                                 //do sentiment stuff and update file with the correct info
                                 Message currentMessage = messages[i];
-                                Email tempEmail = new Email(currentMessage, null, true);
+                                Email tempEmail = null;
+                                try {
+                                    tempEmail = new Email(currentMessage, null, true);
+                                } catch (NullPointerException e) {
+                                    e.printStackTrace();
+                                    System.out.println("email has been deleted...");
+                                }
                                 String fileName = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/" + currentMessage.getReceivedDate().getTime() + ".txt";
                                 System.out.println("Analysing email: " + i);
-                                updateEmailFile(fileName, tempEmail.getSentimentScores());
+                                try {
+                                    updateEmailFile(fileName, tempEmail.getSentimentScores());
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    break;
+                                }
                                 //DashboardController.sentimentGauge.setValue(tempEmail.getSentimentScores());
                             }
 
@@ -160,11 +172,11 @@ public class BackgroundSentiment extends Task<Void> {
 
 
 
-    public void updateEmailFile(String fileName, int [] sentiment) {
+    public void updateEmailFile(String fileName, int [] sentiment) throws IOException {
         //  basically go find the email file, and then go rewrite the sentiment part
 
         File f = new File(fileName);
-        try {
+
 
             BufferedReader br = new BufferedReader(new FileReader(f));
             ArrayList<String> fileStrings = new ArrayList<>();
@@ -203,9 +215,6 @@ public class BackgroundSentiment extends Task<Void> {
             ///TODO: update the file which keeps track of the last email that was processed in the folder.
             incrementFolder(fileStrings.get(0), fileStrings.get(1));
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
     }
 
