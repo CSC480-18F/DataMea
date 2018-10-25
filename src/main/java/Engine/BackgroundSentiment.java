@@ -93,6 +93,8 @@ public class BackgroundSentiment extends Task<Void> {
 
         }
 
+        System.out.println("Done sentiment analysis.... for now");
+
         return null;
     }
 
