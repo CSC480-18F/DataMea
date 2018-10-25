@@ -50,6 +50,19 @@ public class User {
     }
 
 
+    //TODO
+    public int getReplyFrequency(ArrayList<Email> emails){
+        int replied = 0;
+        for(Email e : emails){
+            if(e.getFlags().contains(Flags.Flag.ANSWERED))
+                replied++;
+        }
+
+
+        return 0;
+    }
+
+
     public Map<String, Long> getDomainFreq(ArrayList<Email> emails){
         //TODO; refine filters to remove weird chars
 
@@ -486,6 +499,48 @@ public class User {
         }
     }
 
+    public void resetUser() throws IOException {
+
+        File user = new File("TextFiles/" + encrypt(email) + "/");
+
+        File[] emails = user.listFiles();
+        for(File e : emails){
+            e.delete();
+        }
+        System.out.println(user.delete());
+
+        File userNamesFile = new File("TextFiles/userNames.txt");
+
+        BufferedReader br = new BufferedReader(new FileReader(userNamesFile));
+
+
+        int count = Integer.parseInt(br.readLine());
+        ArrayList<String> userNames = new ArrayList<>();
+        System.out.println("Email: " + email);
+
+        for(int i = 0; i < count; i ++){
+            String name = br.readLine().split(" ")[0];
+            System.out.println("decrypted: " + decrypt(name));
+            if(!decrypt(name).contains(email)){
+                userNames.add(name);
+            }
+        }
+        br.close();
+
+        BufferedWriter bw = new BufferedWriter(new FileWriter(userNamesFile));
+
+        bw.write(Integer.toString(count - 1));
+
+        System.out.println(userNames.toString());
+
+        for(String name : userNames){
+            bw.newLine();
+            bw.write(encrypt(name));
+        }
+        bw.close();
+
+    }
+
 
     public void writeMessages(Folder f, Folder sub, boolean runSentiment, String originPath) {
         System.out.println("Currently reading/writing: " + f.getName() + "    Subfolder: " + sub.getName());
@@ -613,7 +668,7 @@ public class User {
 
         for (int i = 0; i < folders.length; i++) {
             String name = folders[i].getName();
-            if (!name.equalsIgnoreCase("[Gmail]") /* && !name.equalsIgnoreCase("inbox")*/ ) {
+            if (!name.equalsIgnoreCase("[Gmail]") && !name.equalsIgnoreCase("inbox") ) {
                 /// Create a new thread to do this!!!!!!!
                 readFolderAndSerializeEmails(folders[i], runSentiment);
 

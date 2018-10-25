@@ -36,12 +36,12 @@ public class Email {
     private Date              date;
     private Sender            sender;
     private Flags             flags;
-    private int               VNEG;
-    private int               NEG;
-    private int               NEU;
-    private int               POS;
-    private int               VPOS;
-    private int               VMULT;
+    private static int        VNEG;
+    private static int        NEG;
+    private static int        NEU;
+    private static int        POS;
+    private static int        VPOS;
+    private static int        VMULT;
     private int               MAXLEN;
     private int               MINLEN;
     private String            folder;
@@ -231,14 +231,26 @@ public class Email {
                 }
             }
 
-            int overallSentiment = sentimentScores[VPOS] * VMULT + sentimentScores[POS] -
-                    sentimentScores[NEG] - sentimentScores[VNEG] * VMULT;
-
-            if (sentencesAnalyzed > 0) sentimentPct = ((double) overallSentiment / sentencesAnalyzed) * 100;
-            else sentimentPct = 0;
-            DecimalFormat df = new DecimalFormat("0.##");
-            sentimentPctStr = df.format(sentimentPct) + "%";
+            sentimentPct = getOverallSentimentDbl(sentimentScores, sentencesAnalyzed);
         }
+    }
+
+
+    public static double getOverallSentimentDbl(int [] sentimentScores, int sentencesAnalyzed){
+
+        double sentimentDbl;
+
+        int overallSentiment = sentimentScores[VPOS] * VMULT + sentimentScores[POS] -
+                sentimentScores[NEG] - sentimentScores[VNEG] * VMULT;
+
+        overallSentiment = overallSentiment / 2 + 50;
+
+        if (sentencesAnalyzed > 0) sentimentDbl = ((double) overallSentiment / sentencesAnalyzed) * 100;
+        else sentimentDbl = 0;
+
+        return sentimentDbl;
+
+
     }
 
     /*
@@ -435,7 +447,13 @@ it appears to be whenever there is a thread of replies
             int count = mp.getCount();
             for(int i = 0; i < count; i ++){
                 String fileName = mp.getBodyPart(i).getFileName();
-                if(fileName != null) attachments.add(fileName.substring(fileName.lastIndexOf(".")).trim());
+                try {
+                    if (fileName != null) attachments.add(fileName.substring(fileName.lastIndexOf(".")).trim());
+                }
+                catch(StringIndexOutOfBoundsException e){
+                    System.out.println(e.getMessage());
+                    System.out.println("Error while extracting file type from attachment " + fileName);
+                }
             }
         }
         return attachments;
@@ -458,6 +476,11 @@ it appears to be whenever there is a thread of replies
         }
 
         return languages;
+    }
+
+    public boolean isAnswered(){
+        return flags.contains(Flags.Flag.ANSWERED);
+
     }
 
     public void addEmailToSender(){ getSender().addEmail(this);}

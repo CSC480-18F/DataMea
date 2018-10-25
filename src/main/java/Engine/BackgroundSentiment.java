@@ -2,6 +2,7 @@ package Engine;
 
 import Controllers.DashboardController;
 import Controllers.DashboardLogin;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 
 import javax.mail.*;
@@ -140,20 +141,25 @@ public class BackgroundSentiment extends Task<Void> {
                                 Message currentMessage = messages[i];
                                 Email tempEmail = null;
                                 try {
-                                    tempEmail = new Email(currentMessage, null, true);
+                                    tempEmail = new Email(currentMessage, new Sender(currentMessage.getFrom()[0].toString()), true);
                                 } catch (NullPointerException e) {
                                     e.printStackTrace();
                                     System.out.println("email has been deleted...");
                                 }
                                 String fileName = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/" + currentMessage.getReceivedDate().getTime() + ".txt";
                                 System.out.println("Analysing email: " + i);
+
                                 try {
                                     updateEmailFile(fileName, tempEmail.getSentimentScores());
+                                    final Email temp = tempEmail;
+                                    Platform.runLater(()->{
+                                        DashboardController.sentimentGauge.setValue(Email.getOverallSentimentDbl(temp.getSentimentScores(),temp.getSentencesAnalyzed()));
+                                    });
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                     break;
                                 }
-                                //DashboardController.sentimentGauge.setValue(tempEmail.getSentimentScores());
+
                             }
 
                         }
