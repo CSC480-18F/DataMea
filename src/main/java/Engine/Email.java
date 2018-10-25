@@ -542,6 +542,32 @@ it appears to be whenever there is a thread of replies
         return language;
     }
 
+    public String getDomain(){
+        String address = getSender().getAddress().substring(getSender().getAddress().indexOf("@"));
+        int quoteLocation = address.indexOf("\"" /*,address.indexOf("\"")+1*/);
+        int caratLocation = address.indexOf(">");
+        String d;
+
+        int earlierLocation = -1;
+
+        if (quoteLocation < caratLocation && quoteLocation!=-1) {
+            earlierLocation = quoteLocation;
+        } else {
+            if (caratLocation != -1) {
+                earlierLocation = caratLocation;
+            }
+        }
+
+        if (earlierLocation == -1) {
+            //none of the weird characters are found
+            return(address);
+        } else {
+            //some weird characters are found
+            d = address.substring(address.indexOf("@"), earlierLocation);
+            return(d);
+        }
+    }
+
     public String toString() {
         if (this.sentimentPctStr != null)
             return "From: " + this.sender + "\nTitle:" + this.title + "\nDate: " + date + "\nFlags: " + flags.toString()

@@ -35,7 +35,7 @@ public class DashboardLoading implements Initializable {
     private JFXCheckBox emailNotify;
 
     @FXML
-    private JFXProgressBar progressBar;
+    public JFXProgressBar progressBar;
 
     @FXML
     private StackPane loadingStackPane;
