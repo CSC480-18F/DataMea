@@ -56,8 +56,9 @@ public class FilterDrawer implements Initializable{
                         HBox chipHBox = (HBox) filtersChipView.lookup(".jfx-chip-view .jfx-chip > HBox");
                         //Label label = (Label) filtersChipView.lookup(".jfx-chip-view .jfx-chip > HBox > .label");
                         //label.setWrapText(false);
-                        textarea.setEditable(false);
-                        textarea.setCursor(Cursor.DEFAULT);
+                        textarea.setDisable(true);
+                        //textarea.setEditable(false);
+                        //textarea.setCursor(Cursor.DEFAULT);
                         chipsPane.setCursor(Cursor.DEFAULT);
                     });
                 }
