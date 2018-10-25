@@ -3,4 +3,5 @@ Engine.iml
 target/
 .DS_Store
 TextFiles/
+hs_err_pid36796.log
 
