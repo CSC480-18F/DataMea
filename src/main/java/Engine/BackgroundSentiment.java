@@ -121,7 +121,7 @@ public class BackgroundSentiment extends Task<Void> {
                                 Email tempEmail = new Email(currentMessage, new Sender(currentMessage.getFrom()[0].toString()), true);
                                 String fileName = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/" + currentMessage.getReceivedDate().getTime() + ".txt";
                                 System.out.println("Analysing email: " + i);
-                                updateEmailFile(fileName, tempEmail.getSentimentScores());
+                                updateEmailFile(fileName, tempEmail.getSentimentScores(), tempEmail.getLanguage());
                                 //DashboardController.sentimentGauge.setValue(tempEmail.getSentimentScores());
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -152,7 +152,7 @@ public class BackgroundSentiment extends Task<Void> {
                                 System.out.println("Analysing email: " + i);
 
                                 try {
-                                    updateEmailFile(fileName, tempEmail.getSentimentScores());
+                                    updateEmailFile(fileName, tempEmail.getSentimentScores(), tempEmail.getLanguage());
                                     final Email temp = tempEmail;
                                     Platform.runLater(()->{
                                         DashboardController.sentimentGauge.setValue(Email.getOverallSentimentDbl(temp.getSentimentScores(),temp.getSentencesAnalyzed()));
@@ -180,7 +180,7 @@ public class BackgroundSentiment extends Task<Void> {
 
 
 
-    public void updateEmailFile(String fileName, int [] sentiment) throws IOException {
+    public void updateEmailFile(String fileName, int [] sentiment, String language) throws IOException {
         //  basically go find the email file, and then go rewrite the sentiment part
 
         File f = new File(fileName);
@@ -209,6 +209,10 @@ public class BackgroundSentiment extends Task<Void> {
             } catch (NumberFormatException e) {
                 System.out.println("Something went wrong with fixing the email..... Cannot be processed");
             }
+
+            if(language == null) language = "unk";
+
+            fileStrings.set(11, language);
 
             BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
 

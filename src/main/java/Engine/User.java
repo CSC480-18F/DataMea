@@ -519,10 +519,14 @@ public class User {
         System.out.println("Email: " + email);
 
         for(int i = 0; i < count; i ++){
-            String name = br.readLine().split(" ")[0];
-            System.out.println("decrypted: " + decrypt(name));
-            if(!decrypt(name).contains(email)){
-                userNames.add(name);
+            String[] name = br.readLine().split(" ");
+            String n = name[0];
+            if(name.length > 2){
+                n = name[0] + " " + name[1];
+            }
+            System.out.println("decrypted: " + decrypt(n));
+            if(!decrypt(n).contains(email)){
+                userNames.add(n);
             }
         }
         br.close();

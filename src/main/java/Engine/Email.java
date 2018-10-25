@@ -26,7 +26,7 @@ public class Email {
     private double NEGTHRESH;
     private double NEUTHRESH;
     private double POSTHRESH;
-    private ArrayList<String> sentences, languages;
+    private ArrayList<String> sentences;
     private Message           message;
     Sentiment                 sentenceSentiment;
     private int[]             sentimentScores;
@@ -132,7 +132,6 @@ public class Email {
         MAXLEN = 300;
         MINLEN = 10;
         boolean runSentiment = rs;
-
         try {
             //System.out.println("Content: \n" + m.getContent().toString());
 
@@ -141,10 +140,8 @@ public class Email {
             sender = s;
             date = m.getSentDate();
             flags = m.getFlags();
-            content = getTextFromMessage(m);
-            if(content != null && !content.equals("")) {
-                //language = detectLanguage(content);
-            }
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -157,8 +154,9 @@ public class Email {
             }
 
             if (content != null && !content.equals("")) {
+                language = detectLanguage(content);
                 sentences = getSentences(content);
-                //languages = getLanguages(sentences);
+
             }
 
             //System.out.println(sentences.toString());
@@ -172,66 +170,68 @@ public class Email {
         Sentiment sentenceSentiment;
         if (sentences != null) {
             for (String sentence : sentences) {
-                if (this.getLanguage().equals("en") &&sentence.length() < MAXLEN && sentence.length() > MINLEN) {
-                    //System.out.println("sentence being analyzed: " + sentence);
-                    sentencesAnalyzed++;
-                    sentenceSentiment = analyzeSentiment(sentence);
-                    sentenceScore = sentenceSentiment.score;
-                    probability = sentenceSentiment.probability;
-                    switch (sentenceScore) {
-                        case 0:
-                            //System.out.println(probability + " chance it is Very Negative");
-                            if (probability > VNEGTHRESH) {
-                                this.sentimentScores[VNEG]++;
-                                //System.out.println("Incrementing Very Negative");
-                            } else {
-                                this.sentimentScores[NEG]++;
-                                //System.out.println("Incrementing Negative");
-                            }
-                            break;
-                        case 1:
-                            //System.out.println(probability + " chance it is Negative");
-                            if (probability > NEGTHRESH) {
-                                this.sentimentScores[NEG]++;
-                                //System.out.println("Incrementing Negative");
-                            } else {
-                                this.sentimentScores[NEU]++;
-                                //System.out.println("Incrementing Neutral");
-                            }
-                            break;
-                        case 2:
-                            //System.out.println(probability + " chance it is Neutral");
-                            if (probability > NEUTHRESH) {
-                                this.sentimentScores[NEU]++;
-                                //System.out.println("Incrementing Neutral");
-                            } else {
-                                this.sentimentScores[POS]++;
-                                //System.out.println("Incrementing Positive");
-                            }
-                            break;
-                        case 3:
-                            //System.out.println(probability + " chance it is Positive");
-                            if (probability > POSTHRESH) {
-                                this.sentimentScores[POS]++;
-                                //System.out.println("Incrementing Positive");
-                            } else {
-                                this.sentimentScores[VPOS]++;
+                if (getLanguage() != null) {
+                    if (this.getLanguage().equals("en") && sentence.length() < MAXLEN && sentence.length() > MINLEN) {
+                        //System.out.println("sentence being analyzed: " + sentence);
+                        sentencesAnalyzed++;
+                        sentenceSentiment = analyzeSentiment(sentence);
+                        sentenceScore = sentenceSentiment.score;
+                        probability = sentenceSentiment.probability;
+                        switch (sentenceScore) {
+                            case 0:
+                                //System.out.println(probability + " chance it is Very Negative");
+                                if (probability > VNEGTHRESH) {
+                                    this.sentimentScores[VNEG]++;
+                                    //System.out.println("Incrementing Very Negative");
+                                } else {
+                                    this.sentimentScores[NEG]++;
+                                    //System.out.println("Incrementing Negative");
+                                }
+                                break;
+                            case 1:
+                                //System.out.println(probability + " chance it is Negative");
+                                if (probability > NEGTHRESH) {
+                                    this.sentimentScores[NEG]++;
+                                    //System.out.println("Incrementing Negative");
+                                } else {
+                                    this.sentimentScores[NEU]++;
+                                    //System.out.println("Incrementing Neutral");
+                                }
+                                break;
+                            case 2:
+                                //System.out.println(probability + " chance it is Neutral");
+                                if (probability > NEUTHRESH) {
+                                    this.sentimentScores[NEU]++;
+                                    //System.out.println("Incrementing Neutral");
+                                } else {
+                                    this.sentimentScores[POS]++;
+                                    //System.out.println("Incrementing Positive");
+                                }
+                                break;
+                            case 3:
+                                //System.out.println(probability + " chance it is Positive");
+                                if (probability > POSTHRESH) {
+                                    this.sentimentScores[POS]++;
+                                    //System.out.println("Incrementing Positive");
+                                } else {
+                                    this.sentimentScores[VPOS]++;
+                                    //System.out.println("Incrementing Very Positive");
+                                }
+                                break;
+                            case 4:
+                                //System.out.println(probability + " chance it is Very Positive");
+                                this.sentimentScores[4]++;
                                 //System.out.println("Incrementing Very Positive");
-                            }
-                            break;
-                        case 4:
-                            //System.out.println(probability + " chance it is Very Positive");
-                            this.sentimentScores[4]++;
-                            //System.out.println("Incrementing Very Positive");
-                            break;
-                        default:
-                            break;
+                                break;
+                            default:
+                                break;
 
+                        }
                     }
                 }
-            }
 
-            sentimentPct = getOverallSentimentDbl(sentimentScores, sentencesAnalyzed);
+                sentimentPct = getOverallSentimentDbl(sentimentScores, sentencesAnalyzed);
+            }
         }
     }
 
