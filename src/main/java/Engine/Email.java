@@ -242,10 +242,11 @@ public class Email {
 
         int overallSentiment = sentimentScores[VPOS] * VMULT + sentimentScores[POS] -
                 sentimentScores[NEG] - sentimentScores[VNEG] * VMULT;
+        
 
-        overallSentiment = overallSentiment / 2 + 50;
-
-        if (sentencesAnalyzed > 0) sentimentDbl = ((double) overallSentiment / sentencesAnalyzed) * 100;
+        if (sentencesAnalyzed > 0) {
+            sentimentDbl = ((((double) overallSentiment / sentencesAnalyzed) * 100) / 2) + 50;
+        }
         else sentimentDbl = 0;
 
         return sentimentDbl;
