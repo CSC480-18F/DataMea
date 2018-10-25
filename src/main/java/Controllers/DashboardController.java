@@ -134,6 +134,7 @@ public class DashboardController implements Initializable {
 
     private void addFilter(String name){
         if(!filterDrawerClass.filtersChipView.getChips().contains(name)){
+
             filterDrawerClass.filtersChipView.getChips().add(name);
         }else{
             System.out.println("Filter already added");
@@ -247,6 +248,9 @@ public class DashboardController implements Initializable {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if (newValue) {
+                    //Fix chipview
+                    FilterDrawer.setFiltersDrawerLoadedToTrue();
+
                     //Get Current user
                     currentUser = Main.getCurrentUser();
 
