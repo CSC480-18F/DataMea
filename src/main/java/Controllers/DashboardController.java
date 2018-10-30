@@ -295,7 +295,7 @@ public class DashboardController implements Initializable {
                     //aka, add filter, and then display those results
                     ArrayList<Email> em = Main.getCurrentUser().getEmails();
                     //ArrayList<Email> em2 = Main.getCurrentUser().getEmailsFromFolder("first year admin stuff", "testFolder");
-                    int[][] heatMapData = Main.getCurrentUser().generateDayOfWeekFrequency(em);
+                    int[][] heatMapData = Main.getCurrentUser().generateDayOfWeekFrequency(em, false);
                     VBox heatMapAndTitle = new VBox();
                     Pane heatMapPane = new Pane();
                     Label heatMapTitle = new Label("Received Email Frequency");
@@ -382,7 +382,7 @@ public class DashboardController implements Initializable {
 
 
                     //Domains donut chart
-                    domains = currentUser.getDomainFreq(currentUser.getEmails());
+                    domains = currentUser.getDomainFreq(currentUser.getEmails(), false);
                     int colorCount = 0;
                     PieChart.Data domainOther = new PieChart.Data("Other", 0);
                     int domainCount = 0;
@@ -431,7 +431,7 @@ public class DashboardController implements Initializable {
                     masonryPane.getChildren().add(domainDonutChart);
 
                     //Attachments radial chart
-                    attachments = currentUser.getAttachmentFreq(currentUser.getEmails());
+                    attachments = currentUser.getAttachmentFreq(currentUser.getEmails(), false);
                     int attachmentsCount = 0;
                     int attachmentsTotal = 0;
                     for (Map.Entry<String, Long> entry : attachments.entrySet()) {

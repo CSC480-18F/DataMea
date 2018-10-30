@@ -15,7 +15,6 @@ import javax.mail.*;
 import javax.mail.internet.ContentType;
 import javax.mail.internet.MimeMultipart;
 import java.io.*;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -50,11 +49,13 @@ public class Email {
     File                      serializedEmail;
     private int               dayOfWeek;
     private String            language;
+    private ArrayList<String> recipients;
 
 
     public Email(File f) {
         //to do: recreate emails using this constructor
         attachments = new ArrayList<>();
+        recipients = new ArrayList<>();
         sentimentScores = new int[5];
         recoverEmail(f);
 
@@ -103,6 +104,12 @@ public class Email {
 
             this.language = br.readLine();
 
+            int rCount = Integer.parseInt(br.readLine());
+
+            for(int i = 0; i < rCount; i ++){
+                recipients.add(User.decrypt(br.readLine()));
+            }
+
             br.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -128,9 +135,11 @@ public class Email {
         VMULT = 3;
         message = m;
         sentimentScores = new int[5];
+        recipients = new ArrayList<>();
         sentencesAnalyzed = 0;
         MAXLEN = 300;
         MINLEN = 10;
+
         boolean runSentiment = rs;
         try {
             //System.out.println("Content: \n" + m.getContent().toString());
@@ -468,17 +477,6 @@ it appears to be whenever there is a thread of replies
         return detected.getLanguage();
     }
 
-    private ArrayList<String> detectLanguages(ArrayList<String> sentences) {
-        ArrayList<String> languages = new ArrayList<>();
-        LanguageDetector ld = new OptimaizeLangDetector().loadModels();
-        for(String s : sentences) {
-            ld.addText(s);
-            languages.add(ld.detect().getLanguage());
-        }
-
-        return languages;
-    }
-
     public boolean isAnswered(){
         return flags.contains(Flags.Flag.ANSWERED);
 
@@ -540,6 +538,16 @@ it appears to be whenever there is a thread of replies
 
     public String getLanguage() {
         return language;
+    }
+
+    public void setRecipients(Address[] r){
+        for(Address a : r){
+            recipients.add(a.toString());
+        }
+    }
+
+    public ArrayList<String> getRecipients() {
+        return recipients;
     }
 
     public String getDomain(){

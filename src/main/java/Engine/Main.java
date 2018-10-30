@@ -108,7 +108,8 @@ public class Main extends Application {
                             if (numSendersInFolder > 7) {
                                 numSendersInFolder = 7;
                             }
-                                for (int i = 0; i < numSendersInFolder; i++) {
+                            for (int i = 0; i < numSendersInFolder; i++) {
+                                if (!folderName.equalsIgnoreCase("sent mail")) {
                                     //Created ChartData for top senders radial chart
                                     ChartData temp = new ChartData();
                                     temp.setValue((double) currentUser.getTopSendersForFolder(folderName, "").get(i).numEmailsSent);
@@ -116,7 +117,7 @@ public class Main extends Application {
                                     temp.setFillColor(colors.get(i));
                                     DashboardController.addTopSendersData(temp);
                                 }
-
+                            }
                             backgroundSentiment = new BackgroundSentiment();
                             Thread t2 = new Thread(backgroundSentiment);
                             backgroundSentiment.setOnSucceeded(f -> {
