@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public class UserFolder {
 
-    String folderName;
-    ArrayList<String> subFolders = new ArrayList<>();
+    public String folderName;
+    public ArrayList<String> subFolders = new ArrayList<>();
 
     UserFolder(String n) {
         folderName = n;

@@ -43,10 +43,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Random;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -374,7 +371,15 @@ public class DashboardController implements Initializable {
                             .sunburstTree(currentUser.getFoldersCountForSunburst())
                             .sunburstInteractive(true)
                             .build();
+                    //Doesn't work big bummer!!!!
+                    foldersSunburstChart.setOnTileEvent((e) -> {
+                        if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
+                            System.out.println("Clicked on folder " + e.getData().getName());
+                            updateTopSenders(e.getData().getName(),e.getData().getName(),null,null,null,null,null);
+                        }
+                    });
                     masonryPane.getChildren().add(foldersSunburstChart);
+
 
                     //Domains donut chart
                     domains = currentUser.getDomainFreq(currentUser.getEmails());
@@ -471,7 +476,7 @@ public class DashboardController implements Initializable {
                             .backgroundColor(Color.TRANSPARENT)
                             .title("Sentiment")
                             .unit("%")
-                            .value(69)
+                            .value(0)
                             .gradientStops(new Stop(0, Color.valueOf("#fc5c65")),
                                     new Stop(0.25, Color.valueOf("#fd9644")),
                                     new Stop(0.5, Color.valueOf("#fed330")),
@@ -502,6 +507,17 @@ public class DashboardController implements Initializable {
                     timer.start();*/
 
 
+                    //Update List of folders in drawer
+                    dashboardDrawer.listView.setOnMouseClicked(new ListViewHandler(){
+                        @Override
+                        public void handle(javafx.scene.input.MouseEvent event) {
+                            String folderSelected = dashboardDrawer.list.get(dashboardDrawer.listView.getSelectionModel().getSelectedIndex());
+                            System.out.print("Selected" + folderSelected);
+                            updateTopSenders(folderSelected,folderSelected,null,null,null,null,null);
+                        }
+                    });
+
+
                     //Allows the scroll pane to resize the masonry pane after nodes are added, keep at bottom!
                     Platform.runLater(() -> scrollPane.requestLayout());
                 }
@@ -522,5 +538,54 @@ public class DashboardController implements Initializable {
                 }
             }
         });
+    }
+
+    public void updateTopSenders(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment){
+        masonryPane.getChildren().removeAll(topSendersRadialChart);
+        //If the it's not updating from a new folder keep the main folder
+        if (folderName == null){
+            folderName = currentUser.recoverFolders().get(0).folderName;
+        }
+        if (subFolderName == null){
+            subFolderName = currentUser.recoverFolders().get(0).folderName;
+        }
+        //Update array list of top senders with new folder info
+        topSendersData = new ArrayList<>();
+        Map<String,Long> topSenders = currentUser.getSendersFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment));
+        int numSendersInFolder = topSenders.size();
+        //only display top 7 senders for the selected folder
+        if (numSendersInFolder > 7) {
+            numSendersInFolder = 7;
+        }
+
+        //Maps are the worst thing ever, thanks a lot Cedric...
+        List<Map.Entry<String,Long>> entries = new ArrayList<>(topSenders.entrySet());
+        for (int i = 0; i < 7; i++) {
+            //Created ChartData for top senders radial chart
+            ChartData temp = new ChartData();
+                if (i < entries.size()) {
+                    temp.setValue((double) entries.get(i).getValue());
+                    temp.setName(entries.get(i).getKey());
+                    temp.setFillColor(User.colors.get(i));
+                } else {
+                    temp.setValue(0);
+                    temp.setName("");
+                }
+
+            addTopSendersData(temp);
+        }
+        //Build new radial chart for top senders
+        topSendersRadialChart = TileBuilder.create()
+                .animationDuration(10000)
+                .skinType(Tile.SkinType.RADIAL_CHART)
+                .backgroundColor(Color.TRANSPARENT)
+                .title("Top Senders")
+                .titleAlignment(TextAlignment.LEFT)
+                .prefSize(400, 400)
+                .maxSize(400, 400)
+                .chartData(topSendersData)
+                .animated(true)
+                .build();
+        masonryPane.getChildren().add(0,topSendersRadialChart);
     }
 }

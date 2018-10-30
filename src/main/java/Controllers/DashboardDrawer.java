@@ -19,7 +19,7 @@ import java.util.ResourceBundle;
 public class DashboardDrawer implements Initializable{
 
     @FXML
-    private JFXListView listView;
+    public JFXListView listView;
 
     @FXML
     public VBox dashboardDrawerVBox;
@@ -89,5 +89,6 @@ public class DashboardDrawer implements Initializable{
                 }
             }
         });
+
     }
 }

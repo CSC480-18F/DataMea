@@ -2,12 +2,12 @@ package Engine;
 
 import java.util.ArrayList;
 
-class Sender implements Comparable{
+public class Sender implements Comparable{
 
     //------------------Declaring Variables------------------//
     private String               address;
     private ArrayList<Email>     emails;
-    int                          numEmailsSent;
+    public int                          numEmailsSent;
     private ArrayList<Integer>   messages; //hashcodes of previous conversation messages
 
     public Sender(String address) {

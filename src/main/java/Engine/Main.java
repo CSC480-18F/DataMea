@@ -70,11 +70,26 @@ public class Main extends Application {
         DashboardController.setStage(primaryStage);
 
 
-        colors.add(Color.valueOf("#fc5c65"));
-        colors.add(Color.valueOf("#fd9644"));
-        colors.add(Color.valueOf("#fed330"));
-        colors.add(Color.valueOf("#26de81"));
-        colors.add(Color.valueOf("#2bcbba"));
+        colors.add(javafx.scene.paint.Color.valueOf("#fc5c65"));
+        colors.add(javafx.scene.paint.Color.valueOf("#fd9644"));
+        colors.add(javafx.scene.paint.Color.valueOf("#fed330"));
+        colors.add(javafx.scene.paint.Color.valueOf("#26de81"));
+        colors.add(javafx.scene.paint.Color.valueOf("#2bcbba"));
+        colors.add(javafx.scene.paint.Color.valueOf("#eb3b5a"));
+        colors.add(javafx.scene.paint.Color.valueOf("#fa8231"));
+        colors.add(javafx.scene.paint.Color.valueOf("#f7b731"));
+        colors.add(javafx.scene.paint.Color.valueOf("#20bf6b"));
+        colors.add(javafx.scene.paint.Color.valueOf("#0fb9b1"));
+        colors.add(javafx.scene.paint.Color.valueOf("#45aaf2"));
+        colors.add(javafx.scene.paint.Color.valueOf("#4b7bec"));
+        colors.add(javafx.scene.paint.Color.valueOf("#a55eea"));
+        colors.add(javafx.scene.paint.Color.valueOf("#d1d8e0"));
+        colors.add(javafx.scene.paint.Color.valueOf("#778ca3"));
+        colors.add(javafx.scene.paint.Color.valueOf("#2d98da"));
+        colors.add(javafx.scene.paint.Color.valueOf("#3867d6"));
+        colors.add(javafx.scene.paint.Color.valueOf("#8854d0"));
+        colors.add(javafx.scene.paint.Color.valueOf("#a5b1c2"));
+        colors.add(javafx.scene.paint.Color.valueOf("#4b6584"));
 
         startLoading.addListener(new ChangeListener<Boolean>() {
             @Override
@@ -89,9 +104,9 @@ public class Main extends Application {
                             //if (currentUser.getFolders().get(0).getSenders().size() < 5) {
                             String folderName = currentUser.recoverFolders().get(0).folderName;
                             int numSendersInFolder = currentUser.getTopSendersForFolder("AllFolders", "").size();
-                            //only display top 10 senders for the selected folder
-                            if (numSendersInFolder > 5) {
-                                numSendersInFolder = 5;
+                            //only display top 7 senders for the selected folder
+                            if (numSendersInFolder > 7) {
+                                numSendersInFolder = 7;
                             }
                                 for (int i = 0; i < numSendersInFolder; i++) {
                                     //Created ChartData for top senders radial chart
