@@ -88,7 +88,7 @@ public class DashboardController implements Initializable {
     private JFXButton filtersButton;
 
     @FXML
-    private JFXProgressBar progressBar;
+    public JFXProgressBar progressBar;
 
 
     //------------------Declaring Variables------------------//
@@ -138,8 +138,9 @@ public class DashboardController implements Initializable {
 
     private void addFilter(String name){
         if(!filterDrawerClass.filtersChipView.getChips().contains(name)){
-
             filterDrawerClass.filtersChipView.getChips().add(name);
+            JFXChip chip = (JFXChip) filterDrawerClass.filtersChipView.lookup(".jfx-chip-view .jfx-chip");
+            chip.setCursor(Cursor.HAND);
         }else{
             System.out.println("Filter already added");
         }
@@ -410,6 +411,13 @@ public class DashboardController implements Initializable {
                             @Override
                             public void handle(MouseEvent e) {
                                 d.getNode().setCursor(Cursor.HAND);
+                            }
+                        });
+                    }
+                    for (PieChart.Data d : domainsData) {
+                        d.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+                            @Override
+                            public void handle(MouseEvent e) {
                                 addFilter(d.getName());
                             }
                         });

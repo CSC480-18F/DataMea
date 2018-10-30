@@ -4,6 +4,9 @@ import Controllers.DashboardController;
 import Controllers.DashboardLogin;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 
 import javax.mail.*;
 import java.io.*;
@@ -38,6 +41,7 @@ public class BackgroundSentiment extends Task<Void> {
 
     User currentUser = Main.getCurrentUser();
     String lastReadSentimentFile = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/sentimentProgress.txt";
+    int totalSentimentRan = 0;
 
 
     @Override
@@ -154,10 +158,21 @@ public class BackgroundSentiment extends Task<Void> {
                                 try {
                                     updateEmailFile(fileName, tempEmail.getSentimentScores(), tempEmail.getLanguage());
                                     final Email temp = tempEmail;
+                                    //Load DashboardController
+                                    FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("Dashboard_Home.fxml"));
+                                    AnchorPane root = loader.load();
+                                    DashboardController dashboardController = loader.getController();
+                                    totalSentimentRan += i;
+                                    double progress = (double) totalSentimentRan/User.getTotalNumberOfEmails();
                                     Platform.runLater(()->{
                                         DashboardController.sentimentGauge.setValue(Email.getOverallSentimentDbl(currentUser.getOverallSentiment()));
+                                        dashboardController.progressBar.setProgress(progress);
+                                        if(progress==1){
+                                            dashboardController.progressBar.setProgress(0);
+                                            dashboardController.progressBar.setVisible(false);
+                                        }
                                     });
-                                } catch (IOException e) {
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                     break;
                                 }

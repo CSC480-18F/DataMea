@@ -24,7 +24,7 @@
             <JFXMasonryPane fx:id="masonryPane" cellHeight="50.0" cellWidth="50.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="550.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" />
          </content>
       </ScrollPane>
-      <JFXProgressBar fx:id="progressBar" layoutY="50.0" prefHeight="5.0" prefWidth="1000.0" stylesheets="@home_progressbar.css" visible="false" AnchorPane.topAnchor="50.0" />
+      <JFXProgressBar fx:id="progressBar" layoutY="50.0" prefHeight="5.0" prefWidth="1000.0" stylesheets="@home_progressbar.css" AnchorPane.topAnchor="50.0" />
       <JFXDrawer fx:id="filtersDrawer" defaultDrawerSize="200.0" direction="TOP" layoutY="50.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="1000.0">
          <effect>
             <DropShadow height="2.5" radius="1.375" spread="0.25" width="5.0" />

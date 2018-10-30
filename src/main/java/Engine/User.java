@@ -5,7 +5,6 @@ import Controllers.DashboardLoading;
 import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.tools.TreeNode;
 import javafx.application.Platform;
-
 import javax.mail.*;
 import java.awt.*;
 import java.io.IOException;
@@ -29,7 +28,7 @@ public class User {
     private int[][] dayOfWeekFrequency;
     private int frequencyDifference = -1;
     public static ArrayList<javafx.scene.paint.Color> colors = new ArrayList<>();
-    private int totalNumberOfEmails = 0;
+    private static int totalNumberOfEmails = 0;
     private DashboardLoading dashboardLoading;
     private int totalProgress = 0;
 
@@ -1007,7 +1006,7 @@ public class User {
         return emails;
     }
 
-    public int getTotalNumberOfEmails() {
+    public static int getTotalNumberOfEmails() {
         return totalNumberOfEmails;
     }
 

@@ -52,7 +52,6 @@ public class FilterDrawer implements Initializable{
                     Platform.runLater(()->{
                         Pane chipsPane = (Pane) filtersChipView.lookup(".jfx-chip-view .chips-pane");
                         TextArea textarea = (TextArea) filtersChipView.lookup(".jfx-chip-view .chips-pane > .text-area");
-                        //JFXChip chip = (JFXChip) filtersChipView.lookup(".jfx-chip-view .jfx-chip");
                         HBox chipHBox = (HBox) filtersChipView.lookup(".jfx-chip-view .jfx-chip > HBox");
                         //Label label = (Label) filtersChipView.lookup(".jfx-chip-view .jfx-chip > HBox > .label");
                         //label.setWrapText(false);

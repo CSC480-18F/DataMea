@@ -40,12 +40,6 @@
     -fx-alignment: center-left;
     -fx-spacing: 8;
 }
-.jfx-chip-view .jfx-chip {
-<<<<<<< HEAD
-    -fx-pref-width: 250;
-=======
->>>>>>> origin/master
-}
 
 .jfx-chip-view > .scroll-pane,
 .jfx-chip-view > .scroll-pane > .viewport {
