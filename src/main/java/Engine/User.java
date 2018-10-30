@@ -240,6 +240,9 @@ public class User {
      */
     public ArrayList<Email> filterByFolder(String folderName, String subFolderName, ArrayList<Email> emailsToFilter) {
         ArrayList<Email> filteredEmails = new ArrayList<>();
+        if (folderName.equals("All") && subFolderName.equals("All")) {
+            return emailsToFilter;
+        }
         for (Email e: emailsToFilter) {
             if (e.getFolder().equalsIgnoreCase(folderName) && e.getSubFolder().equalsIgnoreCase(subFolderName)) {
                 filteredEmails.add(e);
