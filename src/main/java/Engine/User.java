@@ -243,6 +243,14 @@ public class User {
         if (folderName.equals("All") && subFolderName.equals("All")) {
             return emailsToFilter;
         }
+        if (subFolderName == null) {
+            for (Email e: emailsToFilter) {
+                if (e.getFolder().equalsIgnoreCase(folderName)) {
+                    filteredEmails.add(e);
+                }
+            }
+            return filteredEmails;
+        }
         for (Email e: emailsToFilter) {
             if (e.getFolder().equalsIgnoreCase(folderName) && e.getSubFolder().equalsIgnoreCase(subFolderName)) {
                 filteredEmails.add(e);
