@@ -164,6 +164,28 @@ public class User {
         return sorted;
     }
 
+
+    public Map<String, Long> getSendersFreq(ArrayList<Email> emails) {
+        ArrayList<String> senders = new ArrayList<>();
+        for (Email e : emails) {
+            senders.add(e.getSender().getAddress());
+        }
+
+        String [] sendersArray = new String[senders.size()];
+        sendersArray = senders.toArray(sendersArray);
+
+        Map<String, Long> freqs =
+                Stream.of(sendersArray)
+                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        freqs = new TreeMap<String, Long>(freqs);
+
+        Map sorted = sortByValues(freqs);
+        return sorted;
+
+
+    }
+
     public Map<String, Long> getLanguageFreq(ArrayList<Email> emails){
         ArrayList<String> langs = new ArrayList<>();
         for (Email e: emails) {
