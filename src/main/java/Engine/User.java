@@ -439,6 +439,29 @@ public class User {
     }
 
 
+    public ArrayList<Sender> getTopSendersForFilter(ArrayList<Email> emails) {
+        ArrayList<Sender> topSenders = new ArrayList<>();
+        ArrayList<String> senderNames = new ArrayList<>();
+
+        for (Email e: emails) {
+            if (!senderNames.contains(e.getSender())) {
+                senderNames.add(e.getSender().getAddress());
+                topSenders.add(new Sender(e.getSender().getAddress()));
+            } else {
+                for (Sender s : topSenders) {
+                    if (s.getAddress().equals(e.getSender().getAddress())) {
+                        s.incrementNumEmails();
+                    }
+                }
+            }
+        }
+
+        Collections.sort(topSenders);
+        return topSenders;
+
+    }
+
+
 
     public ArrayList<UserFolder> recoverFolders() {
         ArrayList<UserFolder> f = new ArrayList<>();
