@@ -662,7 +662,7 @@ public class DashboardController implements Initializable {
         //If the it's not updating from a new folder keep the main folder
 
         attachments = null;
-        attachments = currentUser.getAttachmentFreq(currentUser.getEmails());
+        attachments = currentUser.getAttachmentFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment));
         attachmentsData = new ArrayList<>();
         int attachmentsCount = 0;
         int attachmentsTotal = 0;
