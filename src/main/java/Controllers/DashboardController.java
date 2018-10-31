@@ -5,6 +5,7 @@ import Engine.User;
 import Engine.Email;
 import com.jfoenix.controls.*;
 import com.jfoenix.transitions.hamburger.HamburgerBasicCloseTransition;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.chart.ChartData;
@@ -37,6 +38,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.paint.Stop;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
@@ -111,6 +113,8 @@ public class DashboardController implements Initializable {
     private long              lastTimerCall;
     private AnimationTimer    timer;
     private static final Random RND = new Random();
+    private ArrayList<Filter> currentFilters = new ArrayList<>();
+    private ArrayList<String> currentFiltersNames = new ArrayList<>(); //easiest way of keeping track of whether or not we added a filter already don't yell at me lol it's greasy its 2am cut me some slack gosh
 
     public static void setStage(Stage s) {
         myStage = s;
@@ -133,15 +137,6 @@ public class DashboardController implements Initializable {
         homeOnCloseRequest.setValue(b);
     }
 
-    private void addFilter(String name){
-        if(!filterDrawerClass.filtersChipView.getChips().contains(name)){
-            filterDrawerClass.filtersChipView.getChips().add(name);
-            JFXChip chip = (JFXChip) filterDrawerClass.filtersChipView.lookup(".jfx-chip-view .jfx-chip");
-            chip.setCursor(Cursor.HAND);
-        }else{
-            System.out.println("Filter already added");
-        }
-    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -250,43 +245,28 @@ public class DashboardController implements Initializable {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if (newValue) {
-                    //Fix chipview
-                    FilterDrawer.setFiltersDrawerLoadedToTrue();
-
                     //Get Current user
                     currentUser = Main.getCurrentUser();
 
                     //Top senders Radial Chart:
                     topSendersRadialChart = TileBuilder.create()
-                            .animationDuration(10000)
                             .skinType(Tile.SkinType.RADIAL_CHART)
                             .backgroundColor(Color.TRANSPARENT)
                             .title("Top Senders")
                             .titleAlignment(TextAlignment.LEFT)
+                            .minSize(400,400)
                             .prefSize(400, 400)
                             .maxSize(400, 400)
                             .chartData(topSendersData)
-                            .animated(true)
                             .build();
                     topSendersRadialChart.setCursor(Cursor.HAND);
                     masonryPane.getChildren().add(topSendersRadialChart);
                     //Change scenes based on top sender ChartData selected
                     topSendersRadialChart.setOnTileEvent((e) -> {
                         if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
-                            DashboardDrawer.setLoadFolderList(false);
                             ChartData data = e.getData();
                             System.out.println("Selected " + data.getName());
-                            addFilter(data.getName());
-                            /*try {
-                                loadedFromLoginScreen.setValue(false);
-                                AnchorPane newScenePane = FXMLLoader.load(getClass().getClassLoader().getResource("Dashboard_Home.fxml"));
-                                Scene newScene = new Scene(newScenePane, 1000, 600);
-                                myStage.requestFocus();
-                                myStage.setScene(newScene);
-                                DashboardDrawer.setLoadFolderList(true);
-                            } catch (IOException error) {
-                                error.printStackTrace();
-                            }*/
+                            addFilter(data.getName(),true,false,false,false,false);
                         }
                     });
 
@@ -423,7 +403,7 @@ public class DashboardController implements Initializable {
                         d.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
                             @Override
                             public void handle(MouseEvent e) {
-                                addFilter(d.getName());
+                                //addFilter(d.getName());
                             }
                         });
                     }
@@ -465,7 +445,7 @@ public class DashboardController implements Initializable {
                             DashboardDrawer.setLoadFolderList(false);
                             ChartData data = e.getData();
                             System.out.println("Selected " + data.getName());
-                            addFilter(data.getName());
+                            //addFilter(data.getName());
                         }
                     });
                     masonryPane.getChildren().add(attachmentsRadialChart);
@@ -564,13 +544,13 @@ public class DashboardController implements Initializable {
             //Created ChartData for top senders radial chart
             ChartData temp = new ChartData();
                 if (i < entries.size()) {
-                    temp.setValue((double) entries.get(i).getValue());
-                    temp.setName(entries.get(i).getKey());
-                    temp.setFillColor(User.colors.get(i));
-                } else {
-                    temp.setValue(0);
-                    temp.setName("");
-                }
+                temp.setValue((double) entries.get(i).getValue());
+                temp.setName(entries.get(i).getKey());
+                temp.setFillColor(User.colors.get(i));
+            } else {
+                temp.setValue(0);
+                temp.setName("");
+            }
 
             addTopSendersData(temp);
         }
@@ -587,5 +567,155 @@ public class DashboardController implements Initializable {
                 .animated(true)
                 .build();
         masonryPane.getChildren().add(0,topSendersRadialChart);
+    }
+
+    private void addFilter(String name, boolean isTopSender, boolean isFolder, boolean isDomain, boolean isAttachment, boolean isLanguage) {
+        if (!currentFiltersNames.contains(name)) {
+            currentFiltersNames.add(name);
+            Filter newFilter = new Filter(name);
+            Pane filterChip = new Pane();
+            filterChip.getStyleClass().add("pane");
+            filterChip.setPrefHeight(35);
+            filterChip.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+            HBox filterChipHBox = new HBox();
+            filterChipHBox.getStyleClass().add("hbox-filter");
+            filterChipHBox.setSpacing(10);
+            filterChipHBox.setAlignment(Pos.CENTER);
+            filterChipHBox.setPrefHeight(35);
+            filterChipHBox.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+            JFXButton exitButton = new JFXButton();
+            if (isTopSender) {
+                newFilter.setTopSender(true);
+                currentFilters.add(newFilter);
+                FontAwesomeIconView icon = new FontAwesomeIconView();
+                icon.setGlyphName("USER");
+                icon.setFill(Paint.valueOf("#34495e"));
+                filterChipHBox.getChildren().add(icon);
+                Label nameLabel = new Label(name);
+                nameLabel.setAlignment(Pos.CENTER_LEFT);
+                nameLabel.maxWidth(Double.MAX_VALUE);
+                filterChipHBox.getChildren().add(nameLabel);
+                HBox.setHgrow(nameLabel, Priority.ALWAYS);
+                exitButton.setMinSize(20, 20);
+                exitButton.setPrefSize(20, 20);
+                exitButton.setText("");
+                FontAwesomeIconView exitIcon = new FontAwesomeIconView();
+                exitIcon.setGlyphName("TIMES");
+                exitIcon.setSize("12.5");
+                exitIcon.setFill(Paint.valueOf("#ecf0f1"));
+                exitButton.setGraphic(exitIcon);
+                filterChipHBox.getChildren().add(exitButton);
+                filterChip.getChildren().add(filterChipHBox);
+                String filterCss = this.getClass().getClassLoader().getResource("filterchip.css").toExternalForm();
+                filterChip.getStylesheets().add(filterCss);
+                filterDrawerClass.filterHbox.getChildren().add(filterChip);
+            } else if (isFolder) {
+                newFilter.setFolder(true);
+                currentFilters.add(newFilter);
+                FontAwesomeIconView icon = new FontAwesomeIconView();
+                icon.setGlyphName("FOLDER");
+                icon.setFill(Paint.valueOf("#34495e"));
+                filterChipHBox.getChildren().add(icon);
+                Label nameLabel = new Label(name);
+                nameLabel.setAlignment(Pos.CENTER_LEFT);
+                nameLabel.maxWidth(Double.MAX_VALUE);
+                filterChipHBox.getChildren().add(nameLabel);
+                HBox.setHgrow(nameLabel, Priority.ALWAYS);
+                exitButton.setMinSize(20, 20);
+                exitButton.setPrefSize(20, 20);
+                exitButton.setText("");
+                FontAwesomeIconView exitIcon = new FontAwesomeIconView();
+                exitIcon.setGlyphName("TIMES");
+                exitIcon.setSize("12.5");
+                exitIcon.setFill(Paint.valueOf("#ecf0f1"));
+                exitButton.setGraphic(exitIcon);
+                filterChipHBox.getChildren().add(exitButton);
+                filterChip.getChildren().add(filterChipHBox);
+                String filterCss = this.getClass().getClassLoader().getResource("filterchip.css").toExternalForm();
+                filterChip.getStylesheets().add(filterCss);
+                filterDrawerClass.filterHbox.getChildren().add(filterChip);
+            } else if (isDomain) {
+                newFilter.setDomain(true);
+                currentFilters.add(newFilter);
+                FontAwesomeIconView icon = new FontAwesomeIconView();
+                icon.setGlyphName("AT");
+                icon.setFill(Paint.valueOf("#34495e"));
+                filterChipHBox.getChildren().add(icon);
+                Label nameLabel = new Label(name);
+                nameLabel.setAlignment(Pos.CENTER_LEFT);
+                nameLabel.maxWidth(Double.MAX_VALUE);
+                filterChipHBox.getChildren().add(nameLabel);
+                HBox.setHgrow(nameLabel, Priority.ALWAYS);
+                exitButton.setMinSize(20, 20);
+                exitButton.setPrefSize(20, 20);
+                exitButton.setText("");
+                FontAwesomeIconView exitIcon = new FontAwesomeIconView();
+                exitIcon.setGlyphName("TIMES");
+                exitIcon.setSize("12.5");
+                exitIcon.setFill(Paint.valueOf("#ecf0f1"));
+                exitButton.setGraphic(exitIcon);
+                filterChipHBox.getChildren().add(exitButton);
+                filterChip.getChildren().add(filterChipHBox);
+                String filterCss = this.getClass().getClassLoader().getResource("filterchip.css").toExternalForm();
+                filterChip.getStylesheets().add(filterCss);
+                filterDrawerClass.filterHbox.getChildren().add(filterChip);
+            } else if (isAttachment) {
+                newFilter.setAttachment(true);
+                currentFilters.add(newFilter);
+                FontAwesomeIconView icon = new FontAwesomeIconView();
+                icon.setGlyphName("PAPERCLIP");
+                icon.setFill(Paint.valueOf("#34495e"));
+                filterChipHBox.getChildren().add(icon);
+                Label nameLabel = new Label(name);
+                nameLabel.setAlignment(Pos.CENTER_LEFT);
+                nameLabel.maxWidth(Double.MAX_VALUE);
+                filterChipHBox.getChildren().add(nameLabel);
+                HBox.setHgrow(nameLabel, Priority.ALWAYS);
+                exitButton.setMinSize(20, 20);
+                exitButton.setPrefSize(20, 20);
+                exitButton.setText("");
+                FontAwesomeIconView exitIcon = new FontAwesomeIconView();
+                exitIcon.setGlyphName("TIMES");
+                exitIcon.setSize("12.5");
+                exitIcon.setFill(Paint.valueOf("#ecf0f1"));
+                exitButton.setGraphic(exitIcon);
+                filterChipHBox.getChildren().add(exitButton);
+                filterChip.getChildren().add(filterChipHBox);
+                String filterCss = this.getClass().getClassLoader().getResource("filterchip.css").toExternalForm();
+                filterChip.getStylesheets().add(filterCss);
+                filterDrawerClass.filterHbox.getChildren().add(filterChip);
+            } else if (isLanguage) {
+                newFilter.setLanguage(true);
+                currentFilters.add(newFilter);
+                FontAwesomeIconView icon = new FontAwesomeIconView();
+                icon.setGlyphName("GLOBE_AMERICAS");
+                icon.setFill(Paint.valueOf("#34495e"));
+                filterChipHBox.getChildren().add(icon);
+                Label nameLabel = new Label(name);
+                nameLabel.setAlignment(Pos.CENTER_LEFT);
+                nameLabel.maxWidth(Double.MAX_VALUE);
+                filterChipHBox.getChildren().add(nameLabel);
+                HBox.setHgrow(nameLabel, Priority.ALWAYS);
+                exitButton.setMinSize(20, 20);
+                exitButton.setPrefSize(20, 20);
+                exitButton.setText("");
+                FontAwesomeIconView exitIcon = new FontAwesomeIconView();
+                exitIcon.setGlyphName("TIMES");
+                exitIcon.setSize("12.5");
+                exitIcon.setFill(Paint.valueOf("#ecf0f1"));
+                exitButton.setGraphic(exitIcon);
+                filterChipHBox.getChildren().add(exitButton);
+                filterChip.getChildren().add(filterChipHBox);
+                String filterCss = this.getClass().getClassLoader().getResource("filterchip.css").toExternalForm();
+                filterChip.getStylesheets().add(filterCss);
+                filterDrawerClass.filterHbox.getChildren().add(filterChip);
+            }
+            exitButton.setOnAction((e) -> {
+                int position = currentFilters.indexOf(newFilter);
+                currentFiltersNames.remove(newFilter.getName());
+                currentFilters.remove(position);
+                filterDrawerClass.filterHbox.getChildren().remove(position);
+            });
+        }
     }
 }

@@ -1,0 +1,21 @@
+.pane{
+    -fx-background-color: #ecf0f1;
+    -fx-background-radius: 20;
+}
+
+.label{
+    -fx-text-fill: #34495e;
+}
+
+.jfx-button{
+    -fx-background-color: #b2bec3;
+    -fx-background-radius: 20;
+}
+
+.hbox-filter{
+    -fx-padding:  0 8 0 15;
+}
+
+.jfx-rippler {
+    -jfx-rippler-fill: #ff931e;
+}

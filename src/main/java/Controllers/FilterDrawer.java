@@ -29,9 +29,6 @@ public class FilterDrawer implements Initializable{
     @FXML
     public AnchorPane filtersAnchorPane;
 
-    @FXML
-    public JFXChipView<String> filtersChipView;
-
     private static BooleanProperty filtersDrawerLoaded = new SimpleBooleanProperty(false);
 
     public static void setFiltersDrawerLoadedToTrue(){
@@ -41,15 +38,15 @@ public class FilterDrawer implements Initializable{
     @Override
     public void initialize(URL url, ResourceBundle rb){
 
-        String chipViewStyleSheet = this.getClass().getClassLoader().getResource("chipview.css").toExternalForm();
-        filtersChipView.getStylesheets().add(chipViewStyleSheet);
+        //String chipViewStyleSheet = this.getClass().getClassLoader().getResource("chipview.css").toExternalForm();
+        //filtersChipView.getStylesheets().add(chipViewStyleSheet);
 
         filtersDrawerLoaded.addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if (newValue) {
                     //Disable text area in pre-made chipview
-                    Platform.runLater(()->{
+                    /*Platform.runLater(()->{
                         Pane chipsPane = (Pane) filtersChipView.lookup(".jfx-chip-view .chips-pane");
                         TextArea textarea = (TextArea) filtersChipView.lookup(".jfx-chip-view .chips-pane > .text-area");
                         HBox chipHBox = (HBox) filtersChipView.lookup(".jfx-chip-view .jfx-chip > HBox");
@@ -59,7 +56,7 @@ public class FilterDrawer implements Initializable{
                         //textarea.setEditable(false);
                         //textarea.setCursor(Cursor.DEFAULT);
                         chipsPane.setCursor(Cursor.DEFAULT);
-                    });
+                    });*/
                 }
             }
         });

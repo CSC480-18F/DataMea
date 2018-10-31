@@ -105,15 +105,17 @@ public class Main extends Application {
                             String folderName = currentUser.recoverFolders().get(0).folderName;
                             int numSendersInFolder = currentUser.getTopSendersForFolder("AllFolders", "").size();
                             //only display top 7 senders for the selected folder
-                            if (numSendersInFolder > 7) {
-                                numSendersInFolder = 7;
-                            }
-                                for (int i = 0; i < numSendersInFolder; i++) {
+                                for (int i = 0; i < 4; i++) {
                                     //Created ChartData for top senders radial chart
                                     ChartData temp = new ChartData();
-                                    temp.setValue((double) currentUser.getTopSendersForFolder(folderName, "").get(i).numEmailsSent);
-                                    temp.setName(currentUser.getTopSendersForFolder(folderName, "").get(i).filterName());
-                                    temp.setFillColor(colors.get(i));
+                                    if (i < numSendersInFolder) {
+                                        temp.setValue((double) currentUser.getTopSendersForFolder(folderName, "").get(i).numEmailsSent);
+                                        temp.setName(currentUser.getTopSendersForFolder(folderName, "").get(i).filterName());
+                                        temp.setFillColor(colors.get(i));
+                                    } else {
+                                        temp.setValue(0);
+                                        temp.setName("");
+                                    }
                                     DashboardController.addTopSendersData(temp);
                                 }
 
