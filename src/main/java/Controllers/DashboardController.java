@@ -549,7 +549,7 @@ public class DashboardController implements Initializable {
         //TODO modify the filters so that they take a language -- shouldnt take very long
 
         //For now, just pass in folderName twice
-        updateTopSenders(folderName, folderName, sDate, eDate, sender, domain, attachment);
+        updateTopSenders(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
         //add other chart switching functions to be added below
 
 
