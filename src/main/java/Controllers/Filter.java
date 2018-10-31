@@ -2,7 +2,13 @@ package Controllers;
 
 public class Filter {
     private String name;
-    private boolean isTopSender = false, isFolder = false, isDomain = false, isAttachment = false, isLanguage = false;
+    private boolean isTopSender = false;
+    private boolean isFolder = false;
+    private boolean isDomain = false;
+    private boolean isAttachment = false;
+    private boolean isLanguage = false;
+    private boolean isStartDate = false;
+    private boolean isEndDate = false;
 
     public Filter(String name) {
         this.name = name;
@@ -50,5 +56,21 @@ public class Filter {
 
     public void setLanguage(boolean language) {
         isLanguage = language;
+    }
+
+    public boolean isStartDate() {
+        return isStartDate;
+    }
+
+    public void setStartDate(boolean startDate) {
+        isStartDate = startDate;
+    }
+
+    public boolean isEndDate() {
+        return isEndDate;
+    }
+
+    public void setEndDate(boolean endDate) {
+        isEndDate = endDate;
     }
 }

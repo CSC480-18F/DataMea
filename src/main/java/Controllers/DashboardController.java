@@ -520,6 +520,45 @@ public class DashboardController implements Initializable {
         });
     }
 
+    public void updateAllCharts(ArrayList<Filter> filters) {
+        String folderName=null, subFolderName = null, sender = null,
+                domain = null,  attachment = null, startDate = null, endDate = null, language = null;
+        Date sDate = null, eDate = null;
+
+        //TODO figure out how to add folder/subfolder stuff along with doing dates
+
+        for (Filter f: filters) {
+            if (f.isTopSender()) {
+                sender = f.getName();
+            } else if (f.isAttachment()) {
+                attachment = f.getName();
+            } else if (f.isDomain()) {
+                domain = f.getName();
+            } else if (f.isLanguage()) {
+                language = f.getName();
+            } else if (f.isFolder()) {
+                folderName = f.getName();
+            } else if (f.isStartDate()) {
+                startDate = f.getName();
+            } else if (f.isEndDate()) {
+                endDate = f.getName();
+            }
+        }
+
+        //TODO Modify the string that is being passed in, to be a valid date
+        //TODO modify the filters so that they take a language -- shouldnt take very long
+
+        //For now, just pass in folderName twice
+        updateTopSenders(folderName, folderName, sDate, eDate, sender, domain, attachment);
+        //add other chart switching functions to be added below
+
+
+
+
+
+    }
+
+
     public void updateTopSenders(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment){
         masonryPane.getChildren().removeAll(topSendersRadialChart);
         //If the it's not updating from a new folder keep the main folder
