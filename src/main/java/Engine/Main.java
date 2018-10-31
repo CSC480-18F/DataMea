@@ -105,7 +105,7 @@ public class Main extends Application {
                             String folderName = currentUser.recoverFolders().get(0).folderName;
                             int numSendersInFolder = currentUser.getTopSendersForFolder("AllFolders", "").size();
                             //only display top 7 senders for the selected folder
-                                for (int i = 0; i < 5; i++) {
+                                for (int i = 0; i < 7; i++) {
                                     //Created ChartData for top senders radial chart
                                     ChartData temp = new ChartData();
                                     if (i < numSendersInFolder) {

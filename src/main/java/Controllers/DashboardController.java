@@ -495,6 +495,7 @@ public class DashboardController implements Initializable {
                             System.out.print("Selected" + folderSelected);
                             updateTopSenders(folderSelected,folderSelected,null,null,null,null,null);
                             updateDomains(folderSelected,folderSelected,null,null,null,null,null);
+                            updateAttachments(folderSelected,folderSelected,null,null,null,null,null);
                         }
                     });
 
@@ -562,13 +563,7 @@ public class DashboardController implements Initializable {
 
     public void updateTopSenders(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment){
         masonryPane.getChildren().removeAll(topSendersRadialChart);
-        //If the it's not updating from a new folder keep the main folder
-        if (folderName == null){
-            folderName = currentUser.recoverFolders().get(0).folderName;
-        }
-        if (subFolderName == null){
-            subFolderName = currentUser.recoverFolders().get(0).folderName;
-        }
+
         //Update array list of top senders with new folder info
         topSendersData = new ArrayList<>();
         Map<String,Long> topSenders = currentUser.getSendersFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment));
@@ -611,14 +606,6 @@ public class DashboardController implements Initializable {
 
     public void updateDomains(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment){
         masonryPane.getChildren().removeAll(domainDonutChart);
-        //If the it's not updating from a new folder keep the main folder
-        if (folderName == null){
-            folderName = currentUser.recoverFolders().get(0).folderName;
-        }
-        if (subFolderName == null){
-            subFolderName = currentUser.recoverFolders().get(0).folderName;
-        }
-
 
         domains = null;
         domainsData = FXCollections.observableArrayList();
@@ -669,6 +656,54 @@ public class DashboardController implements Initializable {
         domainDonutChart.getStylesheets().add(this.getClass().getClassLoader().getResource("donutchart.css").toExternalForm());
         masonryPane.getChildren().add(domainDonutChart);
     }
+
+    public void updateAttachments(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment){
+        masonryPane.getChildren().removeAll(attachmentsRadialChart);
+        //If the it's not updating from a new folder keep the main folder
+
+        attachments = null;
+        attachments = currentUser.getAttachmentFreq(currentUser.getEmails());
+        attachmentsData = new ArrayList<>();
+        int attachmentsCount = 0;
+        int attachmentsTotal = 0;
+        for (Map.Entry<String, Long> entry : attachments.entrySet()) {
+            if (attachmentsCount < 5) {
+                ChartData temp = new ChartData();
+                temp.setName(entry.getKey());
+                temp.setValue(entry.getValue());
+                temp.setFillColor(User.colors.get(attachmentsCount));
+                attachmentsTotal += entry.getValue();
+                attachmentsData.add(temp);
+                attachmentsCount++;
+            }else{
+                attachmentsTotal += entry.getValue();
+            }
+        }
+        attachmentsRadialChart = TileBuilder.create()
+                .animationDuration(10000)
+                .skinType(Tile.SkinType.RADIAL_CHART)
+                .backgroundColor(Color.TRANSPARENT)
+                .title("Attachments")
+                .titleAlignment(TextAlignment.LEFT)
+                .textVisible(true)
+                .text("Total attachments: " + attachmentsTotal)
+                .prefSize(400, 400)
+                .maxSize(400, 400)
+                .chartData(attachmentsData)
+                .animated(true)
+                .build();
+        attachmentsRadialChart.setOnTileEvent((e) -> {
+            if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
+                DashboardDrawer.setLoadFolderList(false);
+                ChartData data = e.getData();
+                System.out.println("Selected " + data.getName());
+                //addFilter(data.getName());
+            }
+        });
+        masonryPane.getChildren().add(attachmentsRadialChart);
+    }
+
+
 
     private void addFilter(String name, boolean isTopSender, boolean isFolder, boolean isDomain, boolean isAttachment, boolean isLanguage) {
         if (!currentFiltersNames.contains(name)) {
