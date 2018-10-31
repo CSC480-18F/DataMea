@@ -494,6 +494,7 @@ public class DashboardController implements Initializable {
                             String folderSelected = dashboardDrawer.list.get(dashboardDrawer.listView.getSelectionModel().getSelectedIndex());
                             System.out.print("Selected" + folderSelected);
                             updateTopSenders(folderSelected,folderSelected,null,null,null,null,null);
+                            updateDomains(folderSelected,folderSelected,null,null,null,null,null);
                         }
                     });
 
@@ -579,7 +580,7 @@ public class DashboardController implements Initializable {
 
         //Maps are the worst thing ever, thanks a lot Cedric...
         List<Map.Entry<String,Long>> entries = new ArrayList<>(topSenders.entrySet());
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < 5; i++) {
             //Created ChartData for top senders radial chart
             ChartData temp = new ChartData();
                 if (i < entries.size()) {
@@ -606,6 +607,67 @@ public class DashboardController implements Initializable {
                 .animated(true)
                 .build();
         masonryPane.getChildren().add(0,topSendersRadialChart);
+    }
+
+    public void updateDomains(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment){
+        masonryPane.getChildren().removeAll(domainDonutChart);
+        //If the it's not updating from a new folder keep the main folder
+        if (folderName == null){
+            folderName = currentUser.recoverFolders().get(0).folderName;
+        }
+        if (subFolderName == null){
+            subFolderName = currentUser.recoverFolders().get(0).folderName;
+        }
+
+
+        domains = null;
+        domainsData = FXCollections.observableArrayList();
+        domains = currentUser.getDomainFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment));
+        PieChart.Data domainOther = new PieChart.Data("Other", 0);
+        int domainCount = 0;
+        for (Map.Entry<String, Long> entry : domains.entrySet()) {
+            if (domainCount < 5) {
+                PieChart.Data temp = new PieChart.Data(entry.getKey(), entry.getValue());
+                domainsData.add(temp);
+                domainCount++;
+            } else {
+                double otherValue = domainOther.getPieValue();
+                domainOther = new PieChart.Data("Other", otherValue);
+            }
+        }
+        domainsData.add(domainOther);
+        domainDonutChart = new DonutChart(domainsData);
+        domainDonutChart.setPrefSize(500, 400);
+        domainDonutChart.setMaxSize(500, 400);
+        domainDonutChart.setTitle("Domains");
+        domainDonutChart.setLegendVisible(true);
+        domainDonutChart.setLegendSide(Side.BOTTOM);
+        domainDonutChart.setLabelsVisible(true);
+        domainDonutChart.getData().stream().forEach(data -> {
+            Tooltip tooltip = new Tooltip();
+            tooltip.setText((int) data.getPieValue() + " emails");
+            Tooltip.install(data.getNode(), tooltip);
+            data.pieValueProperty().addListener((observableTwo, oldValueTwo, newValueTwo) ->
+                    tooltip.setText((int) newValueTwo + " emails"));
+        });
+        for (PieChart.Data d : domainsData) {
+            d.getNode().addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent e) {
+                    d.getNode().setCursor(Cursor.HAND);
+                }
+            });
+        }
+        for (PieChart.Data d : domainsData) {
+            d.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent e) {
+                    //addFilter(d.getName());
+                }
+            });
+        }
+        domainDonutChart.getStylesheets().add(this.getClass().getClassLoader().getResource("donutchart.css").toExternalForm());
+        masonryPane.getChildren().add(domainDonutChart);
     }
 
     private void addFilter(String name, boolean isTopSender, boolean isFolder, boolean isDomain, boolean isAttachment, boolean isLanguage) {
