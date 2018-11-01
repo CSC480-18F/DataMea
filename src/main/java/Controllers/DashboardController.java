@@ -493,9 +493,8 @@ public class DashboardController implements Initializable {
                         public void handle(javafx.scene.input.MouseEvent event) {
                             String folderSelected = dashboardDrawer.list.get(dashboardDrawer.listView.getSelectionModel().getSelectedIndex());
                             System.out.print("Selected" + folderSelected);
-                            updateTopSenders(folderSelected,folderSelected,null,null,null,null,null);
-                            updateDomains(folderSelected,folderSelected,null,null,null,null,null);
-                            updateAttachments(folderSelected,folderSelected,null,null,null,null,null);
+                            addFilter(folderSelected,false,true,false,false,false);
+                            updateAllCharts(currentFilters);
                         }
                     });
 
@@ -552,6 +551,8 @@ public class DashboardController implements Initializable {
 
         //For now, just pass in folderName twice
         updateTopSenders(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
+        updateDomains(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
+        updateAttachments(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
         //add other chart switching functions to be added below
 
 
