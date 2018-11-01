@@ -1,22 +1,14 @@
 package Controllers;
 
-import com.jfoenix.controls.JFXChip;
-import com.jfoenix.controls.JFXChipView;
-import javafx.application.Platform;
+import com.jfoenix.controls.JFXButton;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Cursor;
-import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -28,6 +20,9 @@ public class FilterDrawer implements Initializable{
 
     @FXML
     public AnchorPane filtersAnchorPane;
+
+    @FXML
+    public JFXButton applyFilters;
 
     private static BooleanProperty filtersDrawerLoaded = new SimpleBooleanProperty(false);
 

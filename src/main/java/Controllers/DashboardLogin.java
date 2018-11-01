@@ -1,12 +1,9 @@
 package Controllers;
 
-import Engine.BackgroundSentiment;
 import Engine.Main;
 import Engine.User;
 import com.jfoenix.controls.*;
 import com.jfoenix.controls.events.JFXDialogEvent;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
-import eu.hansolo.tilesfx.chart.ChartData;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -23,7 +20,6 @@ import javafx.scene.Scene;
 import javafx.scene.effect.BoxBlur;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -37,8 +33,6 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.io.*;
-
-import static Controllers.DashboardController.setLoadedFromLoginScreenToTrue;
 
 public class DashboardLogin implements Initializable {
     @FXML
