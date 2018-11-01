@@ -723,6 +723,30 @@ public class DashboardController implements Initializable {
             JFXButton exitButton = new JFXButton();
             if (isTopSender) {
                 newFilter.setTopSender(true);
+
+                for (Filter f : currentFilters) {
+                    int count = 0;
+                    if (f.isTopSender()) {
+                        currentFilters.remove(f);
+                        currentFiltersNames.remove(f.getName());
+
+                        //remove appropriate chip
+                        ObservableList<Node> chips = filterDrawerClass.filterHbox.getChildren();
+
+                        for (Node n : chips) {
+                            Label chipLabel = (Label)n.lookup(".hbox-filter .label");
+                            String chipText = chipLabel.getText();
+                            if (chipText.equals(f.getName())) {
+
+                                break;
+                            }
+                            count++;
+                        }
+
+                        filterDrawerClass.filterHbox.getChildren().remove(count);
+                        break;
+                    }
+                }
                 currentFilters.add(newFilter);
                 FontAwesomeIconView icon = new FontAwesomeIconView();
                 icon.setGlyphName("USER");
