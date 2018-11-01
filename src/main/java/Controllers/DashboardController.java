@@ -415,7 +415,7 @@ public class DashboardController implements Initializable {
                     int attachmentsCount = 0;
                     int attachmentsTotal = 0;
                     for (Map.Entry<String, Long> entry : attachments.entrySet()) {
-                        if (attachmentsCount < 5) {
+                        if (attachmentsCount < 7) {
                             ChartData temp = new ChartData();
                             temp.setName(entry.getKey());
                             temp.setValue(entry.getValue());
@@ -546,6 +546,10 @@ public class DashboardController implements Initializable {
             }
         }
 
+        if (subFolderName == null){
+            subFolderName = folderName;
+        }
+
         //TODO Modify the string that is being passed in, to be a valid date
         //TODO modify the filters so that they take a language -- shouldnt take very long
 
@@ -568,15 +572,10 @@ public class DashboardController implements Initializable {
         //Update array list of top senders with new folder info
         topSendersData = new ArrayList<>();
         Map<String,Long> topSenders = currentUser.getSendersFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment));
-        int numSendersInFolder = topSenders.size();
-        //only display top 7 senders for the selected folder
-        if (numSendersInFolder > 7) {
-            numSendersInFolder = 7;
-        }
 
         //Maps are the worst thing ever, thanks a lot Cedric...
         List<Map.Entry<String,Long>> entries = new ArrayList<>(topSenders.entrySet());
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 7; i++) {
             //Created ChartData for top senders radial chart
             ChartData temp = new ChartData();
                 if (i < entries.size()) {
@@ -614,7 +613,7 @@ public class DashboardController implements Initializable {
         PieChart.Data domainOther = new PieChart.Data("Other", 0);
         int domainCount = 0;
         for (Map.Entry<String, Long> entry : domains.entrySet()) {
-            if (domainCount < 5) {
+            if (domainCount < 7) {
                 PieChart.Data temp = new PieChart.Data(entry.getKey(), entry.getValue());
                 domainsData.add(temp);
                 domainCount++;
@@ -668,7 +667,7 @@ public class DashboardController implements Initializable {
         int attachmentsCount = 0;
         int attachmentsTotal = 0;
         for (Map.Entry<String, Long> entry : attachments.entrySet()) {
-            if (attachmentsCount < 5) {
+            if (attachmentsCount < 7) {
                 ChartData temp = new ChartData();
                 temp.setName(entry.getKey());
                 temp.setValue(entry.getValue());
