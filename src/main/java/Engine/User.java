@@ -875,7 +875,7 @@ public class User {
 
         for (int i = 0; i < folders.length; i++) {
             String name = folders[i].getName();
-            if (!name.equalsIgnoreCase("[Gmail]") && !name.equalsIgnoreCase("inbox") ) {
+            if (!name.equalsIgnoreCase("[Gmail]")/* && !name.equalsIgnoreCase("inbox") */) {
                 /// Create a new thread to do this!!!!!!!
                 readFolderAndSerializeEmails(folders[i], runSentiment);
 
