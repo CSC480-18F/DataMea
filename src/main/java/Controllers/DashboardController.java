@@ -12,6 +12,8 @@ import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.chart.SunburstChart;
 import eu.hansolo.tilesfx.events.TileEvent;
+import eu.hansolo.tilesfx.events.TreeNodeEvent;
+import eu.hansolo.tilesfx.tools.TreeNode;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -276,6 +278,15 @@ public class DashboardController implements Initializable {
 
 
                     //Folders SunburstChart:
+                    TreeNode<ChartData> folderTree = currentUser.getFoldersCountForSunburst();
+                    folderTree.setOnTreeNodeEvent(e -> {
+                        System.out.println("TreeNodeEvent");
+                        TreeNodeEvent.EventType type = e.getType();
+                        if (TreeNodeEvent.EventType.NODE_SELECTED == type) {
+                            TreeNode<ChartData> segment = e.getSource();
+                            foldersSunburstChart.fireTileEvent(new TileEvent(TileEvent.EventType.SELECTED_CHART_DATA, segment.getItem()));
+                        }
+                    });
                     foldersSunburstChart = TileBuilder.create()
                             .skinType(Tile.SkinType.SUNBURST)
                             .backgroundColor(Color.TRANSPARENT)
@@ -290,11 +301,10 @@ public class DashboardController implements Initializable {
                             .sunburstTree(currentUser.getFoldersCountForSunburst())
                             .sunburstInteractive(true)
                             .build();
-                    //Doesn't work big bummer!!!!
                     foldersSunburstChart.setOnTileEvent((e) -> {
                         if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
                             System.out.println("Clicked on folder " + e.getData().getName());
-                            updateTopSenders(e.getData().getName(),e.getData().getName(),null,null,null,null,null);
+                            addFilter(e.getData().getName(),false,true,false,false,false);
                         }
                     });
                     masonryPane.getChildren().add(foldersSunburstChart);
@@ -511,14 +521,15 @@ public class DashboardController implements Initializable {
 
                     DashboardController.sentimentGauge.setValue(Email.getOverallSentimentDbl(currentUser.getOverallSentiment()));
 
-                    masonryPane.addEventHandler(MouseEvent.MOUSE_PRESSED, (e) -> {
+                    //leads to issues
+                    /*masonryPane.addEventHandler(MouseEvent.MOUSE_PRESSED, (e) -> {
                         if(drawer.isOpened()){
                             drawer.close();
                         }
                         if(filtersDrawer.isOpened()){
                             filtersDrawer.close();
                         }
-                    });
+                    });*/
 
                     //Allows the scroll pane to resize the masonry pane after nodes are added, keep at bottom!
                     Platform.runLater(() -> scrollPane.requestLayout());
