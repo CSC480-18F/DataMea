@@ -430,6 +430,12 @@ public class DashboardController implements Initializable {
                             attachmentsTotal += entry.getValue();
                         }
                     }
+                    for (int i = attachmentsCount; i<7; i++){
+                        ChartData temp = new ChartData();
+                        temp.setName("");
+                        temp.setValue(0);
+                        attachmentsData.add(temp);
+                    }
                     attachmentsRadialChart = TileBuilder.create()
                             .animationDuration(10000)
                             .skinType(Tile.SkinType.RADIAL_CHART)
@@ -502,6 +508,15 @@ public class DashboardController implements Initializable {
                     });
 
                     DashboardController.sentimentGauge.setValue(Email.getOverallSentimentDbl(currentUser.getOverallSentiment()));
+
+                    masonryPane.addEventHandler(MouseEvent.MOUSE_PRESSED, (e) -> {
+                        if(drawer.isOpened()){
+                            drawer.close();
+                        }
+                        if(filtersDrawer.isOpened()){
+                            filtersDrawer.close();
+                        }
+                    });
 
                     //Allows the scroll pane to resize the masonry pane after nodes are added, keep at bottom!
                     Platform.runLater(() -> scrollPane.requestLayout());
@@ -690,6 +705,12 @@ public class DashboardController implements Initializable {
             }else{
                 attachmentsTotal += entry.getValue();
             }
+        }
+        for (int i = attachmentsCount; i<7; i++){
+            ChartData temp = new ChartData();
+            temp.setName("");
+            temp.setValue(0);
+            attachmentsData.add(temp);
         }
         attachmentsRadialChart = TileBuilder.create()
                 .animationDuration(10000)
