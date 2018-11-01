@@ -728,7 +728,6 @@ public class DashboardController implements Initializable {
                     if (f.isTopSender()) {
                         currentFilters.remove(f);
                         currentFiltersNames.remove(f.getName());
-
                         //remove appropriate chip
                         ObservableList<Node> chips = filterDrawerClass.filterHbox.getChildren();
 
@@ -741,7 +740,6 @@ public class DashboardController implements Initializable {
                             }
                             count++;
                         }
-
                         filterDrawerClass.filterHbox.getChildren().remove(count);
                         break;
                     }
@@ -770,6 +768,29 @@ public class DashboardController implements Initializable {
                 filterChip.getStylesheets().add(filterCss);
                 filterDrawerClass.filterHbox.getChildren().add(filterChip);
             } else if (isFolder) {
+
+                for (Filter f : currentFilters) {
+                    int count = 0;
+                    if (f.isFolder()) {
+                        currentFilters.remove(f);
+                        currentFiltersNames.remove(f.getName());
+                        //remove appropriate chip
+                        ObservableList<Node> chips = filterDrawerClass.filterHbox.getChildren();
+
+                        for (Node n : chips) {
+                            Label chipLabel = (Label)n.lookup(".hbox-filter .label");
+                            String chipText = chipLabel.getText();
+                            if (chipText.equals(f.getName())) {
+
+                                break;
+                            }
+                            count++;
+                        }
+                        filterDrawerClass.filterHbox.getChildren().remove(count);
+                        break;
+                    }
+                }
+
                 newFilter.setFolder(true);
                 currentFilters.add(newFilter);
                 FontAwesomeIconView icon = new FontAwesomeIconView();
