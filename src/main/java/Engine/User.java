@@ -240,10 +240,10 @@ public class User {
      */
     public ArrayList<Email> filterByFolder(String folderName, String subFolderName, ArrayList<Email> emailsToFilter) {
         ArrayList<Email> filteredEmails = new ArrayList<>();
-        if (folderName.equals("All") && subFolderName.equals("All")) {
+
+        if (subFolderName == null && folderName.equals("All")) {
             return emailsToFilter;
-        }
-        if (subFolderName == null) {
+        } else if (subFolderName == null) {
             for (Email e: emailsToFilter) {
                 if (e.getFolder().equalsIgnoreCase(folderName)) {
                     filteredEmails.add(e);
@@ -251,6 +251,7 @@ public class User {
             }
             return filteredEmails;
         }
+
         for (Email e: emailsToFilter) {
             if (e.getFolder().equalsIgnoreCase(folderName) && e.getSubFolder().equalsIgnoreCase(subFolderName)) {
                 filteredEmails.add(e);
@@ -266,7 +267,8 @@ public class User {
     public ArrayList<Email> filterbySender(String sender, ArrayList<Email> emailsToFilter){
         ArrayList<Email> filteredEmails = new ArrayList<Email>();
         for(Email e: emailsToFilter){
-            if (e.getSender().getAddress().equalsIgnoreCase(sender)){
+            String s = e.getSender().filterName();
+            if (s.equalsIgnoreCase(sender)){
                 filteredEmails.add(e);
             }
         }
@@ -340,7 +342,7 @@ public class User {
 
     public ArrayList<Email> filter(String folder, String subfolder, Date startDate, Date endDate, String sender, String domain, String attachment){
         ArrayList<Email> filteredEmails = new ArrayList<>();
-        if(folder != null && subfolder != null)
+        if(folder != null || subfolder != null)
             filteredEmails = filterByFolder(folder, subfolder, this.emails);
         if(startDate != null && endDate != null){
             if (filteredEmails.size() == 0)
