@@ -1,6 +1,7 @@
 package Controllers;
 
 import Engine.Main;
+import Engine.Sender;
 import Engine.User;
 import Engine.Email;
 import com.jfoenix.controls.*;
@@ -583,7 +584,7 @@ public class DashboardController implements Initializable {
             ChartData temp = new ChartData();
                 if (i < entries.size()) {
                 temp.setValue((double) entries.get(i).getValue());
-                temp.setName(entries.get(i).getKey());
+                temp.setName(Sender.filterEmailAddress(entries.get(i).getKey()));
                 temp.setFillColor(User.colors.get(i));
             } else {
                 temp.setValue(0);
@@ -733,8 +734,6 @@ public class DashboardController implements Initializable {
             filterChipHBox.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
             JFXButton exitButton = new JFXButton();
             if (isTopSender) {
-                newFilter.setTopSender(true);
-
                 for (Filter f : currentFilters) {
                     int count = 0;
                     if (f.isTopSender()) {
@@ -756,6 +755,7 @@ public class DashboardController implements Initializable {
                         break;
                     }
                 }
+                newFilter.setTopSender(true);
                 currentFilters.add(newFilter);
                 FontAwesomeIconView icon = new FontAwesomeIconView();
                 icon.setGlyphName("USER");
