@@ -365,6 +365,11 @@ public class User {
             }else filteredEmails = filterByAttachmentType(attachment, filteredEmails);
         }
 
+        if (folder == null && subfolder == null && startDate == null && endDate==null && sender == null && domain == null && attachment==null) {
+            //no folder was selected so just return all of the emails
+            return this.emails;
+        }
+
         return filteredEmails;
     }
 
