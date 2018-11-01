@@ -11,6 +11,7 @@ import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.chart.SunburstChart;
 import eu.hansolo.tilesfx.events.TileEvent;
+import eu.hansolo.tilesfx.fonts.Fonts;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -23,19 +24,16 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -241,6 +239,10 @@ public class DashboardController implements Initializable {
             }
         });
 
+        filterDrawerClass.applyFilters.addEventHandler(MouseEvent.MOUSE_PRESSED, (e) -> {
+            updateAllCharts(currentFilters);
+        });
+
         loadedFromLoginScreen.addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -254,9 +256,9 @@ public class DashboardController implements Initializable {
                             .backgroundColor(Color.TRANSPARENT)
                             .title("Top Senders")
                             .titleAlignment(TextAlignment.LEFT)
-                            .minSize(400,400)
-                            .prefSize(400, 400)
-                            .maxSize(400, 400)
+                            .minSize(480,480)
+                            .prefSize(480, 480)
+                            .maxSize(480, 480)
                             .chartData(topSendersData)
                             .build();
                     topSendersRadialChart.setCursor(Cursor.HAND);
@@ -281,9 +283,9 @@ public class DashboardController implements Initializable {
                     Label heatMapTitle = new Label("Received Email Frequency");
                     heatMapTitle.setTextFill(Color.LIGHTGRAY);
                     heatMapTitle.setStyle("-fx-font: 24 System;");
-                    heatMapPane.setPrefSize(600, 400);
+                    heatMapPane.setPrefSize(600, 480);
                     heatMapGridPane = new GridPane();
-                    heatMapGridPane.setPrefSize(600, 400);
+                    heatMapGridPane.setPrefSize(600, 480);
 
                     for (int i = 0; i < heatMapData.length; i++) {
                         Label day = new Label(Main.getCurrentUser().getDay(i));
@@ -332,8 +334,8 @@ public class DashboardController implements Initializable {
                     heatMapAndTitle.getChildren().addAll(heatMapTitle, heatMapPane);
                     heatMapAndTitle.setSpacing(5);
                     heatMapAndTitle.setPadding(new Insets(20));
-                    heatMapAndTitle.setPrefSize(600,400);
-                    heatMapAndTitle.setMaxSize(600,400);
+                    heatMapAndTitle.setPrefSize(600,480);
+                    heatMapAndTitle.setMaxSize(600,480);
                     masonryPane.getChildren().add(heatMapAndTitle);
 
                     //Folders SunburstChart:
@@ -346,8 +348,8 @@ public class DashboardController implements Initializable {
                             .titleAlignment(TextAlignment.LEFT)
                             .sunburstTextOrientation(SunburstChart.TextOrientation.HORIZONTAL)
                             .showInfoRegion(true)
-                            .minSize(400, 400)
-                            .prefSize(400, 400)
+                            .minSize(400, 480)
+                            .prefSize(400, 480)
                             .sunburstTree(currentUser.getFoldersCountForSunburst())
                             .sunburstInteractive(true)
                             .build();
@@ -378,8 +380,8 @@ public class DashboardController implements Initializable {
                     }
                     domainsData.add(domainOther);
                     domainDonutChart = new DonutChart(domainsData);
-                    domainDonutChart.setPrefSize(500, 400);
-                    domainDonutChart.setMaxSize(500, 400);
+                    domainDonutChart.setPrefSize(500, 480);
+                    domainDonutChart.setMaxSize(500, 480);
                     domainDonutChart.setTitle("Domains");
                     domainDonutChart.setLegendVisible(true);
                     domainDonutChart.setLegendSide(Side.BOTTOM);
@@ -404,6 +406,7 @@ public class DashboardController implements Initializable {
                             @Override
                             public void handle(MouseEvent e) {
                                 //addFilter(d.getName());
+                                addFilter(d.getName(),false,false,true,false,false);
                             }
                         });
                     }
@@ -435,8 +438,8 @@ public class DashboardController implements Initializable {
                             .titleAlignment(TextAlignment.LEFT)
                             .textVisible(true)
                             .text("Total attachments: " + attachmentsTotal)
-                            .prefSize(400, 400)
-                            .maxSize(400, 400)
+                            .prefSize(480, 480)
+                            .maxSize(480, 480)
                             .chartData(attachmentsData)
                             .animated(true)
                             .build();
@@ -445,6 +448,7 @@ public class DashboardController implements Initializable {
                             DashboardDrawer.setLoadFolderList(false);
                             ChartData data = e.getData();
                             System.out.println("Selected " + data.getName());
+                            addFilter(data.getName(),false,false,false,true,false);
                             //addFilter(data.getName());
                         }
                     });
@@ -494,7 +498,6 @@ public class DashboardController implements Initializable {
                             String folderSelected = dashboardDrawer.list.get(dashboardDrawer.listView.getSelectionModel().getSelectedIndex());
                             System.out.print("Selected" + folderSelected);
                             addFilter(folderSelected,false,true,false,false,false);
-                            updateAllCharts(currentFilters);
                         }
                     });
 
@@ -596,11 +599,18 @@ public class DashboardController implements Initializable {
                 .backgroundColor(Color.TRANSPARENT)
                 .title("Top Senders")
                 .titleAlignment(TextAlignment.LEFT)
-                .prefSize(400, 400)
-                .maxSize(400, 400)
+                .prefSize(480, 480)
+                .maxSize(480, 480)
                 .chartData(topSendersData)
                 .animated(true)
                 .build();
+        topSendersRadialChart.setOnTileEvent((e) -> {
+            if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
+                ChartData data = e.getData();
+                System.out.println("Selected " + data.getName());
+                addFilter(data.getName(),true,false,false,false,false);
+            }
+        });
         masonryPane.getChildren().add(0,topSendersRadialChart);
     }
 
@@ -624,8 +634,8 @@ public class DashboardController implements Initializable {
         }
         domainsData.add(domainOther);
         domainDonutChart = new DonutChart(domainsData);
-        domainDonutChart.setPrefSize(500, 400);
-        domainDonutChart.setMaxSize(500, 400);
+        domainDonutChart.setPrefSize(500, 480);
+        domainDonutChart.setMaxSize(500, 480);
         domainDonutChart.setTitle("Domains");
         domainDonutChart.setLegendVisible(true);
         domainDonutChart.setLegendSide(Side.BOTTOM);
@@ -649,6 +659,7 @@ public class DashboardController implements Initializable {
             d.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent e) {
+                    addFilter(d.getName(),false,false,true,false,false);
                     //addFilter(d.getName());
                 }
             });
@@ -687,8 +698,8 @@ public class DashboardController implements Initializable {
                 .titleAlignment(TextAlignment.LEFT)
                 .textVisible(true)
                 .text("Total attachments: " + attachmentsTotal)
-                .prefSize(400, 400)
-                .maxSize(400, 400)
+                .prefSize(480, 480)
+                .maxSize(480, 480)
                 .chartData(attachmentsData)
                 .animated(true)
                 .build();
@@ -697,6 +708,7 @@ public class DashboardController implements Initializable {
                 DashboardDrawer.setLoadFolderList(false);
                 ChartData data = e.getData();
                 System.out.println("Selected " + data.getName());
+                addFilter(data.getName(),false,false,false,true,false);
                 //addFilter(data.getName());
             }
         });
@@ -762,6 +774,7 @@ public class DashboardController implements Initializable {
                 exitIcon.setSize("12.5");
                 exitIcon.setFill(Paint.valueOf("#ecf0f1"));
                 exitButton.setGraphic(exitIcon);
+                exitButton.setCursor(Cursor.HAND);
                 filterChipHBox.getChildren().add(exitButton);
                 filterChip.getChildren().add(filterChipHBox);
                 String filterCss = this.getClass().getClassLoader().getResource("filterchip.css").toExternalForm();
@@ -810,6 +823,7 @@ public class DashboardController implements Initializable {
                 exitIcon.setSize("12.5");
                 exitIcon.setFill(Paint.valueOf("#ecf0f1"));
                 exitButton.setGraphic(exitIcon);
+                exitButton.setCursor(Cursor.HAND);
                 filterChipHBox.getChildren().add(exitButton);
                 filterChip.getChildren().add(filterChipHBox);
                 String filterCss = this.getClass().getClassLoader().getResource("filterchip.css").toExternalForm();
@@ -835,6 +849,7 @@ public class DashboardController implements Initializable {
                 exitIcon.setSize("12.5");
                 exitIcon.setFill(Paint.valueOf("#ecf0f1"));
                 exitButton.setGraphic(exitIcon);
+                exitButton.setCursor(Cursor.HAND);
                 filterChipHBox.getChildren().add(exitButton);
                 filterChip.getChildren().add(filterChipHBox);
                 String filterCss = this.getClass().getClassLoader().getResource("filterchip.css").toExternalForm();
@@ -860,6 +875,7 @@ public class DashboardController implements Initializable {
                 exitIcon.setSize("12.5");
                 exitIcon.setFill(Paint.valueOf("#ecf0f1"));
                 exitButton.setGraphic(exitIcon);
+                exitButton.setCursor(Cursor.HAND);
                 filterChipHBox.getChildren().add(exitButton);
                 filterChip.getChildren().add(filterChipHBox);
                 String filterCss = this.getClass().getClassLoader().getResource("filterchip.css").toExternalForm();
@@ -885,6 +901,7 @@ public class DashboardController implements Initializable {
                 exitIcon.setSize("12.5");
                 exitIcon.setFill(Paint.valueOf("#ecf0f1"));
                 exitButton.setGraphic(exitIcon);
+                exitButton.setCursor(Cursor.HAND);
                 filterChipHBox.getChildren().add(exitButton);
                 filterChip.getChildren().add(filterChipHBox);
                 String filterCss = this.getClass().getClassLoader().getResource("filterchip.css").toExternalForm();

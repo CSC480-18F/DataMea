@@ -27,7 +27,7 @@
                   <DropShadow color="#2f3640" height="0.0" radius="15.75" spread="0.85" width="65.0" />
                </effect>
             </Pane>
-            <JFXButton maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="36.0" prefWidth="110.0" ripplerFill="#ff931e" style="-fx-background-color: #f5f6fa; -fx-padding: 5; -fx-background-radius: 5; -fx-border-color: #a4b0be; -fx-border-radius: 5;" text="Apply Filters">
+            <JFXButton fx:id="applyFilters" buttonType="RAISED" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="36.0" prefWidth="110.0" ripplerFill="#ff931e" style="-fx-background-color: #353b48; -fx-padding: 5; -fx-background-radius: 5; -fx-border-color: #a4b0be; -fx-border-radius: 5;" text="Apply Filters" textFill="#a4b0be">
                <HBox.margin>
                   <Insets right="5.0" />
                </HBox.margin>
