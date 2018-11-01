@@ -273,71 +273,7 @@ public class DashboardController implements Initializable {
                         }
                     });
 
-                    //HeatMap:
-                    //rather than using em here, assign the value of em to be whatever the list of emails we want
-                    //aka, add filter, and then display those results
-                    ArrayList<Email> em = Main.getCurrentUser().getEmails();
-                    //ArrayList<Email> em2 = Main.getCurrentUser().getEmailsFromFolder("first year admin stuff", "testFolder");
-                    int[][] heatMapData = Main.getCurrentUser().generateDayOfWeekFrequency(em);
-                    heatMapAndTitle = new VBox();
-                    Pane heatMapPane = new Pane();
-                    Label heatMapTitle = new Label("Received Email Frequency");
-                    heatMapTitle.setTextFill(Color.LIGHTGRAY);
-                    heatMapTitle.setStyle("-fx-font: 24 System;");
-                    heatMapPane.setPrefSize(600, 480);
-                    heatMapGridPane = new GridPane();
-                    heatMapGridPane.setPrefSize(600, 480);
 
-                    for (int i = 0; i < heatMapData.length; i++) {
-                        Label day = new Label(Main.getCurrentUser().getDay(i));
-                        day.setStyle("-fx-text-fill: #ff931e;");
-                        heatMapGridPane.add(day, 0, i + 1);
-                        day.setMinWidth(Region.USE_PREF_SIZE);
-                        day.setMaxWidth(Region.USE_PREF_SIZE);
-
-                        for (int j = 0; j < heatMapData[1].length; j++) {
-                            Label hour = new Label(Integer.toString(j));
-                            StackPane hourPane = new StackPane();
-                            hourPane.setMinSize(20, 20);
-                            hour.setStyle("-fx-text-fill: #ff931e;");
-                            hourPane.getChildren().add(hour);
-                            heatMapGridPane.add(hourPane, j + 1, 0);
-
-
-                            StackPane pane = new StackPane();
-                            pane.setCursor(Cursor.HAND);
-                            pane.setMinSize(20, 20);
-                            pane.setStyle(currentUser.getColorForHeatMap(heatMapData[i][j], heatMapData));
-
-                            Label freq = new Label(Integer.toString(heatMapData[i][j]));
-                            freq.setTextFill(Color.LIGHTGRAY);
-
-                            pane.setOnMouseEntered(new EventHandler<MouseEvent>() {
-                                @Override
-                                public void handle(MouseEvent event) {
-                                    pane.getChildren().add(freq);
-                                    StackPane.setAlignment(freq, Pos.CENTER);
-                                }
-                            });
-
-                            pane.setOnMouseExited(new EventHandler<MouseEvent>() {
-                                @Override
-                                public void handle(MouseEvent event) {
-                                    pane.getChildren().remove(freq);
-                                }
-                            });
-
-                            heatMapGridPane.add(pane, j + 1, i + 1);
-                        }
-                    }
-                    heatMapGridPane.setGridLinesVisible(true);
-                    heatMapPane.getChildren().add(heatMapGridPane);
-                    heatMapAndTitle.getChildren().addAll(heatMapTitle, heatMapPane);
-                    heatMapAndTitle.setSpacing(5);
-                    heatMapAndTitle.setPadding(new Insets(20));
-                    heatMapAndTitle.setPrefSize(600,480);
-                    heatMapAndTitle.setMaxSize(600,480);
-                    masonryPane.getChildren().add(heatMapAndTitle);
 
                     //Folders SunburstChart:
                     foldersSunburstChart = TileBuilder.create()
@@ -414,6 +350,7 @@ public class DashboardController implements Initializable {
                     domainDonutChart.getStylesheets().add(this.getClass().getClassLoader().getResource("donutchart.css").toExternalForm());
                     masonryPane.getChildren().add(domainDonutChart);
 
+
                     //Attachments radial chart
                     attachments = currentUser.getAttachmentFreq(currentUser.getEmails());
                     int attachmentsCount = 0;
@@ -460,7 +397,71 @@ public class DashboardController implements Initializable {
                         }
                     });
                     masonryPane.getChildren().add(attachmentsRadialChart);
+                    //HeatMap:
+                    //rather than using em here, assign the value of em to be whatever the list of emails we want
+                    //aka, add filter, and then display those results
+                    ArrayList<Email> em = Main.getCurrentUser().getEmails();
+                    //ArrayList<Email> em2 = Main.getCurrentUser().getEmailsFromFolder("first year admin stuff", "testFolder");
+                    int[][] heatMapData = Main.getCurrentUser().generateDayOfWeekFrequency(em);
+                    heatMapAndTitle = new VBox();
+                    Pane heatMapPane = new Pane();
+                    Label heatMapTitle = new Label("Received Email Frequency");
+                    heatMapTitle.setTextFill(Color.LIGHTGRAY);
+                    heatMapTitle.setStyle("-fx-font: 24 System;");
+                    heatMapPane.setPrefSize(600, 480);
+                    heatMapGridPane = new GridPane();
+                    heatMapGridPane.setPrefSize(600, 480);
 
+                    for (int i = 0; i < heatMapData.length; i++) {
+                        Label day = new Label(Main.getCurrentUser().getDay(i));
+                        day.setStyle("-fx-text-fill: #ff931e;");
+                        heatMapGridPane.add(day, 0, i + 1);
+                        day.setMinWidth(Region.USE_PREF_SIZE);
+                        day.setMaxWidth(Region.USE_PREF_SIZE);
+
+                        for (int j = 0; j < heatMapData[1].length; j++) {
+                            Label hour = new Label(Integer.toString(j));
+                            StackPane hourPane = new StackPane();
+                            hourPane.setMinSize(20, 20);
+                            hour.setStyle("-fx-text-fill: #ff931e;");
+                            hourPane.getChildren().add(hour);
+                            heatMapGridPane.add(hourPane, j + 1, 0);
+
+
+                            StackPane pane = new StackPane();
+                            pane.setCursor(Cursor.HAND);
+                            pane.setMinSize(20, 20);
+                            pane.setStyle(currentUser.getColorForHeatMap(heatMapData[i][j], heatMapData));
+
+                            Label freq = new Label(Integer.toString(heatMapData[i][j]));
+                            freq.setTextFill(Color.LIGHTGRAY);
+
+                            pane.setOnMouseEntered(new EventHandler<MouseEvent>() {
+                                @Override
+                                public void handle(MouseEvent event) {
+                                    pane.getChildren().add(freq);
+                                    StackPane.setAlignment(freq, Pos.CENTER);
+                                }
+                            });
+
+                            pane.setOnMouseExited(new EventHandler<MouseEvent>() {
+                                @Override
+                                public void handle(MouseEvent event) {
+                                    pane.getChildren().remove(freq);
+                                }
+                            });
+
+                            heatMapGridPane.add(pane, j + 1, i + 1);
+                        }
+                    }
+                    heatMapGridPane.setGridLinesVisible(true);
+                    heatMapPane.getChildren().add(heatMapGridPane);
+                    heatMapAndTitle.getChildren().addAll(heatMapTitle, heatMapPane);
+                    heatMapAndTitle.setSpacing(5);
+                    heatMapAndTitle.setPadding(new Insets(20));
+                    heatMapAndTitle.setPrefSize(600,480);
+                    heatMapAndTitle.setMaxSize(600,480);
+                    masonryPane.getChildren().add(heatMapAndTitle);
                     //Sentiment Gauge:
                     sentimentGauge = TileBuilder.create()
                             .skinType(Tile.SkinType.BAR_GAUGE)
@@ -576,9 +577,9 @@ public class DashboardController implements Initializable {
         // TODO ADD OTHER CHARTS BELOW
 
             updateTopSenders(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
-            updateHeatMap(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
             updateDomains(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
             updateAttachments(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
+            updateHeatMap(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
 
     }
 
