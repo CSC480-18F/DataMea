@@ -12,7 +12,6 @@ import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.chart.SunburstChart;
 import eu.hansolo.tilesfx.events.TileEvent;
-import eu.hansolo.tilesfx.fonts.Fonts;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -502,6 +501,7 @@ public class DashboardController implements Initializable {
                         }
                     });
 
+                    DashboardController.sentimentGauge.setValue(Email.getOverallSentimentDbl(currentUser.getOverallSentiment()));
 
                     //Allows the scroll pane to resize the masonry pane after nodes are added, keep at bottom!
                     Platform.runLater(() -> scrollPane.requestLayout());
@@ -558,9 +558,9 @@ public class DashboardController implements Initializable {
         //TODO modify the filters so that they take a language -- shouldnt take very long
 
         //For now, just pass in folderName twice
-        updateTopSenders(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
-        updateDomains(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
-        updateAttachments(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
+            updateTopSenders(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
+            updateDomains(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
+            updateAttachments(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
         //add other chart switching functions to be added below
 
 
@@ -884,6 +884,7 @@ public class DashboardController implements Initializable {
                     if (f.isAttachment()) {
                         currentFilters.remove(f);
                         currentFiltersNames.remove(f.getName());
+
                         //remove appropriate chip
                         ObservableList<Node> chips = filterDrawerClass.filterHbox.getChildren();
 
