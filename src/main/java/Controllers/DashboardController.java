@@ -572,18 +572,18 @@ public class DashboardController implements Initializable {
         //TODO Modify the string that is being passed in, to be a valid date
         //TODO modify the filters so that they take a language -- shouldnt take very long
 
-        //For now, just pass in folderName twice
+        // TODO ADD OTHER CHARTS BELOW
+
             updateTopSenders(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
             updateDomains(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
             updateAttachments(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
-        //add other chart switching functions to be added below
-
-
-
-
 
     }
 
+    public void updateHeatMap(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment) {
+        masonryPane.getChildren().removeAll(heatMapGridPane);
+        
+    }
 
     public void updateTopSenders(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment){
         masonryPane.getChildren().removeAll(topSendersRadialChart);
