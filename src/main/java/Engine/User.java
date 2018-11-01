@@ -1002,30 +1002,27 @@ public class User {
         return dayOfWeekFrequency;
     }
 
-    public void differenceMinMax(){
+    public int differenceMinMax(int[][] heatMap){
 
-        if(this.frequencyDifference < 0) {
 
-            int[][] heatMap = getDayOfWeekFrequency();
-            int min = heatMap[0][0];
-            int max = heatMap[0][0];
-            for (int i = 0; i < heatMap.length; i++) {
-                for (int j = 0; j < heatMap[i].length; j++) {
-                    if (heatMap[i][j] < min) min = heatMap[i][j];
-                    else if (heatMap[i][j] > max) max = heatMap[i][j];
-                }
+        int min = heatMap[0][0];
+        int max = heatMap[0][0];
+        for (int i = 0; i < heatMap.length; i++) {
+            for (int j = 0; j < heatMap[i].length; j++) {
+                if (heatMap[i][j] < min) min = heatMap[i][j];
+                else if (heatMap[i][j] > max) max = heatMap[i][j];
             }
-
-            this.frequencyDifference = max - min;
         }
+
+        int frequencyDifference = max - min;
+
+        return frequencyDifference;
 
     }
 
-    public String getColorForHeatMap(int i){
+    public String getColorForHeatMap(int i, int[][] heatMap){
 
-        differenceMinMax();
-
-        int diff = this.frequencyDifference;
+        int diff = differenceMinMax(heatMap);
 
         float h = .75f;
         float s = 1f;

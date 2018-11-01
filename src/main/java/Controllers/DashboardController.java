@@ -96,6 +96,7 @@ public class DashboardController implements Initializable {
     private static ArrayList<ChartData> topSendersData = new ArrayList<>();
     private Tile topSendersRadialChart;
     private GridPane heatMapGridPane;
+    private VBox heatMapAndTitle;
     private Tile foldersSunburstChart;
     private User currentUser;
     private static BooleanProperty homeOnCloseRequest = new SimpleBooleanProperty(false);
@@ -278,7 +279,7 @@ public class DashboardController implements Initializable {
                     ArrayList<Email> em = Main.getCurrentUser().getEmails();
                     //ArrayList<Email> em2 = Main.getCurrentUser().getEmailsFromFolder("first year admin stuff", "testFolder");
                     int[][] heatMapData = Main.getCurrentUser().generateDayOfWeekFrequency(em);
-                    VBox heatMapAndTitle = new VBox();
+                    heatMapAndTitle = new VBox();
                     Pane heatMapPane = new Pane();
                     Label heatMapTitle = new Label("Received Email Frequency");
                     heatMapTitle.setTextFill(Color.LIGHTGRAY);
@@ -306,7 +307,7 @@ public class DashboardController implements Initializable {
                             StackPane pane = new StackPane();
                             pane.setCursor(Cursor.HAND);
                             pane.setMinSize(20, 20);
-                            pane.setStyle(Main.getCurrentUser().getColorForHeatMap(heatMapData[i][j]));
+                            pane.setStyle(currentUser.getColorForHeatMap(heatMapData[i][j], heatMapData));
 
                             Label freq = new Label(Integer.toString(heatMapData[i][j]));
                             freq.setTextFill(Color.LIGHTGRAY);
@@ -575,17 +576,19 @@ public class DashboardController implements Initializable {
         // TODO ADD OTHER CHARTS BELOW
 
             updateTopSenders(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
+            updateHeatMap(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
             updateDomains(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
             updateAttachments(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
-            updateHeatMap(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
+
     }
 
     public void updateHeatMap(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment) {
-        masonryPane.getChildren().removeAll(heatMapGridPane);
+
+        masonryPane.getChildren().removeAll(heatMapAndTitle);
 
         ArrayList<Email> em = currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment);
         int[][] heatMapData = currentUser.generateDayOfWeekFrequency(em);
-        VBox heatMapAndTitle = new VBox();
+        heatMapAndTitle = new VBox();
         Pane heatMapPane = new Pane();
         Label heatMapTitle = new Label("Received Email Frequency");
         heatMapTitle.setTextFill(Color.LIGHTGRAY);
@@ -613,7 +616,7 @@ public class DashboardController implements Initializable {
                 StackPane pane = new StackPane();
                 pane.setCursor(Cursor.HAND);
                 pane.setMinSize(20, 20);
-                pane.setStyle(Main.getCurrentUser().getColorForHeatMap(heatMapData[i][j]));
+                pane.setStyle(currentUser.getColorForHeatMap(heatMapData[i][j], heatMapData));
 
                 Label freq = new Label(Integer.toString(heatMapData[i][j]));
                 freq.setTextFill(Color.LIGHTGRAY);
