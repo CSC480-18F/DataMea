@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 public class User {
 
     //------------------Declaring Variables------------------//
-    private String                  USERNAME_FILE = "TextFiles/userNames.txt";
+    private String                  USERNAME_FILE = "src/main/TextFiles/userNames.txt";
     private String                  email, password;
     private ArrayList<Email>        sentMail;
     private long                    lastLogin;
@@ -528,7 +528,7 @@ public class User {
 
 
     public ArrayList<Email> recoverSerializedEmails() {
-        File temp = new File("TextFiles/" + encrypt(email));
+        File temp = new File("src/main/TextFiles/" + encrypt(email));
         File[] e = temp.listFiles();
         emails = new ArrayList<Email>();
         for (File f : e) {
@@ -637,8 +637,8 @@ public class User {
     }
 
     public void createSerializedUserFolder() throws IOException {
-        File temp = new File("TextFiles/" + encrypt(email));
-        File[] users = (new File("TextFiles/")).listFiles();
+        File temp = new File("src/main/TextFiles/" + encrypt(email));
+        File[] users = (new File("src/main/TextFiles/")).listFiles();
         boolean exists = false;
         for (File user : users) {
             if (!user.getName().contains(".")) {
@@ -653,7 +653,7 @@ public class User {
 
         if (!exists) {
             String name = encrypt(email);
-            File dir = new File("TextFiles/" + name);
+            File dir = new File("src/main/TextFiles/" + name);
             folderName = name;
             dir.mkdir();
         }
@@ -666,7 +666,7 @@ public class User {
         //to do
         //create email objects to serialize
 
-        String originPath = "TextFiles/" + encrypt(email) + "/";
+        String originPath = "src/main/TextFiles/" + encrypt(email) + "/";
 
         try {
             f.open(f.READ_ONLY);
@@ -687,7 +687,7 @@ public class User {
 
     public void resetUser() throws IOException {
 
-        File user = new File("TextFiles/" + encrypt(email) + "/");
+        File user = new File("src/main/TextFiles/" + encrypt(email) + "/");
 
         File[] emails = user.listFiles();
         for(File e : emails){
@@ -695,7 +695,7 @@ public class User {
         }
         System.out.println(user.delete());
 
-        File userNamesFile = new File("TextFiles/userNames.txt");
+        File userNamesFile = new File("src/main/TextFiles/userNames.txt");
 
         BufferedReader br = new BufferedReader(new FileReader(userNamesFile));
 

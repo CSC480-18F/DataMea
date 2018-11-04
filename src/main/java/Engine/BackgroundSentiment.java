@@ -45,7 +45,7 @@ public class BackgroundSentiment extends Task<Void> {
         */
 
     User currentUser = Main.getCurrentUser();
-    String lastReadSentimentFile = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/sentimentProgress.txt";
+    String lastReadSentimentFile = "src/main/TextFiles/" + User.encrypt(currentUser.getEmail()) + "/sentimentProgress.txt";
     int totalSentimentRan = 0;
 
 
@@ -129,7 +129,7 @@ public class BackgroundSentiment extends Task<Void> {
 
                             try {
                                 Email tempEmail = new Email(currentMessage, new Sender(currentMessage.getFrom()[0].toString()), true);
-                                String fileName = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/" + currentMessage.getReceivedDate().getTime() + ".txt";
+                                String fileName = "src/main/TextFiles/" + User.encrypt(currentUser.getEmail()) + "/" + currentMessage.getReceivedDate().getTime() + ".txt";
                                 System.out.println("Analysing email: " + i);
                                 updateEmailFile(fileName, tempEmail.getSentimentScores(), tempEmail.getLanguage());
                                 //DashboardController.sentimentGauge.setValue(tempEmail.getSentimentScores());
@@ -158,7 +158,7 @@ public class BackgroundSentiment extends Task<Void> {
                                     e.printStackTrace();
                                     System.out.println("email has been deleted...");
                                 }
-                                String fileName = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/" + currentMessage.getReceivedDate().getTime() + ".txt";
+                                String fileName = "src/main/TextFiles/" + User.encrypt(currentUser.getEmail()) + "/" + currentMessage.getReceivedDate().getTime() + ".txt";
                                 System.out.println("Analysing email: " + i);
 
                                 try {

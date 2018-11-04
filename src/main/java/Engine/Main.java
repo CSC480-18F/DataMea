@@ -53,7 +53,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        File textFilesDir = new File("TextFiles/");
+        File textFilesDir = new File("src/main/TextFiles/");
         textFilesDir.mkdirs();
         Platform.setImplicitExit(false);
         primaryStage.setMinHeight(400);
