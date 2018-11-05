@@ -42,6 +42,26 @@ public class Sender implements Comparable{
         ret = ret.substring(a+1,b);
         return ret;
     }
+    public static String filterEmailAddress(String address) {
+        String ret = address;
+        int a=0, b=0;
+        char [] c = ret.toCharArray();
+        for (int i=0; i<c.length; i++) {
+            if (c[i] == '<') {
+                a = i;
+            } else if (c[i] == '>') {
+                b = i;
+            }
+        }
+
+        if (a==0 && b == 0) {
+            // no name attached, so just return the entire thing
+            return ret;
+        }
+
+        ret = ret.substring(a+1,b);
+        return ret;
+    }
 
 
     /// Need to fix this function to take into account what folder is being looked at

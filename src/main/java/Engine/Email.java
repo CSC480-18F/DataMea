@@ -458,7 +458,7 @@ it appears to be whenever there is a thread of replies
             for(int i = 0; i < count; i ++){
                 String fileName = mp.getBodyPart(i).getFileName();
                 try {
-                    if (fileName != null) attachments.add(fileName.substring(fileName.lastIndexOf(".")).trim());
+                    if (fileName != null) attachments.add(fileName.substring(fileName.lastIndexOf(".")).trim().toLowerCase());
                 }
                 catch(StringIndexOutOfBoundsException e){
                     System.out.println(e.getMessage());

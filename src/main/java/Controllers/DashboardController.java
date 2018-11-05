@@ -1,15 +1,19 @@
 package Controllers;
 
 import Engine.Main;
+import Engine.Sender;
 import Engine.User;
 import Engine.Email;
 import com.jfoenix.controls.*;
 import com.jfoenix.transitions.hamburger.HamburgerBasicCloseTransition;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.chart.SunburstChart;
 import eu.hansolo.tilesfx.events.TileEvent;
+import eu.hansolo.tilesfx.events.TreeNodeEvent;
+import eu.hansolo.tilesfx.tools.TreeNode;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -22,21 +26,19 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.paint.Stop;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
@@ -93,9 +95,10 @@ public class DashboardController implements Initializable {
     private DashboardDrawer dashboardDrawer;
     private FilterDrawer filterDrawerClass;
     private static BooleanProperty loadedFromLoginScreen = new SimpleBooleanProperty(false);
-    private static ArrayList<ChartData> topSendersData = new ArrayList<>();
-    private Tile topSendersRadialChart;
+    private static ArrayList<ChartData> topSendersOrRecipientsData = new ArrayList<>();
+    private Tile topSendersOrRecipientsRadialChart;
     private GridPane heatMapGridPane;
+    private VBox heatMapAndTitle;
     private Tile foldersSunburstChart;
     private User currentUser;
     private static BooleanProperty homeOnCloseRequest = new SimpleBooleanProperty(false);
@@ -111,14 +114,17 @@ public class DashboardController implements Initializable {
     private long              lastTimerCall;
     private AnimationTimer    timer;
     private static final Random RND = new Random();
+    private ArrayList<Filter> currentFilters = new ArrayList<>();
+    private ArrayList<String> currentFiltersNames = new ArrayList<>(); //easiest way of keeping track of whether or not we added a filter already don't yell at me lol it's greasy its 2am cut me some slack gosh
+    private boolean sentMail;
 
     public static void setStage(Stage s) {
         myStage = s;
     }
 
-    public static void addTopSendersData(ChartData d) {
-        //topSendersData.add(d);
-        topSendersData.add(d);
+    public static void addTopSendersOrRecipientsData(ChartData d) {
+        //topSendersOrRecipientsData.add(d);
+        topSendersOrRecipientsData.add(d);
     }
 
     public User getUser(){
@@ -133,18 +139,11 @@ public class DashboardController implements Initializable {
         homeOnCloseRequest.setValue(b);
     }
 
-    private void addFilter(String name){
-        if(!filterDrawerClass.filtersChipView.getChips().contains(name)){
-            filterDrawerClass.filtersChipView.getChips().add(name);
-            JFXChip chip = (JFXChip) filterDrawerClass.filtersChipView.lookup(".jfx-chip-view .jfx-chip");
-            chip.setCursor(Cursor.HAND);
-        }else{
-            System.out.println("Filter already added");
-        }
-    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+
+        sentMail = false;
 
         String scrollPaneCss = this.getClass().getClassLoader().getResource("scrollpane.css").toExternalForm();
         scrollPane.getStylesheets().add(scrollPaneCss);
@@ -246,64 +245,184 @@ public class DashboardController implements Initializable {
             }
         });
 
+        filterDrawerClass.applyFilters.addEventHandler(MouseEvent.MOUSE_PRESSED, (e) -> {
+            updateAllCharts(currentFilters);
+        });
+
         loadedFromLoginScreen.addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if (newValue) {
-                    //Fix chipview
-                    FilterDrawer.setFiltersDrawerLoadedToTrue();
-
                     //Get Current user
                     currentUser = Main.getCurrentUser();
 
                     //Top senders Radial Chart:
-                    topSendersRadialChart = TileBuilder.create()
-                            .animationDuration(10000)
+                    topSendersOrRecipientsRadialChart = TileBuilder.create()
                             .skinType(Tile.SkinType.RADIAL_CHART)
                             .backgroundColor(Color.TRANSPARENT)
                             .title("Top Senders")
                             .titleAlignment(TextAlignment.LEFT)
-                            .prefSize(400, 400)
-                            .maxSize(400, 400)
-                            .chartData(topSendersData)
+                            .minSize(480,480)
+                            .prefSize(480, 480)
+                            .maxSize(480, 480)
+                            .chartData(topSendersOrRecipientsData)
+                            .build();
+                    topSendersOrRecipientsRadialChart.setCursor(Cursor.HAND);
+                    masonryPane.getChildren().add(topSendersOrRecipientsRadialChart);
+                    //Change scenes based on top sender ChartData selected
+                    topSendersOrRecipientsRadialChart.setOnTileEvent((e) -> {
+                        if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
+                            ChartData data = e.getData();
+                            System.out.println("Selected " + data.getName());
+                            addFilter(data.getName(),true,false,false,false,false);
+                        }
+                    });
+
+
+                    //Folders SunburstChart:
+                    TreeNode<ChartData> folderTree = currentUser.getFoldersCountForSunburst();
+                    folderTree.setOnTreeNodeEvent(e -> {
+                        System.out.println("TreeNodeEvent");
+                        TreeNodeEvent.EventType type = e.getType();
+                        if (TreeNodeEvent.EventType.NODE_SELECTED == type) {
+                            TreeNode<ChartData> segment = e.getSource();
+                            foldersSunburstChart.fireTileEvent(new TileEvent(TileEvent.EventType.SELECTED_CHART_DATA, segment.getItem()));
+                        }
+                    });
+                    foldersSunburstChart = TileBuilder.create()
+                            .skinType(Tile.SkinType.SUNBURST)
+                            .backgroundColor(Color.TRANSPARENT)
+                            .sunburstBackgroundColor(Color.TRANSPARENT)
+                            .title("Folder Structure")
+                            .textVisible(true)
+                            .titleAlignment(TextAlignment.LEFT)
+                            .sunburstTextOrientation(SunburstChart.TextOrientation.HORIZONTAL)
+                            .showInfoRegion(true)
+                            .minSize(400, 480)
+                            .prefSize(400, 480)
+                            .sunburstTree(currentUser.getFoldersCountForSunburst())
+                            .sunburstInteractive(true)
+                            .build();
+                    foldersSunburstChart.setOnTileEvent((e) -> {
+                        if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
+                            System.out.println("Clicked on folder " + e.getData().getName());
+                            addFilter(e.getData().getName(),false,true,false,false,false);
+                        }
+                    });
+                    masonryPane.getChildren().add(foldersSunburstChart);
+
+
+                    //Domains donut chart
+                    domains = currentUser.getDomainFreq(currentUser.getEmails(), false);
+                    int colorCount = 0;
+                    PieChart.Data domainOther = new PieChart.Data("Other", 0);
+                    int domainCount = 0;
+                    for (Map.Entry<String, Long> entry : domains.entrySet()) {
+                        if (domainCount < 5) {
+                            PieChart.Data temp = new PieChart.Data(entry.getKey(), entry.getValue());
+                            domainsData.add(temp);
+                            domainCount++;
+                        } else {
+                            double otherValue = domainOther.getPieValue();
+                            domainOther = new PieChart.Data("Other", otherValue);
+                        }
+                    }
+                    domainsData.add(domainOther);
+                    domainDonutChart = new DonutChart(domainsData);
+                    domainDonutChart.setPrefSize(500, 480);
+                    domainDonutChart.setMaxSize(500, 480);
+                    domainDonutChart.setTitle("Domains");
+                    domainDonutChart.setLegendVisible(true);
+                    domainDonutChart.setLegendSide(Side.BOTTOM);
+                    domainDonutChart.setLabelsVisible(true);
+                    domainDonutChart.getData().stream().forEach(data -> {
+                        Tooltip tooltip = new Tooltip();
+                        tooltip.setText((int) data.getPieValue() + " emails");
+                        Tooltip.install(data.getNode(), tooltip);
+                        data.pieValueProperty().addListener((observableTwo, oldValueTwo, newValueTwo) ->
+                                tooltip.setText((int) newValueTwo + " emails"));
+                    });
+                    for (PieChart.Data d : domainsData) {
+                        d.getNode().addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
+                            @Override
+                            public void handle(MouseEvent e) {
+                                d.getNode().setCursor(Cursor.HAND);
+                            }
+                        });
+                    }
+                    for (PieChart.Data d : domainsData) {
+                        d.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+                            @Override
+                            public void handle(MouseEvent e) {
+                                //addFilter(d.getName());
+                                addFilter(d.getName(),false,false,true,false,false);
+                            }
+                        });
+                    }
+                    domainDonutChart.getStylesheets().add(this.getClass().getClassLoader().getResource("donutchart.css").toExternalForm());
+                    masonryPane.getChildren().add(domainDonutChart);
+
+
+                    //Attachments radial chart
+                    attachments = currentUser.getAttachmentFreq(currentUser.getEmails(), false);
+                    int attachmentsCount = 0;
+                    int attachmentsTotal = 0;
+                    for (Map.Entry<String, Long> entry : attachments.entrySet()) {
+                        if (attachmentsCount < 7) {
+                            ChartData temp = new ChartData();
+                            temp.setName(entry.getKey());
+                            temp.setValue(entry.getValue());
+                            temp.setFillColor(User.colors.get(attachmentsCount));
+                            attachmentsTotal += entry.getValue();
+                            attachmentsData.add(temp);
+                            attachmentsCount++;
+                        }else{
+                            attachmentsTotal += entry.getValue();
+                        }
+                    }
+                    for (int i = attachmentsCount; i<7; i++){
+                        ChartData temp = new ChartData();
+                        temp.setName("");
+                        temp.setValue(0);
+                        attachmentsData.add(temp);
+                    }
+                    attachmentsRadialChart = TileBuilder.create()
+                            .animationDuration(10000)
+                            .skinType(Tile.SkinType.RADIAL_CHART)
+                            .backgroundColor(Color.TRANSPARENT)
+                            .title("Attachments")
+                            .titleAlignment(TextAlignment.LEFT)
+                            .textVisible(true)
+                            .text("Total attachments: " + attachmentsTotal)
+                            .prefSize(480, 480)
+                            .maxSize(480, 480)
+                            .chartData(attachmentsData)
                             .animated(true)
                             .build();
-                    topSendersRadialChart.setCursor(Cursor.HAND);
-                    masonryPane.getChildren().add(topSendersRadialChart);
-                    //Change scenes based on top sender ChartData selected
-                    topSendersRadialChart.setOnTileEvent((e) -> {
+                    attachmentsRadialChart.setOnTileEvent((e) -> {
                         if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
                             DashboardDrawer.setLoadFolderList(false);
                             ChartData data = e.getData();
                             System.out.println("Selected " + data.getName());
-                            addFilter(data.getName());
-                            /*try {
-                                loadedFromLoginScreen.setValue(false);
-                                AnchorPane newScenePane = FXMLLoader.load(getClass().getClassLoader().getResource("Dashboard_Home.fxml"));
-                                Scene newScene = new Scene(newScenePane, 1000, 600);
-                                myStage.requestFocus();
-                                myStage.setScene(newScene);
-                                DashboardDrawer.setLoadFolderList(true);
-                            } catch (IOException error) {
-                                error.printStackTrace();
-                            }*/
+                            addFilter(data.getName(),false,false,false,true,false);
+                            //addFilter(data.getName());
                         }
                     });
-
+                    masonryPane.getChildren().add(attachmentsRadialChart);
                     //HeatMap:
                     //rather than using em here, assign the value of em to be whatever the list of emails we want
                     //aka, add filter, and then display those results
                     ArrayList<Email> em = Main.getCurrentUser().getEmails();
                     //ArrayList<Email> em2 = Main.getCurrentUser().getEmailsFromFolder("first year admin stuff", "testFolder");
                     int[][] heatMapData = Main.getCurrentUser().generateDayOfWeekFrequency(em, false);
-                    VBox heatMapAndTitle = new VBox();
+                    heatMapAndTitle = new VBox();
                     Pane heatMapPane = new Pane();
                     Label heatMapTitle = new Label("Received Email Frequency");
                     heatMapTitle.setTextFill(Color.LIGHTGRAY);
                     heatMapTitle.setStyle("-fx-font: 24 System;");
-                    heatMapPane.setPrefSize(600, 400);
+                    heatMapPane.setPrefSize(600, 480);
                     heatMapGridPane = new GridPane();
-                    heatMapGridPane.setPrefSize(600, 400);
+                    heatMapGridPane.setPrefSize(600, 480);
 
                     for (int i = 0; i < heatMapData.length; i++) {
                         Label day = new Label(Main.getCurrentUser().getDay(i));
@@ -324,7 +443,7 @@ public class DashboardController implements Initializable {
                             StackPane pane = new StackPane();
                             pane.setCursor(Cursor.HAND);
                             pane.setMinSize(20, 20);
-                            pane.setStyle(Main.getCurrentUser().getColorForHeatMap(heatMapData[i][j]));
+                            pane.setStyle(currentUser.getColorForHeatMap(heatMapData[i][j], heatMapData));
 
                             Label freq = new Label(Integer.toString(heatMapData[i][j]));
                             freq.setTextFill(Color.LIGHTGRAY);
@@ -352,124 +471,9 @@ public class DashboardController implements Initializable {
                     heatMapAndTitle.getChildren().addAll(heatMapTitle, heatMapPane);
                     heatMapAndTitle.setSpacing(5);
                     heatMapAndTitle.setPadding(new Insets(20));
-                    heatMapAndTitle.setPrefSize(600,400);
-                    heatMapAndTitle.setMaxSize(600,400);
+                    heatMapAndTitle.setPrefSize(600,480);
+                    heatMapAndTitle.setMaxSize(600,480);
                     masonryPane.getChildren().add(heatMapAndTitle);
-
-                    //Folders SunburstChart:
-                    foldersSunburstChart = TileBuilder.create()
-                            .skinType(Tile.SkinType.SUNBURST)
-                            .backgroundColor(Color.TRANSPARENT)
-                            .sunburstBackgroundColor(Color.TRANSPARENT)
-                            .title("Folder Structure")
-                            .textVisible(true)
-                            .titleAlignment(TextAlignment.LEFT)
-                            .sunburstTextOrientation(SunburstChart.TextOrientation.HORIZONTAL)
-                            .showInfoRegion(true)
-                            .minSize(400, 400)
-                            .prefSize(400, 400)
-                            .sunburstTree(currentUser.getFoldersCountForSunburst())
-                            .sunburstInteractive(true)
-                            .build();
-                    //Doesn't work big bummer!!!!
-                    foldersSunburstChart.setOnTileEvent((e) -> {
-                        if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
-                            System.out.println("Clicked on folder " + e.getData().getName());
-                            updateTopSenders(e.getData().getName(),e.getData().getName(),null,null,null,null,null);
-                        }
-                    });
-                    masonryPane.getChildren().add(foldersSunburstChart);
-
-
-                    //Domains donut chart
-                    domains = currentUser.getDomainFreq(currentUser.getEmails(), false);
-                    int colorCount = 0;
-                    PieChart.Data domainOther = new PieChart.Data("Other", 0);
-                    int domainCount = 0;
-                    for (Map.Entry<String, Long> entry : domains.entrySet()) {
-                        if (domainCount < 5) {
-                            PieChart.Data temp = new PieChart.Data(entry.getKey(), entry.getValue());
-                            domainsData.add(temp);
-                            domainCount++;
-                        } else {
-                            double otherValue = domainOther.getPieValue();
-                            domainOther = new PieChart.Data("Other", otherValue);
-                        }
-                    }
-                    domainsData.add(domainOther);
-                    domainDonutChart = new DonutChart(domainsData);
-                    domainDonutChart.setPrefSize(500, 400);
-                    domainDonutChart.setMaxSize(500, 400);
-                    domainDonutChart.setTitle("Domains");
-                    domainDonutChart.setLegendVisible(true);
-                    domainDonutChart.setLegendSide(Side.BOTTOM);
-                    domainDonutChart.setLabelsVisible(true);
-                    domainDonutChart.getData().stream().forEach(data -> {
-                        Tooltip tooltip = new Tooltip();
-                        tooltip.setText((int) data.getPieValue() + " emails");
-                        Tooltip.install(data.getNode(), tooltip);
-                        data.pieValueProperty().addListener((observableTwo, oldValueTwo, newValueTwo) ->
-                                tooltip.setText((int) newValueTwo + " emails"));
-                    });
-                    for (PieChart.Data d : domainsData) {
-                        d.getNode().addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
-                            @Override
-                            public void handle(MouseEvent e) {
-                                d.getNode().setCursor(Cursor.HAND);
-                            }
-                        });
-                    }
-                    for (PieChart.Data d : domainsData) {
-                        d.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-                            @Override
-                            public void handle(MouseEvent e) {
-                                addFilter(d.getName());
-                            }
-                        });
-                    }
-                    domainDonutChart.getStylesheets().add(this.getClass().getClassLoader().getResource("donutchart.css").toExternalForm());
-                    masonryPane.getChildren().add(domainDonutChart);
-
-                    //Attachments radial chart
-                    attachments = currentUser.getAttachmentFreq(currentUser.getEmails(), false);
-                    int attachmentsCount = 0;
-                    int attachmentsTotal = 0;
-                    for (Map.Entry<String, Long> entry : attachments.entrySet()) {
-                        if (attachmentsCount < 5) {
-                            ChartData temp = new ChartData();
-                            temp.setName(entry.getKey());
-                            temp.setValue(entry.getValue());
-                            temp.setFillColor(User.colors.get(attachmentsCount));
-                            attachmentsTotal += entry.getValue();
-                            attachmentsData.add(temp);
-                            attachmentsCount++;
-                        }else{
-                            attachmentsTotal += entry.getValue();
-                        }
-                    }
-                    attachmentsRadialChart = TileBuilder.create()
-                            .animationDuration(10000)
-                            .skinType(Tile.SkinType.RADIAL_CHART)
-                            .backgroundColor(Color.TRANSPARENT)
-                            .title("Attachments")
-                            .titleAlignment(TextAlignment.LEFT)
-                            .textVisible(true)
-                            .text("Total attachments: " + attachmentsTotal)
-                            .prefSize(400, 400)
-                            .maxSize(400, 400)
-                            .chartData(attachmentsData)
-                            .animated(true)
-                            .build();
-                    attachmentsRadialChart.setOnTileEvent((e) -> {
-                        if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
-                            DashboardDrawer.setLoadFolderList(false);
-                            ChartData data = e.getData();
-                            System.out.println("Selected " + data.getName());
-                            addFilter(data.getName());
-                        }
-                    });
-                    masonryPane.getChildren().add(attachmentsRadialChart);
-
                     //Sentiment Gauge:
                     sentimentGauge = TileBuilder.create()
                             .skinType(Tile.SkinType.BAR_GAUGE)
@@ -513,10 +517,21 @@ public class DashboardController implements Initializable {
                         public void handle(javafx.scene.input.MouseEvent event) {
                             String folderSelected = dashboardDrawer.list.get(dashboardDrawer.listView.getSelectionModel().getSelectedIndex());
                             System.out.print("Selected" + folderSelected);
-                            updateTopSenders(folderSelected,folderSelected,null,null,null,null,null);
+                            addFilter(folderSelected,false,true,false,false,false);
                         }
                     });
 
+                    DashboardController.sentimentGauge.setValue(Email.getOverallSentimentDbl(currentUser.getOverallSentiment()));
+
+                    //leads to issues
+                    /*masonryPane.addEventHandler(MouseEvent.MOUSE_PRESSED, (e) -> {
+                        if(drawer.isOpened()){
+                            drawer.close();
+                        }
+                        if(filtersDrawer.isOpened()){
+                            filtersDrawer.close();
+                        }
+                    });*/
 
                     //Allows the scroll pane to resize the masonry pane after nodes are added, keep at bottom!
                     Platform.runLater(() -> scrollPane.requestLayout());
@@ -540,29 +555,137 @@ public class DashboardController implements Initializable {
         });
     }
 
-    public void updateTopSenders(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment){
-        masonryPane.getChildren().removeAll(topSendersRadialChart);
-        //If the it's not updating from a new folder keep the main folder
-        if (folderName == null){
-            folderName = currentUser.recoverFolders().get(0).folderName;
-        }
-        if (subFolderName == null){
-            subFolderName = currentUser.recoverFolders().get(0).folderName;
-        }
-        //Update array list of top senders with new folder info
-        topSendersData = new ArrayList<>();
-        Map<String,Long> topSenders = currentUser.getSendersFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment));
-        int numSendersInFolder = topSenders.size();
-        //only display top 7 senders for the selected folder
-        if (numSendersInFolder > 7) {
-            numSendersInFolder = 7;
+    public void updateAllCharts(ArrayList<Filter> filters) {
+        String folderName=null, subFolderName = null, sender = null,
+                domain = null,  attachment = null, startDate = null, endDate = null, language = null;
+        Date sDate = null, eDate = null;
+
+        //TODO figure out how to add folder/subfolder stuff along with doing dates
+
+        for (Filter f: filters) {
+            if (f.isTopSender()) {
+                sender = f.getName();
+            } else if (f.isAttachment()) {
+                attachment = f.getName();
+            } else if (f.isDomain()) {
+                domain = f.getName();
+            } else if (f.isLanguage()) {
+                language = f.getName();
+            } else if (f.isFolder()) {
+                folderName = f.getName();
+            } else if (f.isStartDate()) {
+                startDate = f.getName();
+            } else if (f.isEndDate()) {
+                endDate = f.getName();
+            }
         }
 
-        //Maps are the worst thing ever, thanks a lot Cedric...
-        List<Map.Entry<String,Long>> entries = new ArrayList<>(topSenders.entrySet());
-        for (int i = 0; i < 7; i++) {
-            //Created ChartData for top senders radial chart
-            ChartData temp = new ChartData();
+        if (subFolderName == null){
+            subFolderName = folderName;
+        }
+
+        //TODO Modify the string that is being passed in, to be a valid date
+        //TODO modify the filters so that they take a language -- shouldnt take very long
+
+        // TODO ADD OTHER CHARTS BELOW
+
+            updateTopSendersOrRecipients(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
+            updateDomains(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
+            updateAttachments(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
+            updateHeatMap(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
+
+    }
+
+    public void updateHeatMap(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment) {
+
+        masonryPane.getChildren().removeAll(heatMapAndTitle);
+
+        String title = sentMail ? "Sent Email Frequency" : "Received Email Frequency";
+
+        ArrayList<Email> em = currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment);
+        int[][] heatMapData;
+        if(folderName.equalsIgnoreCase("sent mail"))
+            heatMapData = currentUser.generateDayOfWeekFrequency(em, true);
+        else
+            heatMapData = currentUser.generateDayOfWeekFrequency(em, false);
+        heatMapAndTitle = new VBox();
+        Pane heatMapPane = new Pane();
+        Label heatMapTitle = new Label(title);
+        heatMapTitle.setTextFill(Color.LIGHTGRAY);
+        heatMapTitle.setStyle("-fx-font: 24 System;");
+        heatMapPane.setPrefSize(600, 480);
+        heatMapGridPane = new GridPane();
+        heatMapGridPane.setPrefSize(600, 480);
+
+        for (int i = 0; i < heatMapData.length; i++) {
+            Label day = new Label(currentUser.getDay(i));
+            day.setStyle("-fx-text-fill: #ff931e;");
+            heatMapGridPane.add(day, 0, i + 1);
+            day.setMinWidth(Region.USE_PREF_SIZE);
+            day.setMaxWidth(Region.USE_PREF_SIZE);
+
+            for (int j = 0; j < heatMapData[1].length; j++) {
+                Label hour = new Label(Integer.toString(j));
+                StackPane hourPane = new StackPane();
+                hourPane.setMinSize(20, 20);
+                hour.setStyle("-fx-text-fill: #ff931e;");
+                hourPane.getChildren().add(hour);
+                heatMapGridPane.add(hourPane, j + 1, 0);
+
+
+                StackPane pane = new StackPane();
+                pane.setCursor(Cursor.HAND);
+                pane.setMinSize(20, 20);
+                pane.setStyle(currentUser.getColorForHeatMap(heatMapData[i][j], heatMapData));
+
+                Label freq = new Label(Integer.toString(heatMapData[i][j]));
+                freq.setTextFill(Color.LIGHTGRAY);
+
+                pane.setOnMouseEntered(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent event) {
+                        pane.getChildren().add(freq);
+                        StackPane.setAlignment(freq, Pos.CENTER);
+                    }
+                });
+
+                pane.setOnMouseExited(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent event) {
+                        pane.getChildren().remove(freq);
+                    }
+                });
+
+                heatMapGridPane.add(pane, j + 1, i + 1);
+            }
+        }
+        heatMapGridPane.setGridLinesVisible(true);
+        heatMapPane.getChildren().add(heatMapGridPane);
+        heatMapAndTitle.getChildren().addAll(heatMapTitle, heatMapPane);
+        heatMapAndTitle.setSpacing(5);
+        heatMapAndTitle.setPadding(new Insets(20));
+        heatMapAndTitle.setPrefSize(600,480);
+        heatMapAndTitle.setMaxSize(600,480);
+        masonryPane.getChildren().add(heatMapAndTitle);
+
+    }
+
+    public void updateTopSendersOrRecipients(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment){
+        masonryPane.getChildren().removeAll(topSendersOrRecipientsRadialChart);
+
+        //Update array list of top senders with new folder info
+        topSendersOrRecipientsData = new ArrayList<>();
+        String title;
+        Map<String,Long> topSendersOrRecipients;
+
+        if (sentMail) {
+            topSendersOrRecipients = currentUser.getSendersOrRecipientsFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment), true);
+            title = "Top Recipients";
+
+            List<Map.Entry<String, Long>> entries = new ArrayList<>(topSendersOrRecipients.entrySet());
+            for (int i = 0; i < 7; i++) {
+                //Created ChartData for top senders radial chart
+                ChartData temp = new ChartData();
                 if (i < entries.size()) {
                     temp.setValue((double) entries.get(i).getValue());
                     temp.setName(entries.get(i).getKey());
@@ -571,21 +694,441 @@ public class DashboardController implements Initializable {
                     temp.setValue(0);
                     temp.setName("");
                 }
+                addTopSendersOrRecipientsData(temp);
 
-            addTopSendersData(temp);
+            }
+        } else {
+            topSendersOrRecipients = currentUser.getSendersOrRecipientsFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment), false);
+            title = "Top Senders";
+
+            List<Map.Entry<String, Long>> entries = new ArrayList<>(topSendersOrRecipients.entrySet());
+            for (int i = 0; i < 7; i++) {
+                //Created ChartData for top senders radial chart
+                ChartData temp = new ChartData();
+                if (i < entries.size()) {
+                    temp.setValue((double) entries.get(i).getValue());
+                    temp.setName(Sender.filterEmailAddress(entries.get(i).getKey()));
+                    temp.setFillColor(User.colors.get(i));
+                } else {
+                    temp.setValue(0);
+                    temp.setName("");
+                }
+                addTopSendersOrRecipientsData(temp);
+            }
+
+            //Maps are the worst thing ever, thanks a lot Cedric...
+
+
         }
         //Build new radial chart for top senders
-        topSendersRadialChart = TileBuilder.create()
+        topSendersOrRecipientsRadialChart = TileBuilder.create()
                 .animationDuration(10000)
                 .skinType(Tile.SkinType.RADIAL_CHART)
                 .backgroundColor(Color.TRANSPARENT)
-                .title("Top Senders")
+                .title(title)
                 .titleAlignment(TextAlignment.LEFT)
-                .prefSize(400, 400)
-                .maxSize(400, 400)
-                .chartData(topSendersData)
+                .prefSize(480, 480)
+                .maxSize(480, 480)
+                .chartData(topSendersOrRecipientsData)
                 .animated(true)
                 .build();
-        masonryPane.getChildren().add(0,topSendersRadialChart);
+        topSendersOrRecipientsRadialChart.setOnTileEvent((e) -> {
+            if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
+                ChartData data = e.getData();
+                System.out.println("Selected " + data.getName());
+                addFilter(data.getName(),true,false,false,false,false);
+            }
+        });
+        masonryPane.getChildren().add(0, topSendersOrRecipientsRadialChart);
+    }
+
+    public void updateDomains(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment){
+        masonryPane.getChildren().removeAll(domainDonutChart);
+
+        domains = null;
+        domainsData = FXCollections.observableArrayList();
+        if(sentMail)
+            domains = currentUser.getDomainFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment), true);
+        else
+            domains = currentUser.getDomainFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment), false);
+        PieChart.Data domainOther = new PieChart.Data("Other", 0);
+        int domainCount = 0;
+        for (Map.Entry<String, Long> entry : domains.entrySet()) {
+            if (domainCount < 7) {
+                PieChart.Data temp = new PieChart.Data(entry.getKey(), entry.getValue());
+                domainsData.add(temp);
+                domainCount++;
+            } else {
+                double otherValue = domainOther.getPieValue();
+                domainOther = new PieChart.Data("Other", otherValue);
+            }
+        }
+        domainsData.add(domainOther);
+        domainDonutChart = new DonutChart(domainsData);
+        domainDonutChart.setPrefSize(500, 480);
+        domainDonutChart.setMaxSize(500, 480);
+        domainDonutChart.setTitle("Domains");
+        domainDonutChart.setLegendVisible(true);
+        domainDonutChart.setLegendSide(Side.BOTTOM);
+        domainDonutChart.setLabelsVisible(true);
+        domainDonutChart.getData().stream().forEach(data -> {
+            Tooltip tooltip = new Tooltip();
+            tooltip.setText((int) data.getPieValue() + " emails");
+            Tooltip.install(data.getNode(), tooltip);
+            data.pieValueProperty().addListener((observableTwo, oldValueTwo, newValueTwo) ->
+                    tooltip.setText((int) newValueTwo + " emails"));
+        });
+        for (PieChart.Data d : domainsData) {
+            d.getNode().addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent e) {
+                    d.getNode().setCursor(Cursor.HAND);
+                }
+            });
+        }
+        for (PieChart.Data d : domainsData) {
+            d.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent e) {
+                    addFilter(d.getName(),false,false,true,false,false);
+                    //addFilter(d.getName());
+                }
+            });
+        }
+        domainDonutChart.getStylesheets().add(this.getClass().getClassLoader().getResource("donutchart.css").toExternalForm());
+        masonryPane.getChildren().add(domainDonutChart);
+    }
+
+    public void updateAttachments(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment){
+        masonryPane.getChildren().removeAll(attachmentsRadialChart);
+        //If the it's not updating from a new folder keep the main folder
+
+        attachments = null;
+        if(sentMail)
+            attachments = currentUser.getAttachmentFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment), true);
+        else
+            attachments = currentUser.getAttachmentFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment), false);
+        attachmentsData = new ArrayList<>();
+        int attachmentsCount = 0;
+        int attachmentsTotal = 0;
+        for (Map.Entry<String, Long> entry : attachments.entrySet()) {
+            if (attachmentsCount < 7) {
+                ChartData temp = new ChartData();
+                temp.setName(entry.getKey());
+                temp.setValue(entry.getValue());
+                temp.setFillColor(User.colors.get(attachmentsCount));
+                attachmentsTotal += entry.getValue();
+                attachmentsData.add(temp);
+                attachmentsCount++;
+            }else{
+                attachmentsTotal += entry.getValue();
+            }
+        }
+        for (int i = attachmentsCount; i<7; i++){
+            ChartData temp = new ChartData();
+            temp.setName("");
+            temp.setValue(0);
+            attachmentsData.add(temp);
+        }
+        attachmentsRadialChart = TileBuilder.create()
+                .animationDuration(10000)
+                .skinType(Tile.SkinType.RADIAL_CHART)
+                .backgroundColor(Color.TRANSPARENT)
+                .title("Attachments")
+                .titleAlignment(TextAlignment.LEFT)
+                .textVisible(true)
+                .text("Total attachments: " + attachmentsTotal)
+                .prefSize(480, 480)
+                .maxSize(480, 480)
+                .chartData(attachmentsData)
+                .animated(true)
+                .build();
+        attachmentsRadialChart.setOnTileEvent((e) -> {
+            if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
+                DashboardDrawer.setLoadFolderList(false);
+                ChartData data = e.getData();
+                System.out.println("Selected " + data.getName());
+                addFilter(data.getName(),false,false,false,true,false);
+                //addFilter(data.getName());
+            }
+        });
+        masonryPane.getChildren().add(attachmentsRadialChart);
+    }
+
+
+
+    private void addFilter(String name, boolean isTopSender, boolean isFolder, boolean isDomain, boolean isAttachment, boolean isLanguage) {
+
+        if (sentMail && isFolder) {
+            if (!name.equalsIgnoreCase("sent mail"))
+                sentMail = false;
+        }
+
+        if (!currentFiltersNames.contains(name)) {
+            currentFiltersNames.add(name);
+            Filter newFilter = new Filter(name);
+            Pane filterChip = new Pane();
+            filterChip.getStyleClass().add("pane");
+            filterChip.setPrefHeight(35);
+            filterChip.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+            HBox filterChipHBox = new HBox();
+            filterChipHBox.getStyleClass().add("hbox-filter");
+            filterChipHBox.setSpacing(10);
+            filterChipHBox.setAlignment(Pos.CENTER);
+            filterChipHBox.setPrefHeight(35);
+            filterChipHBox.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+            JFXButton exitButton = new JFXButton();
+            if (isTopSender) {
+                for (Filter f : currentFilters) {
+                    int count = 0;
+                    if (f.isTopSender()) {
+                        currentFilters.remove(f);
+                        currentFiltersNames.remove(f.getName());
+                        //remove appropriate chip
+                        ObservableList<Node> chips = filterDrawerClass.filterHbox.getChildren();
+
+                        for (Node n : chips) {
+                            Label chipLabel = (Label)n.lookup(".hbox-filter .label");
+                            String chipText = chipLabel.getText();
+                            if (chipText.equals(f.getName())) {
+
+                                break;
+                            }
+                            count++;
+                        }
+                        filterDrawerClass.filterHbox.getChildren().remove(count);
+                        break;
+                    }
+                }
+                newFilter.setTopSender(true);
+                currentFilters.add(newFilter);
+                FontAwesomeIconView icon = new FontAwesomeIconView();
+                icon.setGlyphName("USER");
+                icon.setFill(Paint.valueOf("#34495e"));
+                filterChipHBox.getChildren().add(icon);
+                Label nameLabel = new Label(name);
+                nameLabel.setAlignment(Pos.CENTER_LEFT);
+                nameLabel.maxWidth(Double.MAX_VALUE);
+                filterChipHBox.getChildren().add(nameLabel);
+                HBox.setHgrow(nameLabel, Priority.ALWAYS);
+                exitButton.setMinSize(20, 20);
+                exitButton.setPrefSize(20, 20);
+                exitButton.setText("");
+                FontAwesomeIconView exitIcon = new FontAwesomeIconView();
+                exitIcon.setGlyphName("TIMES");
+                exitIcon.setSize("12.5");
+                exitIcon.setFill(Paint.valueOf("#ecf0f1"));
+                exitButton.setGraphic(exitIcon);
+                exitButton.setCursor(Cursor.HAND);
+                filterChipHBox.getChildren().add(exitButton);
+                filterChip.getChildren().add(filterChipHBox);
+                String filterCss = this.getClass().getClassLoader().getResource("filterchip.css").toExternalForm();
+                filterChip.getStylesheets().add(filterCss);
+                filterDrawerClass.filterHbox.getChildren().add(filterChip);
+            } else if (isFolder) {
+
+                if (!sentMail) {
+                    if (name.equalsIgnoreCase("sent mail"))
+                        sentMail = true;
+                }
+                for (Filter f : currentFilters) {
+                    int count = 0;
+                    if (f.isFolder()) {
+                        currentFilters.remove(f);
+                        currentFiltersNames.remove(f.getName());
+                        //remove appropriate chip
+                        ObservableList<Node> chips = filterDrawerClass.filterHbox.getChildren();
+
+                        for (Node n : chips) {
+                            Label chipLabel = (Label)n.lookup(".hbox-filter .label");
+                            String chipText = chipLabel.getText();
+                            if (chipText.equals(f.getName())) {
+
+                                break;
+                            }
+                            count++;
+                        }
+                        filterDrawerClass.filterHbox.getChildren().remove(count);
+                        break;
+                    }
+                }
+
+                newFilter.setFolder(true);
+                currentFilters.add(newFilter);
+                FontAwesomeIconView icon = new FontAwesomeIconView();
+                icon.setGlyphName("FOLDER");
+                icon.setFill(Paint.valueOf("#34495e"));
+                filterChipHBox.getChildren().add(icon);
+                Label nameLabel = new Label(name);
+                nameLabel.setAlignment(Pos.CENTER_LEFT);
+                nameLabel.maxWidth(Double.MAX_VALUE);
+                filterChipHBox.getChildren().add(nameLabel);
+                HBox.setHgrow(nameLabel, Priority.ALWAYS);
+                exitButton.setMinSize(20, 20);
+                exitButton.setPrefSize(20, 20);
+                exitButton.setText("");
+                FontAwesomeIconView exitIcon = new FontAwesomeIconView();
+                exitIcon.setGlyphName("TIMES");
+                exitIcon.setSize("12.5");
+                exitIcon.setFill(Paint.valueOf("#ecf0f1"));
+                exitButton.setGraphic(exitIcon);
+                exitButton.setCursor(Cursor.HAND);
+                filterChipHBox.getChildren().add(exitButton);
+                filterChip.getChildren().add(filterChipHBox);
+                String filterCss = this.getClass().getClassLoader().getResource("filterchip.css").toExternalForm();
+                filterChip.getStylesheets().add(filterCss);
+                filterDrawerClass.filterHbox.getChildren().add(filterChip);
+            } else if (isDomain) {
+
+                for (Filter f : currentFilters) {
+                    int count = 0;
+                    if (f.isDomain()) {
+                        currentFilters.remove(f);
+                        currentFiltersNames.remove(f.getName());
+                        //remove appropriate chip
+                        ObservableList<Node> chips = filterDrawerClass.filterHbox.getChildren();
+
+                        for (Node n : chips) {
+                            Label chipLabel = (Label)n.lookup(".hbox-filter .label");
+                            String chipText = chipLabel.getText();
+                            if (chipText.equals(f.getName())) {
+
+                                break;
+                            }
+                            count++;
+                        }
+                        filterDrawerClass.filterHbox.getChildren().remove(count);
+                        break;
+                    }
+                }
+                newFilter.setDomain(true);
+                currentFilters.add(newFilter);
+                FontAwesomeIconView icon = new FontAwesomeIconView();
+                icon.setGlyphName("AT");
+                icon.setFill(Paint.valueOf("#34495e"));
+                filterChipHBox.getChildren().add(icon);
+                Label nameLabel = new Label(name);
+                nameLabel.setAlignment(Pos.CENTER_LEFT);
+                nameLabel.maxWidth(Double.MAX_VALUE);
+                filterChipHBox.getChildren().add(nameLabel);
+                HBox.setHgrow(nameLabel, Priority.ALWAYS);
+                exitButton.setMinSize(20, 20);
+                exitButton.setPrefSize(20, 20);
+                exitButton.setText("");
+                FontAwesomeIconView exitIcon = new FontAwesomeIconView();
+                exitIcon.setGlyphName("TIMES");
+                exitIcon.setSize("12.5");
+                exitIcon.setFill(Paint.valueOf("#ecf0f1"));
+                exitButton.setGraphic(exitIcon);
+                exitButton.setCursor(Cursor.HAND);
+                filterChipHBox.getChildren().add(exitButton);
+                filterChip.getChildren().add(filterChipHBox);
+                String filterCss = this.getClass().getClassLoader().getResource("filterchip.css").toExternalForm();
+                filterChip.getStylesheets().add(filterCss);
+                filterDrawerClass.filterHbox.getChildren().add(filterChip);
+            } else if (isAttachment) {
+
+                for (Filter f : currentFilters) {
+                    int count = 0;
+                    if (f.isAttachment()) {
+                        currentFilters.remove(f);
+                        currentFiltersNames.remove(f.getName());
+
+                        //remove appropriate chip
+                        ObservableList<Node> chips = filterDrawerClass.filterHbox.getChildren();
+
+                        for (Node n : chips) {
+                            Label chipLabel = (Label)n.lookup(".hbox-filter .label");
+                            String chipText = chipLabel.getText();
+                            if (chipText.equals(f.getName())) {
+
+                                break;
+                            }
+                            count++;
+                        }
+                        filterDrawerClass.filterHbox.getChildren().remove(count);
+                        break;
+                    }
+                }
+                newFilter.setAttachment(true);
+                currentFilters.add(newFilter);
+                FontAwesomeIconView icon = new FontAwesomeIconView();
+                icon.setGlyphName("PAPERCLIP");
+                icon.setFill(Paint.valueOf("#34495e"));
+                filterChipHBox.getChildren().add(icon);
+                Label nameLabel = new Label(name);
+                nameLabel.setAlignment(Pos.CENTER_LEFT);
+                nameLabel.maxWidth(Double.MAX_VALUE);
+                filterChipHBox.getChildren().add(nameLabel);
+                HBox.setHgrow(nameLabel, Priority.ALWAYS);
+                exitButton.setMinSize(20, 20);
+                exitButton.setPrefSize(20, 20);
+                exitButton.setText("");
+                FontAwesomeIconView exitIcon = new FontAwesomeIconView();
+                exitIcon.setGlyphName("TIMES");
+                exitIcon.setSize("12.5");
+                exitIcon.setFill(Paint.valueOf("#ecf0f1"));
+                exitButton.setGraphic(exitIcon);
+                exitButton.setCursor(Cursor.HAND);
+                filterChipHBox.getChildren().add(exitButton);
+                filterChip.getChildren().add(filterChipHBox);
+                String filterCss = this.getClass().getClassLoader().getResource("filterchip.css").toExternalForm();
+                filterChip.getStylesheets().add(filterCss);
+                filterDrawerClass.filterHbox.getChildren().add(filterChip);
+            } else if (isLanguage) {
+                for (Filter f : currentFilters) {
+                    int count = 0;
+                    if (f.isLanguage()) {
+                        currentFilters.remove(f);
+                        currentFiltersNames.remove(f.getName());
+                        //remove appropriate chip
+                        ObservableList<Node> chips = filterDrawerClass.filterHbox.getChildren();
+
+                        for (Node n : chips) {
+                            Label chipLabel = (Label)n.lookup(".hbox-filter .label");
+                            String chipText = chipLabel.getText();
+                            if (chipText.equals(f.getName())) {
+
+                                break;
+                            }
+                            count++;
+                        }
+                        filterDrawerClass.filterHbox.getChildren().remove(count);
+                        break;
+                    }
+                }
+                newFilter.setLanguage(true);
+                currentFilters.add(newFilter);
+                FontAwesomeIconView icon = new FontAwesomeIconView();
+                icon.setGlyphName("GLOBE_AMERICAS");
+                icon.setFill(Paint.valueOf("#34495e"));
+                filterChipHBox.getChildren().add(icon);
+                Label nameLabel = new Label(name);
+                nameLabel.setAlignment(Pos.CENTER_LEFT);
+                nameLabel.maxWidth(Double.MAX_VALUE);
+                filterChipHBox.getChildren().add(nameLabel);
+                HBox.setHgrow(nameLabel, Priority.ALWAYS);
+                exitButton.setMinSize(20, 20);
+                exitButton.setPrefSize(20, 20);
+                exitButton.setText("");
+                FontAwesomeIconView exitIcon = new FontAwesomeIconView();
+                exitIcon.setGlyphName("TIMES");
+                exitIcon.setSize("12.5");
+                exitIcon.setFill(Paint.valueOf("#ecf0f1"));
+                exitButton.setGraphic(exitIcon);
+                exitButton.setCursor(Cursor.HAND);
+                filterChipHBox.getChildren().add(exitButton);
+                filterChip.getChildren().add(filterChipHBox);
+                String filterCss = this.getClass().getClassLoader().getResource("filterchip.css").toExternalForm();
+                filterChip.getStylesheets().add(filterCss);
+                filterDrawerClass.filterHbox.getChildren().add(filterChip);
+            }
+            exitButton.setOnAction((e) -> {
+                int position = currentFilters.indexOf(newFilter);
+                currentFiltersNames.remove(newFilter.getName());
+                currentFilters.remove(position);
+                filterDrawerClass.filterHbox.getChildren().remove(position);
+            });
+        }
     }
 }

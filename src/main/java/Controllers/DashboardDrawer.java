@@ -48,7 +48,7 @@ public class DashboardDrawer implements Initializable{
     @Override
     public void initialize(URL url, ResourceBundle rb){
 
-        list.add(0,"All");
+        //list.add(0,"All");
         loadFolderList.addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {

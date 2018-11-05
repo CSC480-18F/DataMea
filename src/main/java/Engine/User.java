@@ -3,6 +3,7 @@ package Engine;
 import Controllers.DashboardController;
 import Controllers.DashboardLoading;
 import eu.hansolo.tilesfx.chart.ChartData;
+import eu.hansolo.tilesfx.events.TreeNodeEvent;
 import eu.hansolo.tilesfx.tools.TreeNode;
 import javafx.application.Platform;
 import javax.mail.*;
@@ -63,7 +64,7 @@ public class User {
     }
 
 
-
+    //TODO adjust for sentMail
     public int [] getOverallSentiment() {
         ArrayList <Email> emails = recoverSerializedEmails();
         int [] sentiment = {0,0,0,0,0};
@@ -92,32 +93,40 @@ public class User {
         //TODO; refine filters to remove weird chars
 
         ArrayList<String> domains = new ArrayList<>();
+        ArrayList<String> addresses = new ArrayList<>();
         for (Email e : emails) {
-            if ((!e.getFolder().equalsIgnoreCase("sent mail") && !sent) ||
-                    (e.getFolder().equalsIgnoreCase("sent mail") && sent)) {
-                String address = e.getSender().getAddress().substring(e.getSender().getAddress().indexOf("@"));
-                int quoteLocation = address.indexOf("\"" /*,address.indexOf("\"")+1*/);
-                int caratLocation = address.indexOf(">");
-                String d;
+            if ((!e.getFolder().equalsIgnoreCase("sent mail") && !sent))
+                addresses.add(e.getSender().getAddress());
+            else if (e.getFolder().equalsIgnoreCase("sent mail") && sent) {
+                addresses.addAll(e.getRecipients());
+            }
+        }
 
-                int earlierLocation = -1;
+        for (String address : addresses) {
+            address = address.substring(address.indexOf("@"));
+            int quoteLocation = address.indexOf("\"" /*,address.indexOf("\"")+1*/);
+            int caratLocation = address.indexOf(">");
+            String d;
 
-                if (quoteLocation < caratLocation && quoteLocation != -1) {
-                    earlierLocation = quoteLocation;
-                } else {
-                    if (caratLocation != -1) {
-                        earlierLocation = caratLocation;
-                    }
+            int earlierLocation = -1;
+
+            if (quoteLocation < caratLocation && quoteLocation != -1) {
+                earlierLocation = quoteLocation;
+            } else {
+                if (caratLocation != -1) {
+                    earlierLocation = caratLocation;
                 }
+            }
 
-                if (earlierLocation == -1) {
-                    //none of the weird characters are found
-                    domains.add(address);
-                } else {
-                    //some weird characters are found
-                    d = address.substring(address.indexOf("@"), earlierLocation);
-                    domains.add(d);
-                }
+            if (earlierLocation == -1) {
+                //none of the weird characters are found
+                domains.add(address);
+            } else {
+                //some weird characters are found
+                d = address.substring(address.indexOf("@"), earlierLocation);
+                domains.add(d);
+
+
             }
         }
 
@@ -171,14 +180,19 @@ public class User {
     }
 
 
-    public Map<String, Long> getSendersFreq(ArrayList<Email> emails) {
-        ArrayList<String> senders = new ArrayList<>();
-        for (Email e : emails) {
-            senders.add(e.getSender().getAddress());
+    public Map<String, Long> getSendersOrRecipientsFreq(ArrayList<Email> emails, boolean sent) {
+        ArrayList<String> sendersOrRecipients = new ArrayList<>();
+        if(sent) {
+            for (Email e : emails) {
+                sendersOrRecipients.addAll(e.getRecipients());
+            }
+        } else {
+            for (Email e : emails) {
+                sendersOrRecipients.add(e.getSender().getAddress());
+            }
         }
-
-        String [] sendersArray = new String[senders.size()];
-        sendersArray = senders.toArray(sendersArray);
+        String [] sendersArray = new String[sendersOrRecipients.size()];
+        sendersArray = sendersOrRecipients.toArray(sendersArray);
 
         Map<String, Long> freqs =
                 Stream.of(sendersArray)
@@ -246,10 +260,10 @@ public class User {
      */
     public ArrayList<Email> filterByFolder(String folderName, String subFolderName, ArrayList<Email> emailsToFilter) {
         ArrayList<Email> filteredEmails = new ArrayList<>();
-        if (folderName.equals("All") && subFolderName.equals("All")) {
+
+        if (subFolderName == null && folderName.equals("All")) {
             return emailsToFilter;
-        }
-        if (subFolderName == null) {
+        } else if (subFolderName == null) {
             for (Email e: emailsToFilter) {
                 if (e.getFolder().equalsIgnoreCase(folderName)) {
                     filteredEmails.add(e);
@@ -257,6 +271,7 @@ public class User {
             }
             return filteredEmails;
         }
+
         for (Email e: emailsToFilter) {
             if (e.getFolder().equalsIgnoreCase(folderName) && e.getSubFolder().equalsIgnoreCase(subFolderName)) {
                 filteredEmails.add(e);
@@ -272,7 +287,8 @@ public class User {
     public ArrayList<Email> filterbySender(String sender, ArrayList<Email> emailsToFilter){
         ArrayList<Email> filteredEmails = new ArrayList<Email>();
         for(Email e: emailsToFilter){
-            if (e.getSender().getAddress().equalsIgnoreCase(sender)){
+            String s = e.getSender().filterName();
+            if (s.equalsIgnoreCase(sender)){
                 filteredEmails.add(e);
             }
         }
@@ -346,7 +362,7 @@ public class User {
 
     public ArrayList<Email> filter(String folder, String subfolder, Date startDate, Date endDate, String sender, String domain, String attachment){
         ArrayList<Email> filteredEmails = new ArrayList<>();
-        if(folder != null && subfolder != null)
+        if(folder != null || subfolder != null)
             filteredEmails = filterByFolder(folder, subfolder, this.emails);
         if(startDate != null && endDate != null){
             if (filteredEmails.size() == 0)
@@ -367,6 +383,11 @@ public class User {
             if(filteredEmails.size()==0){
                 filteredEmails = filterByAttachmentType(attachment, this.emails);
             }else filteredEmails = filterByAttachmentType(attachment, filteredEmails);
+        }
+
+        if (folder == null && subfolder == null && startDate == null && endDate==null && sender == null && domain == null && attachment==null) {
+            //no folder was selected so just return all of the emails
+            return this.emails;
         }
 
         return filteredEmails;
@@ -891,7 +912,6 @@ public class User {
 
                 }
             }
-
         }
     }
 
@@ -1018,30 +1038,27 @@ public class User {
         return dayOfWeekFrequency;
     }
 
-    public void differenceMinMax(){
+    public int differenceMinMax(int[][] heatMap){
 
-        if(this.frequencyDifference < 0) {
 
-            int[][] heatMap = getDayOfWeekFrequency();
-            int min = heatMap[0][0];
-            int max = heatMap[0][0];
-            for (int i = 0; i < heatMap.length; i++) {
-                for (int j = 0; j < heatMap[i].length; j++) {
-                    if (heatMap[i][j] < min) min = heatMap[i][j];
-                    else if (heatMap[i][j] > max) max = heatMap[i][j];
-                }
+        int min = heatMap[0][0];
+        int max = heatMap[0][0];
+        for (int i = 0; i < heatMap.length; i++) {
+            for (int j = 0; j < heatMap[i].length; j++) {
+                if (heatMap[i][j] < min) min = heatMap[i][j];
+                else if (heatMap[i][j] > max) max = heatMap[i][j];
             }
-
-            this.frequencyDifference = max - min;
         }
+
+        int frequencyDifference = max - min;
+
+        return frequencyDifference;
 
     }
 
-    public String getColorForHeatMap(int i){
+    public String getColorForHeatMap(int i, int[][] heatMap){
 
-        differenceMinMax();
-
-        int diff = this.frequencyDifference;
+        int diff = differenceMinMax(heatMap);
 
         float h = .75f;
         float s = 1f;

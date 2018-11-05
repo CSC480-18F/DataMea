@@ -1,22 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.JFXChipView?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 
-<AnchorPane fx:id="filtersAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="1000.0" style="-fx-background-color: #2f3640;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.FilterDrawer">
+<AnchorPane fx:id="filtersAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="75.0" prefWidth="1000.0" style="-fx-background-color: #2f3640;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.FilterDrawer">
    <children>
-      <HBox fx:id="filterHbox" alignment="TOP_CENTER" fillHeight="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="1000.0" AnchorPane.leftAnchor="0.0">
+      <HBox alignment="CENTER" prefHeight="75.0" prefWidth="1000.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <children>
-            <JFXChipView fx:id="filtersChipView" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="50.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="50.0" prefWidth="1000.0" HBox.hgrow="SOMETIMES">
-               <cursor>
-                  <Cursor fx:constant="HAND" />
-               </cursor></JFXChipView>
+            <ScrollPane fitToHeight="true" stylesheets="@filters_scrollpane.css" vbarPolicy="NEVER" HBox.hgrow="ALWAYS">
+               <content>
+                  <HBox fx:id="filterHbox" alignment="CENTER" fillHeight="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="75.0" style="-fx-spacing: 10; -fx-padding: 0 10 0 10;">
+                     <cursor>
+                        <Cursor fx:constant="DEFAULT" />
+                     </cursor>
+                  </HBox>
+               </content>
+            </ScrollPane>
+            <Pane focusTraversable="true" minHeight="-Infinity" minWidth="-Infinity" prefHeight="75.0" prefWidth="5.0" style="-fx-background-color: #2f3640;">
+               <effect>
+                  <DropShadow color="#2f3640" height="0.0" radius="15.75" spread="0.85" width="65.0" />
+               </effect>
+            </Pane>
+            <JFXButton fx:id="applyFilters" buttonType="RAISED" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="36.0" prefWidth="110.0" ripplerFill="#ff931e" style="-fx-background-color: #353b48; -fx-padding: 5; -fx-background-radius: 5; -fx-border-color: #a4b0be; -fx-border-radius: 5;" text="Apply Filters" textFill="#a4b0be">
+               <HBox.margin>
+                  <Insets right="5.0" />
+               </HBox.margin>
+            </JFXButton>
          </children>
-         <cursor>
-            <Cursor fx:constant="DEFAULT" />
-         </cursor>
       </HBox>
    </children>
 </AnchorPane>

@@ -1,11 +1,9 @@
 package Engine;
 
-import java.awt.event.MouseEvent;
 import java.io.*;
 import java.util.ArrayList;
 import Controllers.*;
 import eu.hansolo.tilesfx.chart.ChartData;
-import eu.hansolo.tilesfx.events.TileEvent;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -69,7 +67,6 @@ public class Main extends Application {
         DashboardLoading.setStage(primaryStage);
         DashboardController.setStage(primaryStage);
 
-
         colors.add(javafx.scene.paint.Color.valueOf("#fc5c65"));
         colors.add(javafx.scene.paint.Color.valueOf("#fd9644"));
         colors.add(javafx.scene.paint.Color.valueOf("#fed330"));
@@ -112,10 +109,15 @@ public class Main extends Application {
                                 if (!folderName.equalsIgnoreCase("sent mail")) {
                                     //Created ChartData for top senders radial chart
                                     ChartData temp = new ChartData();
-                                    temp.setValue((double) currentUser.getTopSendersForFolder(folderName, "").get(i).numEmailsSent);
-                                    temp.setName(currentUser.getTopSendersForFolder(folderName, "").get(i).filterName());
-                                    temp.setFillColor(colors.get(i));
-                                    DashboardController.addTopSendersData(temp);
+                                    if (i < numSendersInFolder) {
+                                        temp.setValue((double) currentUser.getTopSendersForFolder(folderName, "").get(i).numEmailsSent);
+                                        temp.setName(currentUser.getTopSendersForFolder(folderName, "").get(i).filterName());
+                                        temp.setFillColor(colors.get(i));
+                                    } else {
+                                        temp.setValue(0);
+                                        temp.setName("");
+                                    }
+                                    DashboardController.addTopSendersOrRecipientsData(temp);
                                 }
                             }
                             backgroundSentiment = new BackgroundSentiment();
@@ -152,13 +154,7 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) throws FileNotFoundException, IOException {
-
-
-
-
         launch(args);
-
-
     }
 
     public static void endTimer(long startTime) {
