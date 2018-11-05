@@ -280,8 +280,7 @@ it appears to be whenever there is a thread of replies
             if(msgExists)
                 result = "";
         } else if (message.isMimeType("multipart/*")) {
-            MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
-            result = getTextFromMimeMultipart(mimeMultipart);
+            result = getTextFromMimeMultipart((MimeMultipart) message.getContent());
         }
         return result;
     }
@@ -292,19 +291,10 @@ it appears to be whenever there is a thread of replies
         int count = mimeMultipart.getCount();
         if (count == 0)
             throw new MessagingException("Multipart with no body parts not supported.");
-        boolean multipartAlt = new ContentType(mimeMultipart.getContentType()).match("multipart/alternative");
-        boolean multipartMix = new ContentType(mimeMultipart.getContentType()).match("multipart/mixed");
-/*        if (multipartAlt || multipartMix) {
-            System.out.println(mimeMultipart.getContentType() + " ...here are the parts");
-            for(int i = 0; i < count; i ++){
-                System.out.println(mimeMultipart.getBodyPart(i).getContentType());
-            }
-        }*/
+
         String result = "";
         for (int i = 0; i < count; i++) {
-            BodyPart bodyPart = mimeMultipart.getBodyPart(i);
-            //System.out.println(bodyPart.getContentType());
-            result += getTextFromBodyPart(bodyPart);
+            result += getTextFromBodyPart(mimeMultipart.getBodyPart(i));
         }
         return result;
     }
@@ -318,8 +308,7 @@ it appears to be whenever there is a thread of replies
             if(sender.addMessage(result.hashCode()))
                 result = "";
         } else if (bodyPart.isMimeType("text/html")) {
-            String html = (String) bodyPart.getContent();
-            result = org.jsoup.Jsoup.parse(html).text();
+            result = org.jsoup.Jsoup.parse((String) bodyPart.getContent()).text();
             if(sender.addMessage(result.hashCode()))
                 result = "";
         } else if (bodyPart.getContent() instanceof MimeMultipart){
@@ -329,12 +318,9 @@ it appears to be whenever there is a thread of replies
     }
 
     private ArrayList<String> getSentences(String result) {
-        //System.out.println("before: " + result);
-        result = filter(result);
-        //System.out.println("after: " + result);
-        //System.out.println("\nresults: " + result);
-        ArrayList<String> sentences = new ArrayList<String>();
-        String[] split = result.split("~|\\n");
+
+        ArrayList<String> sentences = new ArrayList<>();
+        String[] split = (filter(result)).split("~|\\n");
         for (String s : split) {
             if (s.length() > 0) {
                 String trimmed = s.trim();
@@ -346,7 +332,7 @@ it appears to be whenever there is a thread of replies
                 }
             }
         }
-        //System.out.println("\nsentences: " + sentences);
+
         return sentences;
     }
 
@@ -359,12 +345,12 @@ it appears to be whenever there is a thread of replies
 
         //System.out.println("Processing annotation");
         Annotation annotation = pipeline.process(message);
-        List<CoreMap> sentence = annotation.get(CoreAnnotations.SentencesAnnotation.class);
+        List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
 
         int sentimentScore = -1;
         double probability = -1;
 
-        for (CoreMap s : sentence) {
+        for (CoreMap s : sentences) {
             Tree tree = s.get(SentimentCoreAnnotations.SentimentAnnotatedTree.class);
             sentimentScore = RNNCoreAnnotations.getPredictedClass(new CoreLabel(tree.label()));
             probability = RNNCoreAnnotations.getPredictedClassProb(new CoreLabel(tree.label()));
@@ -399,46 +385,15 @@ it appears to be whenever there is a thread of replies
             newText = newText.replaceAll(abbreviations[0][i], abbreviations[1][i]);
         }
 
-        String url = "(http|https|ftp|ftps)\\:\\/\\/[a-zA-Z0-9\\-\\.]+\\.[a-zA-Z]{2,3}(\\/\\S*)?";
-        newText = newText.replaceAll(url, "");
-
-        String email = "^([a-z0-9_\\.-]+)@(?!domain.com)([\\da-z\\.-]+)\\.([a-z\\.]{2,6})$";
-        newText = newText.replaceAll(email, "");
-
-        String punctuation = "[`,~,*,#,^,>,\\-,\\n,\\t]";
-        newText = newText.replaceAll(punctuation, "");
-
-        String breakline = "[\\n]";
-        newText = newText.replaceAll(breakline, "\n~");
-
-        newText = newText.replaceAll("\\.", ".~");
-        newText = newText.replaceAll("\\?", "?~");
-        newText = newText.replaceAll("\\!", "!~");
-        newText = newText.replaceAll("\\r", " ");
+        newText = newText.replaceAll("(http|https|ftp|ftps)\\:\\/\\/[a-zA-Z0-9\\-\\.]+\\.[a-zA-Z]{2,3}(\\/\\S*)?", "") //urls
+                .replaceAll("^([a-z0-9_\\.-]+)@(?!domain.com)([\\da-z\\.-]+)\\.([a-z\\.]{2,6})$", "")//email addrs
+                .replaceAll("[`,~,*,#,^,>,\\-,\\n,\\t,\\r]", "")//unwanted chars
+                .replaceAll("\\.", ".~")//replace punctuation with <punct>~
+                .replaceAll("\\?", "?~")
+                .replaceAll("\\!", "!~");
 
         return newText;
     }
-
-/*    private ArrayList<String> getLanguages(ArrayList<String> sentences) throws APIError {
-
-        DetectLanguage.apiKey = API_KEY;
-
-        ArrayList<String> langs = new ArrayList<>();
-
-        for(String s : sentences) {
-
-            List<Result> results = DetectLanguage.detect(s);
-            Result cur;
-
-            for (Result result : results) {
-                cur = result;
-                if (cur.isReliable)
-                    langs.add(cur.language);
-            }
-        }
-
-        return langs;
-    }*/
 
     public int getDayOfWeek() {
         if (getDate() != null) {
@@ -473,8 +428,7 @@ it appears to be whenever there is a thread of replies
     private String detectLanguage(String text) {
         LanguageDetector ld = new OptimaizeLangDetector().loadModels();
         ld.addText(text);
-        LanguageResult detected = ld.detect();
-        return detected.getLanguage();
+        return ld.detect().getLanguage();
     }
 
     public boolean isAnswered(){
