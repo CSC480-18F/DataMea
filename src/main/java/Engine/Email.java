@@ -84,7 +84,7 @@ public class Email {
             long unixDate = Long.parseLong(br.readLine());
             this.date = new Date(unixDate);
             this.sender = new Sender(User.decrypt(br.readLine()));
-            this.flags = new Flags(br.readLine());
+            this.flags = new Flags(User.decrypt(br.readLine()));
 
             //add fields to reconstruct sentiment analysis
 

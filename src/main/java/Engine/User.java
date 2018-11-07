@@ -532,12 +532,16 @@ public class User {
         File[] e = temp.listFiles();
         emails = new ArrayList<Email>();
         for (File f : e) {
+            if(f.getName().equals("1241259176000.txt")){
+                System.out.println();
+            }
             if (!f.getName().equals("sentimentProgress.txt"))
             try {
                 Email em = new Email(f);
                 this.emails.add(em);
             } catch (Exception em) {
                 System.out.println("Email cannot be properly read..");
+                System.out.println(f.getName());
                 em.printStackTrace();
             }
 
