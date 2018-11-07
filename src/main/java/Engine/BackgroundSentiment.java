@@ -11,6 +11,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import sun.util.calendar.Gregorian;
 
 import javax.mail.*;
 import java.io.*;
@@ -18,6 +19,7 @@ import java.nio.Buffer;
 import java.nio.file.Files;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Properties;
 
 public class BackgroundSentiment extends Task<Void> {
@@ -58,6 +60,7 @@ public class BackgroundSentiment extends Task<Void> {
         Store store = session.getStore("imaps");
         store.connect("imap.gmail.com", currentUser.getEmail(), currentUser.getPassword());
         System.out.println("Getting sentiment.... for "+ store);
+        long startTime = System.nanoTime();
         Folder[] foldersList = store.getDefaultFolder().list();
 
 
@@ -103,6 +106,7 @@ public class BackgroundSentiment extends Task<Void> {
         }
 
         System.out.println("Done sentiment analysis.... for now");
+        Main.endTimer(startTime);
 
         return null;
     }

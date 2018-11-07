@@ -169,6 +169,8 @@ public class Email {
         double probability;
         Sentiment sentenceSentiment;
         if (sentences != null) {
+            if(Pipeline.pipeline() == null)
+                Pipeline.initPipeline();
             for (String sentence : sentences) {
                 if (getLanguage() != null) {
                     if (this.getLanguage().equals("en") && sentence.length() < MAXLEN && sentence.length() > MINLEN) {
@@ -343,13 +345,8 @@ it appears to be whenever there is a thread of replies
 
 
     static Sentiment analyzeSentiment(String message) {
-
-        Properties props = new Properties();
-        props.setProperty("annotators", "tokenize, ssplit, parse, sentiment");
-        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-
         //System.out.println("Processing annotation");
-        Annotation annotation = pipeline.process(message);
+        Annotation annotation = Pipeline.pipeline().process(message);
         List<CoreMap> sentence = annotation.get(CoreAnnotations.SentencesAnnotation.class);
 
         int sentimentScore = -1;
