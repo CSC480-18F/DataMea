@@ -538,8 +538,10 @@ public class User {
                 this.emails.add(em);
             } catch (Exception em) {
                 System.out.println("Email cannot be properly read..");
+                System.out.println(f.getName());
                 em.printStackTrace();
             }
+
 
         }
 
@@ -886,7 +888,7 @@ public class User {
 
 
     // have a set of random keys to cycle through to make the encryption more secure
-    private static int[] randomizer = {4, 5, 2, 5, 7, 6, 2, 4, 78, 8};
+    private static int[] randomizer = {4, 5, 2, 5, 7, 6, 2, 4, 3, 8};
 
 
     public static String encrypt(String strToBeEncrypted) {
