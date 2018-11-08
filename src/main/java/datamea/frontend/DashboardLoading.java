@@ -1,4 +1,4 @@
-package dataMea.frontend;
+package datamea.frontend;
 
 import com.jfoenix.controls.*;
 import com.jfoenix.controls.events.JFXDialogEvent;

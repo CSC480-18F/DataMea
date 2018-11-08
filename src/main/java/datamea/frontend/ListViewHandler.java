@@ -1,4 +1,4 @@
-package dataMea.frontend;
+package datamea.frontend;
 
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;

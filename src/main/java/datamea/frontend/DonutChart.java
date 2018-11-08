@@ -1,4 +1,4 @@
-package dataMea.frontend;
+package datamea.frontend;
 
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;

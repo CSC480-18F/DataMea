@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>dataMea</groupId>
+    <groupId>datamea</groupId>
     <artifactId>DataMea</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -20,14 +20,13 @@
 
     <build>
         <plugins>
-
             <plugin>
                 <groupId>com.zenjava</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>8.8.3</version>
                 <configuration>
                     <vendor>DouglasMyrdek</vendor>
-                    <mainClass>dataMea.backend.Main</mainClass>
+                    <mainClass>datamea.backend.Main</mainClass>
                     <deployDir>${project.basedir}/src/main/deploy</deployDir>
                     <verbose>true</verbose><!-- always a good idea to have this set to true while debugging -->
                     <appName>Data Mea</appName>
@@ -55,10 +54,10 @@
             <version>1.19.1</version>
         </dependency>
         <dependency>
-                <groupId>com.sun.mail</groupId>
-                <artifactId>javax.mail</artifactId>
-                <version>1.6.2</version>
-            </dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>1.6.2</version>
+        </dependency>
         <dependency>
             <groupId>edu.stanford.nlp</groupId>
             <artifactId>stanford-corenlp</artifactId>

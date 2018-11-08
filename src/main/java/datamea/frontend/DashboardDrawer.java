@@ -1,7 +1,7 @@
-package dataMea.frontend;
+package datamea.frontend;
 
-import dataMea.backend.Main;
-import dataMea.backend.UserFolder;
+import datamea.backend.Main;
+import datamea.backend.UserFolder;
 import com.jfoenix.controls.JFXListView;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;

@@ -1,4 +1,4 @@
-package dataMea.frontend;
+package datamea.frontend;
 
 import com.jfoenix.controls.JFXButton;
 import javafx.beans.property.BooleanProperty;

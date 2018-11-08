@@ -1,4 +1,4 @@
-package dataMea.backend;
+package datamea.backend;
 
 import java.util.ArrayList;
 

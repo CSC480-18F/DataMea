@@ -1,4 +1,4 @@
-package dataMea.backend;
+package datamea.backend;
 
 public class Sentiment {
 

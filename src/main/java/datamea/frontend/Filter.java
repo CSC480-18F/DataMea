@@ -1,4 +1,4 @@
-package dataMea.frontend;
+package datamea.frontend;
 
 public class Filter {
     private String name;

@@ -1,6 +1,6 @@
-package dataMea.backend;
+package datamea.backend;
 
-import dataMea.frontend.DashboardController;
+import datamea.frontend.DashboardController;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;

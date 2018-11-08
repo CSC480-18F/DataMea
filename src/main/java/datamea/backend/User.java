@@ -1,7 +1,7 @@
-package dataMea.backend;
+package datamea.backend;
 
-import dataMea.frontend.DashboardController;
-import dataMea.frontend.DashboardLoading;
+import datamea.frontend.DashboardController;
+import datamea.frontend.DashboardLoading;
 import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.tools.TreeNode;
 import javafx.application.Platform;

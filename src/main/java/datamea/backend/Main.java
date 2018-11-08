@@ -1,8 +1,8 @@
-package dataMea.backend;
+package datamea.backend;
 
 import java.io.*;
 import java.util.ArrayList;
-import dataMea.frontend.*;
+import datamea.frontend.*;
 import eu.hansolo.tilesfx.chart.ChartData;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -18,7 +18,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import static dataMea.frontend.DashboardController.setLoadedFromLoginScreenToTrue;
+import static datamea.frontend.DashboardController.setLoadedFromLoginScreenToTrue;
 
 public class Main extends Application {
 

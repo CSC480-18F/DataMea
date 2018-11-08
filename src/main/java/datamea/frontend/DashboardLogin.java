@@ -1,7 +1,7 @@
-package dataMea.frontend;
+package datamea.frontend;
 
-import dataMea.backend.Main;
-import dataMea.backend.User;
+import datamea.backend.Main;
+import datamea.backend.User;
 import com.jfoenix.controls.*;
 import com.jfoenix.controls.events.JFXDialogEvent;
 import javafx.application.Platform;

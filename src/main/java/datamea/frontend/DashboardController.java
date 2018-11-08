@@ -1,9 +1,9 @@
-package dataMea.frontend;
+package datamea.frontend;
 
-import dataMea.backend.Main;
-import dataMea.backend.Sender;
-import dataMea.backend.User;
-import dataMea.backend.Email;
+import datamea.backend.Main;
+import datamea.backend.Sender;
+import datamea.backend.User;
+import datamea.backend.Email;
 import com.jfoenix.controls.*;
 import com.jfoenix.transitions.hamburger.HamburgerBasicCloseTransition;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
