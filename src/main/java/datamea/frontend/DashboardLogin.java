@@ -217,12 +217,12 @@ public class DashboardLogin implements Initializable {
         try {
             DashboardLoading.setStage(myStage);
             Parent homePageParent = FXMLLoader.load(getClass().getClassLoader().getResource("Loading_Screen.fxml"));
-            Scene homePage = new Scene(homePageParent);
 
             loginSuccessful.addListener(new ChangeListener<Boolean>() {
                 @Override
                 public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                     if (newValue) {
+                        Scene homePage = new Scene(homePageParent,myStage.getWidth(), myStage.getHeight());
                         DashboardLoading.setReadyLoadingScreenToTrue();
                         DashboardLoading.setLoadingOnCloseRequest(true);
                         myStage.setScene(homePage);

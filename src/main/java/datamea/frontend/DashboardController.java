@@ -287,7 +287,6 @@ public class DashboardController implements Initializable {
                             .textVisible(true)
                             .titleAlignment(TextAlignment.LEFT)
                             .sunburstTextOrientation(SunburstChart.TextOrientation.HORIZONTAL)
-                            .showInfoRegion(true)
                             .minSize(400, 480)
                             .prefSize(400, 480)
                             .sunburstTree(currentUser.getFoldersCountForSunburst())

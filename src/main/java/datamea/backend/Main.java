@@ -13,6 +13,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -94,7 +95,7 @@ public class Main extends Application {
                 if (newValue) {
                     try {
                         Thread t = new Thread(task);
-                        Pane homeScreen = FXMLLoader.load(getClass().getClassLoader().getResource("Dashboard_Home.fxml"));
+                        Parent homeScreenParent = FXMLLoader.load(getClass().getClassLoader().getResource("Dashboard_Home.fxml"));
 
                         task.setOnSucceeded(e -> {
                             //Add top senders data to Radial Chart
@@ -128,9 +129,9 @@ public class Main extends Application {
                             DashboardLoading.setLoadingOnCloseRequest(false);
                             DashboardDrawer.setLoadFolderList(true);
                             DashboardController.setHomeOnCloseRequest(true);
-                            Scene home = new Scene(homeScreen, 1000, 600);
-                            primaryStage.setScene(home);
-                            homeScreen.requestFocus();
+                            Scene homeScreen = new Scene(homeScreenParent, DashboardLoading.getMyStage().getWidth(), DashboardLoading.getMyStage().getHeight());
+                            DashboardLoading.getMyStage().setScene(homeScreen);
+                            DashboardLoading.getMyStage().requestFocus();
                         });
                         t.start();
                     } catch (IOException e) {

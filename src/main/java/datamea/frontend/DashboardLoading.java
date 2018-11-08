@@ -70,6 +70,10 @@ public class DashboardLoading implements Initializable {
         myStage = stage;
     }
 
+    public static Stage getMyStage(){
+        return myStage;
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         loadingOnCloseRequest.addListener(new ChangeListener<Boolean>() {
@@ -116,17 +120,16 @@ public class DashboardLoading implements Initializable {
             }
         });
 
-
-        tutorialVideo.getEngine().load(
-                "https://www.youtube.com/embed/J---aiyznGQ?autoplay=1"
-        );
-
         emailNotify.setCursor(Cursor.HAND);
 
         readyLoadingScreen.addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if (newValue) {
+
+                    tutorialVideo.getEngine().load(
+                            "https://www.youtube.com/embed/J---aiyznGQ?autoplay=1"
+                    );
 
                     appEmail_Recipient = DashboardLogin.getEmail();
 
