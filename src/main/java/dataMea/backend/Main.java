@@ -1,8 +1,8 @@
-package Engine;
+package dataMea.backend;
 
 import java.io.*;
 import java.util.ArrayList;
-import Controllers.*;
+import dataMea.frontend.*;
 import eu.hansolo.tilesfx.chart.ChartData;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -18,7 +18,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import static Controllers.DashboardController.setLoadedFromLoginScreenToTrue;
+import static dataMea.frontend.DashboardController.setLoadedFromLoginScreenToTrue;
 
 public class Main extends Application {
 
@@ -59,7 +59,7 @@ public class Main extends Application {
         primaryStage.setMinHeight(400);
         primaryStage.setMinWidth(600);
         primaryStage.setTitle("Data Mea");
-        Pane root = FXMLLoader.load(getClass().getClassLoader().getResource("Login_Screen.fxml"));
+        Pane root = FXMLLoader.load(this.getClass().getClassLoader().getResource("Login_Screen.fxml"));
         primaryStage.setScene(new Scene(root));
         root.requestFocus();
         primaryStage.show();

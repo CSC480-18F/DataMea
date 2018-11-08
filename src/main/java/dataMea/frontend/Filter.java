@@ -1,4 +1,4 @@
-package Controllers;
+package dataMea.frontend;
 
 public class Filter {
     private String name;

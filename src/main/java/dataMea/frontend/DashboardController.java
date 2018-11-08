@@ -1,9 +1,9 @@
-package Controllers;
+package dataMea.frontend;
 
-import Engine.Main;
-import Engine.Sender;
-import Engine.User;
-import Engine.Email;
+import dataMea.backend.Main;
+import dataMea.backend.Sender;
+import dataMea.backend.User;
+import dataMea.backend.Email;
 import com.jfoenix.controls.*;
 import com.jfoenix.transitions.hamburger.HamburgerBasicCloseTransition;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
@@ -46,7 +46,6 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -192,23 +191,6 @@ public class DashboardController implements Initializable {
         } catch (IOException ex) {
             Logger.getLogger(DashboardController.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        /*Node scrollbar = scrollPane.lookup(".scroll-bar:vertical .thumb");
-        ChangeListener<Object> changeListener = new ChangeListener<Object>() {
-            @Override
-            public void changed(ObservableValue<? extends Object> observable, Object oldValue, Object newValue) {
-                Bounds bounds = scrollPane.getViewportBounds();
-                int left = -1 * (int) bounds.getMinX();
-                int right = left + (int) bounds.getWidth();
-                System.out.println("hval:" + scrollPane.getHvalue() + " left:" + left + " right:" + right);
-                Platform.runLater(()->{
-                    scrollbar.setOpacity(0.1);
-                });
-            }
-        };
-        scrollPane.viewportBoundsProperty().addListener(changeListener);
-        scrollPane.hvalueProperty().addListener(changeListener);
-        scrollPane.vvalueProperty().addListener(changeListener);*/
 
         HamburgerBasicCloseTransition basicCloseTransition = new HamburgerBasicCloseTransition(hamburger);
         basicCloseTransition.setRate(-1);

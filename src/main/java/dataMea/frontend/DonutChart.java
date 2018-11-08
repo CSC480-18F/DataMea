@@ -1,4 +1,4 @@
-package Controllers;
+package dataMea.frontend;
 
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;

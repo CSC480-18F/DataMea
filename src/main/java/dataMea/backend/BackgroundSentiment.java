@@ -1,25 +1,17 @@
-package Engine;
+package dataMea.backend;
 
-import Controllers.DashboardController;
-import Controllers.DashboardLogin;
+import dataMea.frontend.DashboardController;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import sun.util.calendar.Gregorian;
 
 import javax.mail.*;
 import java.io.*;
-import java.nio.Buffer;
-import java.nio.file.Files;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Properties;
 
 public class BackgroundSentiment extends Task<Void> {
