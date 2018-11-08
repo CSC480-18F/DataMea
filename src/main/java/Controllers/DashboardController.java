@@ -116,7 +116,7 @@ public class DashboardController implements Initializable {
     private static final Random RND = new Random();
     private ArrayList<Filter> currentFilters = new ArrayList<>();
     private ArrayList<String> currentFiltersNames = new ArrayList<>(); //easiest way of keeping track of whether or not we added a filter already don't yell at me lol it's greasy its 2am cut me some slack gosh
-    private boolean sentMail;
+    public static boolean sentMail;
 
     public static void setStage(Stage s) {
         myStage = s;
@@ -560,6 +560,8 @@ public class DashboardController implements Initializable {
                 domain = null,  attachment = null, startDate = null, endDate = null, language = null;
         Date sDate = null, eDate = null;
 
+        sentMail = currentFiltersNames.contains("Sent Mail");
+
         //TODO figure out how to add folder/subfolder stuff along with doing dates
 
         for (Filter f: filters) {
@@ -573,6 +575,8 @@ public class DashboardController implements Initializable {
                 language = f.getName();
             } else if (f.isFolder()) {
                 folderName = f.getName();
+                if (folderName.equalsIgnoreCase("sent mail"))
+                    sentMail = true;
             } else if (f.isStartDate()) {
                 startDate = f.getName();
             } else if (f.isEndDate()) {
@@ -604,7 +608,7 @@ public class DashboardController implements Initializable {
 
         ArrayList<Email> em = currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment);
         int[][] heatMapData;
-        if(folderName.equalsIgnoreCase("sent mail"))
+        if(folderName != null && folderName.equalsIgnoreCase("sent mail"))
             heatMapData = currentUser.generateDayOfWeekFrequency(em, true);
         else
             heatMapData = currentUser.generateDayOfWeekFrequency(em, false);
@@ -859,10 +863,12 @@ public class DashboardController implements Initializable {
 
     private void addFilter(String name, boolean isTopSender, boolean isFolder, boolean isDomain, boolean isAttachment, boolean isLanguage) {
 
+                /*
         if (sentMail && isFolder) {
             if (!name.equalsIgnoreCase("sent mail"))
                 sentMail = false;
-        }
+        }*/
+
 
         if (!currentFiltersNames.contains(name)) {
             currentFiltersNames.add(name);
@@ -927,10 +933,7 @@ public class DashboardController implements Initializable {
                 filterDrawerClass.filterHbox.getChildren().add(filterChip);
             } else if (isFolder) {
 
-                if (!sentMail) {
-                    if (name.equalsIgnoreCase("sent mail"))
-                        sentMail = true;
-                }
+
                 for (Filter f : currentFilters) {
                     int count = 0;
                     if (f.isFolder()) {

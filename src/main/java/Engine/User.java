@@ -321,8 +321,11 @@ public class User {
     public ArrayList<Email> filterByDomain(String domain, ArrayList<Email> emailsToFilter){
         ArrayList<Email> filteredEmails = new ArrayList<>();
         for (Email e: emailsToFilter){
-            if(e.getDomain().equalsIgnoreCase(domain)){
-                filteredEmails.add(e);
+            for(String d : e.getDomain(DashboardController.sentMail)){
+                if(d.equalsIgnoreCase(domain)){
+                    filteredEmails.add(e);
+                    break;
+                }
             }
         }
         return filteredEmails;
@@ -469,6 +472,7 @@ public class User {
 
 
     public ArrayList<Sender> getTopSendersForFolder(String folderName, String subFolderName) {
+
         boolean all = false;
         boolean subFolderBool = false;
         if (folderName.equals("AllFolders")) {

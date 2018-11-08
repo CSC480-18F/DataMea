@@ -504,30 +504,42 @@ it appears to be whenever there is a thread of replies
         return recipients;
     }
 
-    public String getDomain(){
-        String address = getSender().getAddress().substring(getSender().getAddress().indexOf("@"));
-        int quoteLocation = address.indexOf("\"" /*,address.indexOf("\"")+1*/);
-        int caratLocation = address.indexOf(">");
-        String d;
-
-        int earlierLocation = -1;
-
-        if (quoteLocation < caratLocation && quoteLocation!=-1) {
-            earlierLocation = quoteLocation;
+    public ArrayList<String> getDomain(boolean sent){
+        ArrayList<String> addressesPreFilter = new ArrayList<>();
+        ArrayList<String> addressesPostFilter = new ArrayList<>();
+        if (sent) {
+            for(String r : getRecipients())
+                addressesPreFilter.add(r.substring(r.indexOf("@")));
         } else {
-            if (caratLocation != -1) {
-                earlierLocation = caratLocation;
+            addressesPreFilter.add(getSender().getAddress().substring(getSender().getAddress().indexOf("@")));
+        }
+
+        for (String a : addressesPreFilter) {
+
+            int quoteLocation = a.indexOf("\"" /*,address.indexOf("\"")+1*/);
+            int caratLocation = a.indexOf(">");
+            String d;
+
+            int earlierLocation = -1;
+
+            if (quoteLocation < caratLocation && quoteLocation != -1) {
+                earlierLocation = quoteLocation;
+            } else {
+                if (caratLocation != -1) {
+                    earlierLocation = caratLocation;
+                }
+            }
+
+            if (earlierLocation == -1) {
+                //none of the weird characters are found
+                addressesPostFilter.add(a);
+            } else {
+                //some weird characters are found
+                addressesPostFilter.add(a.substring(a.indexOf("@"), earlierLocation));
             }
         }
 
-        if (earlierLocation == -1) {
-            //none of the weird characters are found
-            return(address);
-        } else {
-            //some weird characters are found
-            d = address.substring(address.indexOf("@"), earlierLocation);
-            return(d);
-        }
+        return addressesPostFilter;
     }
 
     public String toString() {
