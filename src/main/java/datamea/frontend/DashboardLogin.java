@@ -222,10 +222,10 @@ public class DashboardLogin implements Initializable {
                 @Override
                 public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                     if (newValue) {
-                        Scene homePage = new Scene(homePageParent,myStage.getWidth(), myStage.getHeight());
+                        //Scene homePage = new Scene(homePageParent,myStage.getWidth(), myStage.getHeight());
                         DashboardLoading.setReadyLoadingScreenToTrue();
                         DashboardLoading.setLoadingOnCloseRequest(true);
-                        myStage.setScene(homePage);
+                        setScene(homePageParent);
                         myStage.show();
                         myStage.requestFocus();
                     }
@@ -234,5 +234,12 @@ public class DashboardLogin implements Initializable {
         }catch(IOException e){
             e.printStackTrace();
         }
+    }
+
+    public void setScene(Parent root) {
+        Scene oldScene = myStage.getScene();
+        myStage.setScene(oldScene == null
+                ? new Scene(root, myStage.getMinWidth(), myStage.getMinHeight())
+                : new Scene(root, oldScene.getWidth(), oldScene.getHeight()));
     }
 }

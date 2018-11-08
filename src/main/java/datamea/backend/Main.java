@@ -129,8 +129,8 @@ public class Main extends Application {
                             DashboardLoading.setLoadingOnCloseRequest(false);
                             DashboardDrawer.setLoadFolderList(true);
                             DashboardController.setHomeOnCloseRequest(true);
-                            Scene homeScreen = new Scene(homeScreenParent, DashboardLoading.getMyStage().getWidth(), DashboardLoading.getMyStage().getHeight());
-                            DashboardLoading.getMyStage().setScene(homeScreen);
+                            //Scene homeScreen = new Scene(homeScreenParent, DashboardLoading.getMyStage().getWidth(), DashboardLoading.getMyStage().getHeight());
+                            setScene(homeScreenParent);
                             DashboardLoading.getMyStage().requestFocus();
                         });
                         t.start();
@@ -158,5 +158,12 @@ public class Main extends Application {
         long endTime = System.nanoTime();
         long totalTime = (endTime - startTime) / 1000000000;
         System.out.println("Total runtime: " + totalTime + " seconds");
+    }
+
+    public void setScene(Parent root) {
+        Scene oldScene = DashboardLoading.getMyStage().getScene();
+        DashboardLoading.getMyStage().setScene(oldScene == null
+                ? new Scene(root, DashboardLoading.getMyStage().getMinWidth(), DashboardLoading.getMyStage().getMinHeight())
+                : new Scene(root, oldScene.getWidth(), oldScene.getHeight()));
     }
 }
