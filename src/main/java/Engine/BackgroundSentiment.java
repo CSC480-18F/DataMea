@@ -152,7 +152,7 @@ public class BackgroundSentiment extends Task<Void> {
                             try {
                                 Email tempEmail = new Email(currentMessage, new Sender(currentMessage.getFrom()[0].toString()), true);
                                 String fileName = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/" + currentMessage.getReceivedDate().getTime() + ".txt";
-                                System.out.println("Analysing email: " + i + " -- " + fileName + " Sentiment scores + " + tempEmail.getSentimentScores()[2]);
+                                System.out.println("Analysing email: " + i + " -- " + fileName);
                                 updateEmailFile(fileName, tempEmail.getSentimentScores(), tempEmail.getLanguage());
                                 //DashboardController.sentimentGauge.setValue(tempEmail.getSentimentScores());
                             } catch (Exception e) {
