@@ -1076,7 +1076,7 @@ public class User {
         this.password = password;
     }
 
-    public ArrayList<Email> getEmails() {
+    public synchronized ArrayList<Email> getEmails() {
         return emails;
     }
 
