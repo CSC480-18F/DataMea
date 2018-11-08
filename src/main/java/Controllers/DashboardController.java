@@ -14,10 +14,12 @@ import eu.hansolo.tilesfx.chart.SunburstChart;
 import eu.hansolo.tilesfx.events.TileEvent;
 import eu.hansolo.tilesfx.events.TreeNodeEvent;
 import eu.hansolo.tilesfx.tools.TreeNode;
-import javafx.animation.AnimationTimer;
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -43,6 +45,7 @@ import javafx.scene.paint.Stop;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.net.URL;
@@ -51,6 +54,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static javafx.scene.layout.AnchorPane.setTopAnchor;
 
 public class DashboardController implements Initializable {
 
@@ -118,6 +123,7 @@ public class DashboardController implements Initializable {
     private ArrayList<Filter> currentFilters = new ArrayList<>();
     private ArrayList<String> currentFiltersNames = new ArrayList<>(); //easiest way of keeping track of whether or not we added a filter already don't yell at me lol it's greasy its 2am cut me some slack gosh
     public static Thread updateGauge = null;
+    private DoubleProperty scrollPaneLocation = new SimpleDoubleProperty(this, "scrollPaneLocation");
 
     public static void setStage(Stage s) {
         myStage = s;
@@ -158,6 +164,9 @@ public class DashboardController implements Initializable {
         drawer.prefHeightProperty().bind(anchorPane.heightProperty());
         filtersDrawer.prefWidthProperty().bind(anchorPane.widthProperty());
         progressBar.prefWidthProperty().bind(anchorPane.widthProperty());
+
+        //Resize masonry pane when filters bar is opened
+        scrollPaneLocation.addListener(it -> updateScrollPaneAnchors());
 
         drawer.setVisible(false);
         filtersDrawer.setVisible(false);
@@ -230,6 +239,7 @@ public class DashboardController implements Initializable {
         filtersButton.addEventHandler(MouseEvent.MOUSE_PRESSED, (e) -> {
             if (filtersDrawer.isOpened()) {
                 filtersDrawer.close();
+                changeScrollPaneHeight(0);
                 final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(2);
                 executor.schedule(new Runnable() {
                     @Override
@@ -240,7 +250,7 @@ public class DashboardController implements Initializable {
             } else {
                 filtersDrawer.setVisible(true);
                 filtersDrawer.open();
-
+                changeScrollPaneHeight(75);
             }
         });
 
@@ -1130,5 +1140,21 @@ public class DashboardController implements Initializable {
                 filterDrawerClass.filterHbox.getChildren().remove(position);
             });
         }
+    }
+
+    //Resizing ScrollPane stuff
+    public void changeScrollPaneHeight(double height) {
+        KeyValue keyValue = new KeyValue(scrollPaneLocation, height);
+        KeyFrame keyFrame = new KeyFrame(Duration.millis(500), keyValue);
+        Timeline timeline = new Timeline(keyFrame);
+        timeline.play();
+    }
+
+    private double getMasonryPaneLocation() {
+        return scrollPaneLocation.get();
+    }
+
+    private void updateScrollPaneAnchors() {
+        setTopAnchor(scrollPane, 50 + getMasonryPaneLocation());
     }
 }

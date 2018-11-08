@@ -22,9 +22,9 @@
                   </HBox>
                </content>
             </ScrollPane>
-            <Pane focusTraversable="true" minHeight="-Infinity" minWidth="-Infinity" prefHeight="75.0" prefWidth="5.0" style="-fx-background-color: #2f3640;">
+            <Pane blendMode="SRC_ATOP" focusTraversable="true" minHeight="-Infinity" minWidth="-Infinity" prefHeight="75.0" prefWidth="5.0" style="-fx-background-color: #2f3640;">
                <effect>
-                  <DropShadow color="#2f3640" height="0.0" radius="15.75" spread="0.85" width="65.0" />
+                  <DropShadow color="#2f3640" height="44.2" radius="26.8" spread="0.85" width="65.0" />
                </effect>
             </Pane>
             <JFXButton fx:id="applyFilters" buttonType="RAISED" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="36.0" prefWidth="110.0" ripplerFill="#ff931e" style="-fx-background-color: #353b48; -fx-padding: 5; -fx-background-radius: 5; -fx-border-color: #a4b0be; -fx-border-radius: 5;" text="Apply Filters" textFill="#a4b0be">
