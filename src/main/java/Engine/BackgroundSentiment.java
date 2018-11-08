@@ -119,6 +119,24 @@ public class BackgroundSentiment extends Task<Void> {
         //each time the sentiment is process, update the textFile through the updateEmailFile function
         try {
 
+            DashboardController.updateGauge = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (true) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            System.out.println("Thread was interrupted");
+                            break;
+                        }
+                        DashboardController.sentimentGauge.setValue(Email.getOverallSentimentDbl(currentUser.getOverallSentiment()));
+                    }
+                }
+            });
+            DashboardController.updateGauge.start();
+
+
+
             for (Folder f : folders) {
                 if (f.getName().equals(folder)) {
                     f.open(Folder.READ_ONLY);
@@ -134,7 +152,7 @@ public class BackgroundSentiment extends Task<Void> {
                             try {
                                 Email tempEmail = new Email(currentMessage, new Sender(currentMessage.getFrom()[0].toString()), true);
                                 String fileName = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/" + currentMessage.getReceivedDate().getTime() + ".txt";
-                                System.out.println("Analysing email: " + i);
+                                System.out.println("Analysing email: " + i + " -- " + fileName + " Sentiment scores + " + tempEmail.getSentimentScores()[2]);
                                 updateEmailFile(fileName, tempEmail.getSentimentScores(), tempEmail.getLanguage());
                                 //DashboardController.sentimentGauge.setValue(tempEmail.getSentimentScores());
                             } catch (Exception e) {
@@ -163,7 +181,7 @@ public class BackgroundSentiment extends Task<Void> {
                                     System.out.println("email has been deleted...");
                                 }
                                 String fileName = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/" + currentMessage.getReceivedDate().getTime() + ".txt";
-                                System.out.println("Analysing email: " + i);
+                                System.out.println("Analysing email: " + i + " From folder " + f.getName() + " - " + sub.getName());
 
                                 try {
                                     updateEmailFile(fileName, tempEmail.getSentimentScores(), tempEmail.getLanguage());

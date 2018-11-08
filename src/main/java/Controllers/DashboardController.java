@@ -116,6 +116,7 @@ public class DashboardController implements Initializable {
     private static final Random RND = new Random();
     private ArrayList<Filter> currentFilters = new ArrayList<>();
     private ArrayList<String> currentFiltersNames = new ArrayList<>(); //easiest way of keeping track of whether or not we added a filter already don't yell at me lol it's greasy its 2am cut me some slack gosh
+    public static Thread updateGauge = null;
 
     public static void setStage(Stage s) {
         myStage = s;
@@ -521,6 +522,7 @@ public class DashboardController implements Initializable {
 
                     DashboardController.sentimentGauge.setValue(Email.getOverallSentimentDbl(currentUser.getOverallSentiment()));
 
+
                     //leads to issues
                     /*masonryPane.addEventHandler(MouseEvent.MOUSE_PRESSED, (e) -> {
                         if(drawer.isOpened()){
@@ -582,6 +584,7 @@ public class DashboardController implements Initializable {
             subFolderName = folderName;
         }
 
+
         //TODO Modify the string that is being passed in, to be a valid date
         //TODO modify the filters so that they take a language -- shouldnt take very long
 
@@ -591,6 +594,60 @@ public class DashboardController implements Initializable {
             updateDomains(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
             updateAttachments(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
             updateHeatMap(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
+            updateSentimentGauge(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
+
+    }
+
+    private void updateSentimentGauge(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment) {
+
+        masonryPane.getChildren().removeAll(sentimentGauge);
+        if (updateGauge != null) {
+            updateGauge.interrupt();
+        }
+        updateGauge = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        System.out.println("interupted thread");
+                        break;
+                    }
+                    ArrayList<Email> em = currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment);
+                    int [] sentimentScores = currentUser.getSentimentForFilteredEmails(em);
+                    double score = Email.getOverallSentimentDbl(sentimentScores);
+                    DashboardController.sentimentGauge.setValue(score);
+                }
+
+            }
+        });
+
+        updateGauge.start();
+
+        sentimentGauge = TileBuilder.create()
+                .skinType(Tile.SkinType.BAR_GAUGE)
+                .backgroundColor(Color.TRANSPARENT)
+                .title("Sentiment")
+                .unit("%")
+                .value(0)
+                .gradientStops(new Stop(0, Color.valueOf("#fc5c65")),
+                        new Stop(0.25, Color.valueOf("#fd9644")),
+                        new Stop(0.5, Color.valueOf("#fed330")),
+                        new Stop(0.75, Color.valueOf("#26de81")),
+                        new Stop(1.0, Color.valueOf("#45aaf2")))
+                .strokeWithGradient(true)
+                .highlightSections(true)
+                .averagingPeriod(25)
+                .autoReferenceValue(true)
+                .titleAlignment(TextAlignment.LEFT)
+                .prefSize(350, 350)
+                .maxSize(350, 350)
+                .animated(true)
+                .build();
+        masonryPane.getChildren().add(sentimentGauge);
+
+
 
     }
 

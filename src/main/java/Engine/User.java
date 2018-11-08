@@ -76,6 +76,18 @@ public class User {
         return sentiment;
     }
 
+
+    public int [] getSentimentForFilteredEmails(ArrayList<Email> emails) {
+        int [] sentiment = {0,0,0,0,0};
+        for (Email e: emails) {
+            for (int i = 0; i<sentiment.length;i++) {
+                sentiment[i] += e.getSentimentScores()[i];
+            }
+        }
+        return sentiment;
+    }
+
+
     //TODO
     public int getReplyFrequency(ArrayList<Email> emails){
         int replied = 0;
@@ -299,7 +311,7 @@ public class User {
      * @param emailsToFilter ArrayList of emails to filter
      * @return ArrayList of filtered emails
      */
-    public ArrayList<Email> filterByDomain(String domain, ArrayList<Email> emailsToFilter){
+    public synchronized ArrayList<Email> filterByDomain(String domain, ArrayList<Email> emailsToFilter){
         ArrayList<Email> filteredEmails = new ArrayList<>();
         for (Email e: emailsToFilter){
             if(e.getDomain().equalsIgnoreCase(domain)){
