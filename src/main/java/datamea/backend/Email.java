@@ -86,6 +86,7 @@ public class Email {
 
             //add fields to reconstruct sentiment analysis
 
+
             this.sentimentScores[0] = Integer.parseInt(br.readLine());
             this.sentimentScores[1] = Integer.parseInt(br.readLine());
             this.sentimentScores[2] = Integer.parseInt(br.readLine());
@@ -107,6 +108,10 @@ public class Email {
             System.out.println("File not found");
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (NumberFormatException e) {
+            System.out.println("this email cannot be properly processed... Invalid form");
+            System.out.println(f.getName());
+            f.delete();
         }
 
     }

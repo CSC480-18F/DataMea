@@ -597,7 +597,7 @@ public class DashboardController implements Initializable {
             public void run() {
                 while (true) {
                     try {
-                        Thread.sleep(1000);
+                        updateGauge.sleep(1000);
                     } catch (InterruptedException e) {
                         System.out.println("interrupted thread");
                         break;

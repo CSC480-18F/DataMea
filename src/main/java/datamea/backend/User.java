@@ -105,7 +105,14 @@ public class User {
 
         ArrayList<String> domains = new ArrayList<>();
         for (Email e: emails) {
-                String address = e.getSender().getAddress().substring(e.getSender().getAddress().indexOf("@"));
+                int l = e.getSender().getAddress().indexOf("@");
+                String address;
+                if (l > -1) {
+                    address = e.getSender().getAddress().substring(l);
+                } else {
+                    address = e.getSender().getAddress();
+                }
+
                 int quoteLocation = address.indexOf("\"" /*,address.indexOf("\"")+1*/);
                 int caratLocation = address.indexOf(">");
                 String d;

@@ -140,15 +140,17 @@ public class BackgroundSentiment extends Task<Void> {
 
                             //do sentiment stuff and update file with the correct info
                             Message currentMessage = messages[i];
+                            Email tempEmail = new Email(currentMessage, new Sender(currentMessage.getFrom()[0].toString()), true);
+                            String fileName = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/" + currentMessage.getReceivedDate().getTime() + ".txt";
+                            System.out.println("Analysing email: " + i + " -- " + fileName);
 
                             try {
-                                Email tempEmail = new Email(currentMessage, new Sender(currentMessage.getFrom()[0].toString()), true);
-                                String fileName = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/" + currentMessage.getReceivedDate().getTime() + ".txt";
-                                System.out.println("Analysing email: " + i + " -- " + fileName);
                                 updateEmailFile(fileName, tempEmail.getSentimentScores(), tempEmail.getLanguage());
-                                //DashboardController.sentimentGauge.setValue(tempEmail.getSentimentScores());
-                            } catch (Exception e) {
+                            } catch (IOException e) {
                                 e.printStackTrace();
+                                System.out.println("\t\tcaught the messed up email!!!!");
+                                deleteEmail(fileName);
+                                incrementFolder(f.getName(), f.getName());
                                 break;
                             }
 
@@ -177,37 +179,17 @@ public class BackgroundSentiment extends Task<Void> {
 
                                 try {
                                     updateEmailFile(fileName, tempEmail.getSentimentScores(), tempEmail.getLanguage());
-                                    final Email temp = tempEmail;
-                                    //Load DashboardController
-                                    FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("Dashboard_Home.fxml"));
-                                    AnchorPane root = loader.load();
-                                    DashboardController dashboardController = loader.getController();
-                                    totalSentimentRan += i;
-                                    double progress = (double) totalSentimentRan/User.getTotalNumberOfEmails();
-                                    updateGauge = new Timeline(
-                                            new KeyFrame(Duration.seconds(0), evt -> {
-                                                DashboardController.sentimentGauge.setValue(Email.getOverallSentimentDbl(currentUser.getOverallSentiment()));
-                                                dashboardController.progressBar.setProgress(progress);
-                                                if(progress==1){
-                                                    dashboardController.progressBar.setProgress(0);
-                                                    dashboardController.progressBar.setVisible(false);
-                                                }
-                                            }),
-                                            new KeyFrame(Duration.seconds(1))
-                                    );
-                                    updateGauge.setCycleCount(Animation.INDEFINITE);
-                                    updateGauge.play();
-                                } catch (Exception e) {
+                                } catch (IOException e) {
                                     e.printStackTrace();
+                                    System.out.println("\t\tcaught the messed up email in the subfolder!!!");
+                                    deleteEmail(fileName);
+                                    incrementFolder(f.getName(), sub.getName());
                                     break;
                                 }
                             }
                         }
                     }
                     f.close();
-                    if(updateGauge != null){
-                        updateGauge.stop();
-                    }
                 }
             }
 
@@ -216,6 +198,12 @@ public class BackgroundSentiment extends Task<Void> {
             System.out.println("Cannot open folder..");
         }
 
+    }
+
+    //delete emails that arent serialized properly (happens 2 in 6000 tested emails.......)
+    public void deleteEmail(String fileName) {
+        File f = new File(fileName);
+        f.delete();
     }
 
 
