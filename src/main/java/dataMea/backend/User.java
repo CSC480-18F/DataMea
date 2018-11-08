@@ -180,7 +180,7 @@ public class User {
     public Map<String, Long> getSendersFreq(ArrayList<Email> emails) {
         ArrayList<String> senders = new ArrayList<>();
         for (Email e : emails) {
-            senders.add(e.getSender().getAddress());
+            senders.add(Sender.filterEmailAddress(e.getSender().getAddress()));
         }
 
         String [] sendersArray = new String[senders.size()];
@@ -1075,7 +1075,7 @@ public class User {
         this.password = password;
     }
 
-    public ArrayList<Email> getEmails() {
+    public synchronized ArrayList<Email> getEmails() {
         return emails;
     }
 
