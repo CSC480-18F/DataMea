@@ -43,6 +43,7 @@ import javafx.scene.paint.Stop;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -111,8 +112,8 @@ public class DashboardController implements Initializable {
     private Map<String, Long> languages;
     private ArrayList<ChartData> languagesData = new ArrayList<>();
     public static Tile sentimentGauge;
-    private long              lastTimerCall;
-    private AnimationTimer    timer;
+    private long lastTimerCall;
+    private AnimationTimer timer;
     private static final Random RND = new Random();
     private ArrayList<Filter> currentFilters = new ArrayList<>();
     private ArrayList<String> currentFiltersNames = new ArrayList<>(); //easiest way of keeping track of whether or not we added a filter already don't yell at me lol it's greasy its 2am cut me some slack gosh
@@ -126,7 +127,7 @@ public class DashboardController implements Initializable {
         topSendersData.add(d);
     }
 
-    public User getUser(){
+    public User getUser() {
         return currentUser;
     }
 
@@ -176,7 +177,7 @@ public class DashboardController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("Filters_Drawer.fxml"));
             AnchorPane filtersPane = loader.load();
             filterDrawerClass = loader.getController();
-            filterDrawerClass.filtersAnchorPane.maxWidthProperty().bind(anchorPane.widthProperty());
+            filterDrawerClass.filtersAnchorPane.maxWidthProperty().bind(topBarGridPane.widthProperty());
             filtersDrawer.setSidePane(filtersPane);
         } catch (IOException ex) {
             Logger.getLogger(DashboardController.class.getName()).log(Level.SEVERE, null, ex);
@@ -259,7 +260,7 @@ public class DashboardController implements Initializable {
                             .backgroundColor(Color.TRANSPARENT)
                             .title("Top Senders")
                             .titleAlignment(TextAlignment.LEFT)
-                            .minSize(480,480)
+                            .minSize(480, 480)
                             .prefSize(480, 480)
                             .maxSize(480, 480)
                             .chartData(topSendersData)
@@ -271,11 +272,9 @@ public class DashboardController implements Initializable {
                         if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
                             ChartData data = e.getData();
                             System.out.println("Selected " + data.getName());
-                            addFilter(data.getName(),true,false,false,false,false);
+                            addFilter(data.getName(), true, false, false, false, false);
                         }
                     });
-
-
 
                     //Folders SunburstChart:
                     TreeNode<ChartData> folderTree = currentUser.getFoldersCountForSunburst();
@@ -304,11 +303,10 @@ public class DashboardController implements Initializable {
                     foldersSunburstChart.setOnTileEvent((e) -> {
                         if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
                             System.out.println("Clicked on folder " + e.getData().getName());
-                            addFilter(e.getData().getName(),false,true,false,false,false);
+                            addFilter(e.getData().getName(), false, true, false, false, false);
                         }
                     });
                     masonryPane.getChildren().add(foldersSunburstChart);
-
 
                     //Domains donut chart
                     domains = currentUser.getDomainFreq(currentUser.getEmails());
@@ -353,13 +351,12 @@ public class DashboardController implements Initializable {
                             @Override
                             public void handle(MouseEvent e) {
                                 //addFilter(d.getName());
-                                addFilter(d.getName(),false,false,true,false,false);
+                                addFilter(d.getName(), false, false, true, false, false);
                             }
                         });
                     }
                     domainDonutChart.getStylesheets().add(this.getClass().getClassLoader().getResource("donutchart.css").toExternalForm());
                     masonryPane.getChildren().add(domainDonutChart);
-
 
                     //Attachments radial chart
                     attachments = currentUser.getAttachmentFreq(currentUser.getEmails());
@@ -374,11 +371,11 @@ public class DashboardController implements Initializable {
                             attachmentsTotal += entry.getValue();
                             attachmentsData.add(temp);
                             attachmentsCount++;
-                        }else{
+                        } else {
                             attachmentsTotal += entry.getValue();
                         }
                     }
-                    for (int i = attachmentsCount; i<7; i++){
+                    for (int i = attachmentsCount; i < 7; i++) {
                         ChartData temp = new ChartData();
                         temp.setName("");
                         temp.setValue(0);
@@ -402,7 +399,7 @@ public class DashboardController implements Initializable {
                             DashboardDrawer.setLoadFolderList(false);
                             ChartData data = e.getData();
                             System.out.println("Selected " + data.getName());
-                            addFilter(data.getName(),false,false,false,true,false);
+                            addFilter(data.getName(), false, false, false, true, false);
                             //addFilter(data.getName());
                         }
                     });
@@ -469,8 +466,8 @@ public class DashboardController implements Initializable {
                     heatMapAndTitle.getChildren().addAll(heatMapTitle, heatMapPane);
                     heatMapAndTitle.setSpacing(5);
                     heatMapAndTitle.setPadding(new Insets(20));
-                    heatMapAndTitle.setPrefSize(600,480);
-                    heatMapAndTitle.setMaxSize(600,480);
+                    heatMapAndTitle.setPrefSize(600, 480);
+                    heatMapAndTitle.setMaxSize(600, 480);
                     masonryPane.getChildren().add(heatMapAndTitle);
                     //Sentiment Gauge:
                     sentimentGauge = TileBuilder.create()
@@ -510,12 +507,12 @@ public class DashboardController implements Initializable {
 
 
                     //Update List of folders in drawer
-                    dashboardDrawer.listView.setOnMouseClicked(new ListViewHandler(){
+                    dashboardDrawer.listView.setOnMouseClicked(new ListViewHandler() {
                         @Override
                         public void handle(javafx.scene.input.MouseEvent event) {
                             String folderSelected = dashboardDrawer.list.get(dashboardDrawer.listView.getSelectionModel().getSelectedIndex());
                             System.out.print("Selected" + folderSelected);
-                            addFilter(folderSelected,false,true,false,false,false);
+                            addFilter(folderSelected, false, true, false, false, false);
                         }
                     });
 
@@ -554,13 +551,13 @@ public class DashboardController implements Initializable {
     }
 
     public void updateAllCharts(ArrayList<Filter> filters) {
-        String folderName=null, subFolderName = null, sender = null,
-                domain = null,  attachment = null, startDate = null, endDate = null, language = null;
+        String folderName = null, subFolderName = null, sender = null,
+                domain = null, attachment = null, startDate = null, endDate = null, language = null;
         Date sDate = null, eDate = null;
 
         //TODO figure out how to add folder/subfolder stuff along with doing dates
 
-        for (Filter f: filters) {
+        for (Filter f : filters) {
             if (f.isTopSender()) {
                 sender = f.getName();
             } else if (f.isAttachment()) {
@@ -578,7 +575,7 @@ public class DashboardController implements Initializable {
             }
         }
 
-        if (subFolderName == null){
+        if (subFolderName == null) {
             subFolderName = folderName;
         }
 
@@ -587,10 +584,10 @@ public class DashboardController implements Initializable {
 
         // TODO ADD OTHER CHARTS BELOW
 
-            updateTopSenders(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
-            updateDomains(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
-            updateAttachments(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
-            updateHeatMap(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
+        updateTopSenders(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
+        updateDomains(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
+        updateAttachments(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
+        updateHeatMap(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
 
     }
 
@@ -598,7 +595,7 @@ public class DashboardController implements Initializable {
 
         masonryPane.getChildren().removeAll(heatMapAndTitle);
 
-        ArrayList<Email> em = currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment);
+        ArrayList<Email> em = currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment);
         int[][] heatMapData = currentUser.generateDayOfWeekFrequency(em);
         heatMapAndTitle = new VBox();
         Pane heatMapPane = new Pane();
@@ -656,25 +653,25 @@ public class DashboardController implements Initializable {
         heatMapAndTitle.getChildren().addAll(heatMapTitle, heatMapPane);
         heatMapAndTitle.setSpacing(5);
         heatMapAndTitle.setPadding(new Insets(20));
-        heatMapAndTitle.setPrefSize(600,480);
-        heatMapAndTitle.setMaxSize(600,480);
+        heatMapAndTitle.setPrefSize(600, 480);
+        heatMapAndTitle.setMaxSize(600, 480);
         masonryPane.getChildren().add(heatMapAndTitle);
 
     }
 
-    public void updateTopSenders(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment){
+    public void updateTopSenders(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment) {
         masonryPane.getChildren().removeAll(topSendersRadialChart);
 
         //Update array list of top senders with new folder info
         topSendersData = new ArrayList<>();
-        Map<String,Long> topSenders = currentUser.getSendersFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment));
+        Map<String, Long> topSenders = currentUser.getSendersFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment));
 
         //Maps are the worst thing ever, thanks a lot Cedric...
-        List<Map.Entry<String,Long>> entries = new ArrayList<>(topSenders.entrySet());
+        List<Map.Entry<String, Long>> entries = new ArrayList<>(topSenders.entrySet());
         for (int i = 0; i < 7; i++) {
             //Created ChartData for top senders radial chart
             ChartData temp = new ChartData();
-                if (i < entries.size()) {
+            if (i < entries.size()) {
                 temp.setValue((double) entries.get(i).getValue());
                 temp.setName(Sender.filterEmailAddress(entries.get(i).getKey()));
                 temp.setFillColor(User.colors.get(i));
@@ -701,18 +698,18 @@ public class DashboardController implements Initializable {
             if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
                 ChartData data = e.getData();
                 System.out.println("Selected " + data.getName());
-                addFilter(data.getName(),true,false,false,false,false);
+                addFilter(data.getName(), true, false, false, false, false);
             }
         });
-        masonryPane.getChildren().add(0,topSendersRadialChart);
+        masonryPane.getChildren().add(0, topSendersRadialChart);
     }
 
-    public void updateDomains(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment){
+    public void updateDomains(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment) {
         masonryPane.getChildren().removeAll(domainDonutChart);
 
         domains = null;
         domainsData = FXCollections.observableArrayList();
-        domains = currentUser.getDomainFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment));
+        domains = currentUser.getDomainFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment));
         PieChart.Data domainOther = new PieChart.Data("Other", 0);
         int domainCount = 0;
         for (Map.Entry<String, Long> entry : domains.entrySet()) {
@@ -752,7 +749,7 @@ public class DashboardController implements Initializable {
             d.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent e) {
-                    addFilter(d.getName(),false,false,true,false,false);
+                    addFilter(d.getName(), false, false, true, false, false);
                     //addFilter(d.getName());
                 }
             });
@@ -761,12 +758,12 @@ public class DashboardController implements Initializable {
         masonryPane.getChildren().add(domainDonutChart);
     }
 
-    public void updateAttachments(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment){
+    public void updateAttachments(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment) {
         masonryPane.getChildren().removeAll(attachmentsRadialChart);
         //If the it's not updating from a new folder keep the main folder
 
         attachments = null;
-        attachments = currentUser.getAttachmentFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment));
+        attachments = currentUser.getAttachmentFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment));
         attachmentsData = new ArrayList<>();
         int attachmentsCount = 0;
         int attachmentsTotal = 0;
@@ -779,11 +776,11 @@ public class DashboardController implements Initializable {
                 attachmentsTotal += entry.getValue();
                 attachmentsData.add(temp);
                 attachmentsCount++;
-            }else{
+            } else {
                 attachmentsTotal += entry.getValue();
             }
         }
-        for (int i = attachmentsCount; i<7; i++){
+        for (int i = attachmentsCount; i < 7; i++) {
             ChartData temp = new ChartData();
             temp.setName("");
             temp.setValue(0);
@@ -807,13 +804,12 @@ public class DashboardController implements Initializable {
                 DashboardDrawer.setLoadFolderList(false);
                 ChartData data = e.getData();
                 System.out.println("Selected " + data.getName());
-                addFilter(data.getName(),false,false,false,true,false);
+                addFilter(data.getName(), false, false, false, true, false);
                 //addFilter(data.getName());
             }
         });
         masonryPane.getChildren().add(attachmentsRadialChart);
     }
-
 
 
     private void addFilter(String name, boolean isTopSender, boolean isFolder, boolean isDomain, boolean isAttachment, boolean isLanguage) {
@@ -841,7 +837,7 @@ public class DashboardController implements Initializable {
                         ObservableList<Node> chips = filterDrawerClass.filterHbox.getChildren();
 
                         for (Node n : chips) {
-                            Label chipLabel = (Label)n.lookup(".hbox-filter .label");
+                            Label chipLabel = (Label) n.lookup(".hbox-filter .label");
                             String chipText = chipLabel.getText();
                             if (chipText.equals(f.getName())) {
 
@@ -889,7 +885,7 @@ public class DashboardController implements Initializable {
                         ObservableList<Node> chips = filterDrawerClass.filterHbox.getChildren();
 
                         for (Node n : chips) {
-                            Label chipLabel = (Label)n.lookup(".hbox-filter .label");
+                            Label chipLabel = (Label) n.lookup(".hbox-filter .label");
                             String chipText = chipLabel.getText();
                             if (chipText.equals(f.getName())) {
 
@@ -938,7 +934,7 @@ public class DashboardController implements Initializable {
                         ObservableList<Node> chips = filterDrawerClass.filterHbox.getChildren();
 
                         for (Node n : chips) {
-                            Label chipLabel = (Label)n.lookup(".hbox-filter .label");
+                            Label chipLabel = (Label) n.lookup(".hbox-filter .label");
                             String chipText = chipLabel.getText();
                             if (chipText.equals(f.getName())) {
 
@@ -987,7 +983,7 @@ public class DashboardController implements Initializable {
                         ObservableList<Node> chips = filterDrawerClass.filterHbox.getChildren();
 
                         for (Node n : chips) {
-                            Label chipLabel = (Label)n.lookup(".hbox-filter .label");
+                            Label chipLabel = (Label) n.lookup(".hbox-filter .label");
                             String chipText = chipLabel.getText();
                             if (chipText.equals(f.getName())) {
 
@@ -1034,7 +1030,7 @@ public class DashboardController implements Initializable {
                         ObservableList<Node> chips = filterDrawerClass.filterHbox.getChildren();
 
                         for (Node n : chips) {
-                            Label chipLabel = (Label)n.lookup(".hbox-filter .label");
+                            Label chipLabel = (Label) n.lookup(".hbox-filter .label");
                             String chipText = chipLabel.getText();
                             if (chipText.equals(f.getName())) {
 
