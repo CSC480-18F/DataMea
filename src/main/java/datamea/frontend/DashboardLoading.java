@@ -2,11 +2,14 @@ package datamea.frontend;
 
 import com.jfoenix.controls.*;
 import com.jfoenix.controls.events.JFXDialogEvent;
+import datamea.backend.Main;
+import datamea.backend.User;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -76,6 +79,8 @@ public class DashboardLoading implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+
+
         loadingOnCloseRequest.addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -132,6 +137,23 @@ public class DashboardLoading implements Initializable {
                     );
 
                     appEmail_Recipient = DashboardLogin.getEmail();
+
+
+                    User current = Main.getCurrentUser();
+                    new Thread(current).start();
+                    progressBar.progressProperty().unbind();
+                    progressBar.progressProperty().bind(current.progressProperty());
+                    progressBar.addEventHandler(WorkerStateEvent.WORKER_STATE_RUNNING,
+                            new EventHandler<WorkerStateEvent>() {
+                                @Override
+                                public void handle(WorkerStateEvent event) {
+                                    progressBar.setProgress(current.getProgress());
+                                    System.out.println("updated progress bar");
+                                }
+                            });
+
+
+
 
                     emailNotify.selectedProperty().addListener(new ChangeListener<Boolean>() {
                         @Override

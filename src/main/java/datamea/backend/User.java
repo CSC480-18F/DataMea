@@ -5,6 +5,8 @@ import datamea.frontend.DashboardLoading;
 import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.tools.TreeNode;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
+
 import javax.mail.*;
 import java.awt.*;
 import java.io.IOException;
@@ -15,7 +17,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class User {
+public class User extends Task<Void>{
 
     //------------------Declaring Variables------------------//
     private String                  USERNAME_FILE = "TextFiles/userNames.txt";
@@ -33,10 +35,20 @@ public class User {
     private int totalProgress = 0;
 
 
+    @Override
+    protected Void call() throws Exception {
+        this.updateProgress(getNumberOfSerializedEmails(), User.getTotalNumberOfEmails());
+        serializeUser(false);
+        emails = recoverSerializedEmails();
+        folders = recoverFolders();
+        return null;
+    }
+
+
     public User(String email, String password, Boolean runSentimentAnalysis) {
         this.email = email;
         this.password = password;
-
+/*
         try {
             serializeUser(runSentimentAnalysis);
         } catch (IOException e) {
@@ -48,7 +60,7 @@ public class User {
         //recover all serialized emails right here
         emails = recoverSerializedEmails();
         folders = recoverFolders();
-
+*/
     }
 
 
@@ -564,7 +576,6 @@ public class User {
         }
 
         return emails;
-
     }
 
 
@@ -681,6 +692,17 @@ public class User {
     }
 
 
+    public int getNumberOfSerializedEmails(){
+
+        try {
+            return new File("TextFiles/" + encrypt(email) + "/").listFiles().length;
+        } catch (NullPointerException e) {
+            return 0;
+        }
+
+    }
+
+
     public void readFolderAndSerializeEmails(Folder f, boolean runSentiment) {
 
         //to do
@@ -778,6 +800,9 @@ public class User {
                 dashboardLoading.progressBar.setProgress(totalProgress/getTotalNumberOfEmails());
                     });*/
             System.out.println("processing: " + i);
+
+            this.updateProgress(getNumberOfSerializedEmails(), User.getTotalNumberOfEmails());
+
             Message m = messages[i];
             String sender = "Unknown";
             Long receivedDate = 0l;
@@ -1112,6 +1137,9 @@ public class User {
                 return "";
         }
     }
+
+
+
 }
 
 

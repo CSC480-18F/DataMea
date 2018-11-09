@@ -46,6 +46,7 @@ public class Main extends Application {
         @Override
         protected Void call() throws Exception {
             currentUser = new User(DashboardLogin.getEmail(), DashboardLogin.getPassword(), false);
+
             System.out.println("Data Loaded");
             folders = currentUser.recoverFolders();
             return null;
