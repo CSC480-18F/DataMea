@@ -1,9 +1,6 @@
 package datamea.frontend;
 
-import datamea.backend.Main;
-import datamea.backend.Sender;
-import datamea.backend.User;
-import datamea.backend.Email;
+import datamea.backend.*;
 import com.jfoenix.controls.*;
 import com.jfoenix.transitions.hamburger.HamburgerBasicCloseTransition;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
@@ -24,6 +21,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -123,6 +121,7 @@ public class DashboardController implements Initializable {
     private ArrayList<String> currentFiltersNames = new ArrayList<>(); //easiest way of keeping track of whether or not we added a filter already don't yell at me lol it's greasy its 2am cut me some slack gosh
     public static Thread updateGauge = null;
     private DoubleProperty scrollPaneLocation = new SimpleDoubleProperty(this, "scrollPaneLocation");
+    private BackgroundSentiment backgroundSentiment;
 
     public static void setStage(Stage s) {
         myStage = s;
@@ -239,6 +238,7 @@ public class DashboardController implements Initializable {
         filterDrawerClass.applyFilters.addEventHandler(MouseEvent.MOUSE_PRESSED, (e) -> {
             updateAllCharts(currentFilters);
         });
+
 
         loadedFromLoginScreen.addListener(new ChangeListener<Boolean>() {
             @Override
@@ -483,6 +483,39 @@ public class DashboardController implements Initializable {
                             .animated(true)
                             .build();
                     masonryPane.getChildren().add(sentimentGauge);
+
+                    backgroundSentiment = new BackgroundSentiment();
+                    new Thread (backgroundSentiment).start();
+                    progressBar.progressProperty().unbind();
+                    progressBar.setProgress(0);
+                    progressBar.progressProperty().bind(backgroundSentiment.progressProperty());
+                    progressBar.addEventHandler(WorkerStateEvent.WORKER_STATE_RUNNING,
+                            new EventHandler<WorkerStateEvent>() {
+                                @Override
+                                public void handle(WorkerStateEvent event) {
+                                    progressBar.setProgress(backgroundSentiment.getProgress());
+                                    System.out.println("updated progress bar");
+                                }
+                            });
+
+
+                    DashboardController.updateGauge = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            while (true) {
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                    System.out.println("Thread was interrupted");
+                                    break;
+                                }
+                                DashboardController.sentimentGauge.setValue(Email.getOverallSentimentDbl(currentUser.getOverallSentiment()));
+                            }
+                        }
+                    });
+                    DashboardController.updateGauge.start();
+
+
                     //Emulate Data
                     lastTimerCall = System.nanoTime();
                     /*timer = new AnimationTimer() {
@@ -527,6 +560,8 @@ public class DashboardController implements Initializable {
             }
         });
 
+
+
         homeOnCloseRequest.addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -542,6 +577,7 @@ public class DashboardController implements Initializable {
             }
         });
     }
+
 
     public void updateAllCharts(ArrayList<Filter> filters) {
         String folderName = null, subFolderName = null, sender = null,

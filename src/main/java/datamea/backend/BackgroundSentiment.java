@@ -5,12 +5,15 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
 
 import javax.mail.*;
 import java.io.*;
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Properties;
 
@@ -43,8 +46,11 @@ public class BackgroundSentiment extends Task<Void> {
     int totalSentimentRan = 0;
 
 
+
     @Override
     protected Void call() throws Exception {
+
+        this.updateProgress(getTotalSentimentRan(), User.getTotalNumberOfEmails());
 
         Properties props = System.getProperties();
         props.setProperty("mail.store.protocol", "imaps");
@@ -111,24 +117,6 @@ public class BackgroundSentiment extends Task<Void> {
         //each time the sentiment is process, update the textFile through the updateEmailFile function
         try {
 
-            DashboardController.updateGauge = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (true) {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            System.out.println("Thread was interrupted");
-                            break;
-                        }
-                        DashboardController.sentimentGauge.setValue(Email.getOverallSentimentDbl(currentUser.getOverallSentiment()));
-                    }
-                }
-            });
-            DashboardController.updateGauge.start();
-
-
-
             for (Folder f : folders) {
                 if (f.getName().equals(folder)) {
                     f.open(Folder.READ_ONLY);
@@ -143,6 +131,9 @@ public class BackgroundSentiment extends Task<Void> {
                             Email tempEmail = new Email(currentMessage, new Sender(currentMessage.getFrom()[0].toString()), true);
                             String fileName = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/" + currentMessage.getReceivedDate().getTime() + ".txt";
                             System.out.println("Analysing email: " + i + " -- " + fileName + "\n" + f.getName());
+
+                            this.updateProgress(getTotalSentimentRan(), User.getTotalNumberOfEmails());
+                            System.out.println("total number of emails: " + User.getTotalNumberOfEmails() + "\nEmails Processed: " + getTotalSentimentRan());
 
                             try {
                                 updateEmailFile(fileName, tempEmail.getSentimentScores(), tempEmail.getLanguage());
@@ -176,6 +167,8 @@ public class BackgroundSentiment extends Task<Void> {
                                 }
                                 String fileName = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/" + currentMessage.getReceivedDate().getTime() + ".txt";
                                 System.out.println("Analysing email: " + i + " -- " + fileName + "\n" + f.getName() + " -- " + sub.getName());
+                                this.updateProgress(getTotalSentimentRan(), User.getTotalNumberOfEmails());
+                                System.out.println("total number of emails: " + User.getTotalNumberOfEmails() + "\nEmails Processed: " + getTotalSentimentRan());
 
                                 try {
                                     updateEmailFile(fileName, tempEmail.getSentimentScores(), tempEmail.getLanguage());
@@ -204,6 +197,35 @@ public class BackgroundSentiment extends Task<Void> {
     public void deleteEmail(String fileName) {
         File f = new File(fileName);
         f.delete();
+    }
+
+    public int getTotalSentimentRan() {
+        try {
+            int processed = 0;
+            BufferedReader br = new BufferedReader(new FileReader(new File(lastReadSentimentFile)));
+            ArrayList<String> fileStrings = new ArrayList<>();
+
+            for (String line = ""; line!=null ; line = br.readLine()) {
+                if (line != "") {
+                    fileStrings.add(line);
+                }
+            }
+
+            br.close();
+
+
+            for (String l: fileStrings) {
+                String[] parts = l.split(" ---> ");
+                processed += Integer.parseInt(parts[2]);
+            }
+            totalSentimentRan = processed;
+            return processed;
+        } catch (FileNotFoundException e) {
+            return 0;
+        } catch (IOException e) {
+            return 0;
+        }
+
     }
 
 

@@ -29,7 +29,7 @@ public class Main extends Application {
     private static BooleanProperty          startLoading        = new SimpleBooleanProperty(false);
     private static ArrayList<UserFolder>    folders;
     private        ArrayList<Color>         colors              = new ArrayList<>();
-    private        BackgroundSentiment      backgroundSentiment;
+    private static BackgroundSentiment      backgroundSentiment;
 
 
     public static ArrayList<UserFolder> getFolders() {
@@ -122,7 +122,7 @@ public class Main extends Application {
                             backgroundSentiment.setOnSucceeded(f -> {
 
                             });
-                            t2.start();
+                            //t2.start();
 
                             setLoadedFromLoginScreenToTrue();
                             DashboardLoading.setStopVideoToTrue();
@@ -165,5 +165,10 @@ public class Main extends Application {
         DashboardLoading.getMyStage().setScene(oldScene == null
                 ? new Scene(root, DashboardLoading.getMyStage().getMinWidth(), DashboardLoading.getMyStage().getMinHeight())
                 : new Scene(root, oldScene.getWidth(), oldScene.getHeight()));
+    }
+
+
+    public static BackgroundSentiment getBackgroundSentiment() {
+        return backgroundSentiment;
     }
 }
