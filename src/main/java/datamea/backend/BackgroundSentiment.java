@@ -142,7 +142,7 @@ public class BackgroundSentiment extends Task<Void> {
                             Message currentMessage = messages[i];
                             Email tempEmail = new Email(currentMessage, new Sender(currentMessage.getFrom()[0].toString()), true);
                             String fileName = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/" + currentMessage.getReceivedDate().getTime() + ".txt";
-                            System.out.println("Analysing email: " + i + " -- " + fileName);
+                            System.out.println("Analysing email: " + i + " -- " + fileName + "\n" + f.getName());
 
                             try {
                                 updateEmailFile(fileName, tempEmail.getSentimentScores(), tempEmail.getLanguage());
@@ -175,7 +175,7 @@ public class BackgroundSentiment extends Task<Void> {
                                     System.out.println("email has been deleted...");
                                 }
                                 String fileName = "TextFiles/" + User.encrypt(currentUser.getEmail()) + "/" + currentMessage.getReceivedDate().getTime() + ".txt";
-                                System.out.println("Analysing email: " + i + " From folder " + f.getName() + " - " + sub.getName());
+                                System.out.println("Analysing email: " + i + " -- " + fileName + "\n" + f.getName() + " -- " + sub.getName());
 
                                 try {
                                     updateEmailFile(fileName, tempEmail.getSentimentScores(), tempEmail.getLanguage());
