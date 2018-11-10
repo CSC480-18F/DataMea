@@ -41,6 +41,7 @@ public class User extends Task<Void>{
         serializeUser(false);
         emails = recoverSerializedEmails();
         folders = recoverFolders();
+        DashboardLoading.setLoadingBarToTrue();
         return null;
     }
 
@@ -801,7 +802,9 @@ public class User extends Task<Void>{
                     });*/
             System.out.println("processing: " + i);
 
-            this.updateProgress(getNumberOfSerializedEmails(), User.getTotalNumberOfEmails());
+            int processed = getNumberOfSerializedEmails();
+            int total = User.getTotalNumberOfEmails();
+            this.updateProgress(processed,total/2);
 
             Message m = messages[i];
             String sender = "Unknown";

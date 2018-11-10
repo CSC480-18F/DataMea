@@ -55,6 +55,7 @@ public class DashboardLoading implements Initializable {
     private static String appEmail_Recipient;
     private static BooleanProperty readyLoadingScreen = new SimpleBooleanProperty(false);
     private static BooleanProperty loadingOnCloseRequest = new SimpleBooleanProperty(false);
+    private static BooleanProperty loadingBar = new SimpleBooleanProperty(false);
 
 
     public static void setStopVideoToTrue() {
@@ -67,6 +68,10 @@ public class DashboardLoading implements Initializable {
 
     public static void setLoadingOnCloseRequest(Boolean b) {
         loadingOnCloseRequest.setValue(b);
+    }
+
+    public static void setLoadingBarToTrue() {
+        loadingBar.setValue(true);
     }
 
     public static void setStage(Stage stage) {
@@ -127,17 +132,10 @@ public class DashboardLoading implements Initializable {
 
         emailNotify.setCursor(Cursor.HAND);
 
-        readyLoadingScreen.addListener(new ChangeListener<Boolean>() {
+        loadingBar.addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if (newValue) {
-
-                    tutorialVideo.getEngine().load(
-                            "https://www.youtube.com/embed/J---aiyznGQ?autoplay=1"
-                    );
-
-                    appEmail_Recipient = DashboardLogin.getEmail();
-
 
                     User current = Main.getCurrentUser();
                     new Thread(current).start();
@@ -148,10 +146,28 @@ public class DashboardLoading implements Initializable {
                                 @Override
                                 public void handle(WorkerStateEvent event) {
                                     progressBar.setProgress(current.getProgress());
+//                                    if (current.getProgress() > 0.99) {
+//                                        loadingBar.setValue(false);
+//                                    }
                                     System.out.println("updated progress bar");
                                 }
                             });
+                }
+            }
+        });
 
+
+
+        readyLoadingScreen.addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+
+                    tutorialVideo.getEngine().load(
+                            "https://www.youtube.com/embed/J---aiyznGQ?autoplay=1"
+                    );
+
+                    appEmail_Recipient = DashboardLogin.getEmail();
 
 
 
@@ -217,5 +233,10 @@ public class DashboardLoading implements Initializable {
             }
         }
         folder.delete();
+    }
+
+
+    public void setLoadingBar(boolean newValue) {
+        loadingBar.setValue(newValue);
     }
 }
