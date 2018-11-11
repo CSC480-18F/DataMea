@@ -30,14 +30,16 @@ public class User extends Task<Void>{
     private int[][] dayOfWeekFrequency;
     private int frequencyDifference = -1;
     public static ArrayList<javafx.scene.paint.Color> colors = new ArrayList<>();
-    private static int totalNumberOfEmails = 0;
     private DashboardLoading dashboardLoading;
-    private int totalProgress = 0;
+
+    int numSerializedEmails = getNumberOfSerializedEmails();
+    private static int totalNumberOfEmails = 0;
 
 
     @Override
     protected Void call() throws Exception {
-        this.updateProgress(getNumberOfSerializedEmails(), User.getTotalNumberOfEmails());
+        numSerializedEmails = getNumberOfSerializedEmails();
+        this.updateProgress(numSerializedEmails, User.getTotalNumberOfEmails());
         serializeUser(false);
         emails = recoverSerializedEmails();
         folders = recoverFolders();
@@ -794,17 +796,14 @@ public class User extends Task<Void>{
         int numMessages = messages.length;
         for (int i = numMessages - 1; i >= 0; i--) {
 
-            totalProgress += i;
+
             /*Platform.runLater(()->{
                 FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("Loading_Screen.fxml"));
                 dashboardLoading = loader.getController();
                 dashboardLoading.progressBar.setProgress(totalProgress/getTotalNumberOfEmails());
                     });*/
             System.out.println("processing: " + i);
-
-            int processed = getNumberOfSerializedEmails();
-            int total = User.getTotalNumberOfEmails();
-            this.updateProgress(processed,total/2);
+            this.updateProgress(numSerializedEmails,totalNumberOfEmails/2);
 
             Message m = messages[i];
             String sender = "Unknown";
@@ -819,7 +818,7 @@ public class User extends Task<Void>{
             }
 
             if (this.getLastLogin() < receivedDate) {
-
+                numSerializedEmails++;
                 //serialize email
                 try {
                     Email e = new Email(messages[i], new Sender(sender), runSentiment);
