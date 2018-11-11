@@ -78,7 +78,7 @@ public class User extends Task<Void>{
     }
 
 
-
+    //TODO adjust for sentMail
     public int [] getOverallSentiment() {
         ArrayList <Email> emails = recoverSerializedEmails();
         int [] sentiment = {0,0,0,0,0};
@@ -115,43 +115,48 @@ public class User extends Task<Void>{
     }
 
 
-    public Map<String, Long> getDomainFreq(ArrayList<Email> emails){
+    public Map<String, Long> getDomainFreq(ArrayList<Email> emails, Boolean sent){
         //TODO; refine filters to remove weird chars
 
         ArrayList<String> domains = new ArrayList<>();
-        for (Email e: emails) {
-                int l = e.getSender().getAddress().indexOf("@");
-                String address;
-                if (l > -1) {
-                    address = e.getSender().getAddress().substring(l);
-                } else {
-                    address = e.getSender().getAddress();
-                }
+        ArrayList<String> addresses = new ArrayList<>();
 
-                int quoteLocation = address.indexOf("\"" /*,address.indexOf("\"")+1*/);
-                int caratLocation = address.indexOf(">");
-                String d;
-
-                int earlierLocation = -1;
-
-                if (quoteLocation < caratLocation && quoteLocation!=-1) {
-                    earlierLocation = quoteLocation;
-                } else {
-                    if (caratLocation != -1) {
-                        earlierLocation = caratLocation;
-                    }
-                }
-
-                if (earlierLocation == -1) {
-                    //none of the weird characters are found
-                    domains.add(address);
-                } else {
-                    //some weird characters are found
-                    d = address.substring(address.indexOf("@"), earlierLocation);
-                    domains.add(d);
-                }
-
+        for (Email e : emails) {
+            if ((!e.getFolder().equalsIgnoreCase("sent mail") && !sent))
+                addresses.add(e.getSender().getAddress());
+            else if (e.getFolder().equalsIgnoreCase("sent mail") && sent) {
+                addresses.addAll(e.getRecipients());
+            }
         }
+
+        for (String address : addresses) {
+            address = address.substring(address.indexOf("@"));
+            int quoteLocation = address.indexOf("\"" /*,address.indexOf("\"")+1*/);
+            int caratLocation = address.indexOf(">");
+            String d;
+
+            int earlierLocation = -1;
+
+            if (quoteLocation < caratLocation && quoteLocation != -1) {
+                earlierLocation = quoteLocation;
+            } else {
+                if (caratLocation != -1) {
+                    earlierLocation = caratLocation;
+                }
+            }
+
+            if (earlierLocation == -1) {
+                //none of the weird characters are found
+                domains.add(address);
+            } else {
+                //some weird characters are found
+                d = address.substring(address.indexOf("@"), earlierLocation);
+                domains.add(d);
+
+
+            }
+        }
+
 
         String [] doms = new String[domains.size()];
         doms = domains.toArray(doms);
@@ -167,13 +172,16 @@ public class User extends Task<Void>{
         return sorted;
     }
 
-    public Map<String, Long> getAttachmentFreq(ArrayList<Email> emails){
+    public Map<String, Long> getAttachmentFreq(ArrayList<Email> emails, Boolean sent){
         ArrayList<String> aTypes = new ArrayList<>();
         for (Email e: emails) {
-            //get everything after the @ symbol
-            ArrayList<String> atts = e.getAttachments();
-            if(atts != null){
-                aTypes.addAll(atts);
+            if((!e.getFolder().equalsIgnoreCase("sent mail") && !sent) ||
+                    (e.getFolder().equalsIgnoreCase("sent mail") && sent)) {
+                //get everything after the @ symbol
+                ArrayList<String> atts = e.getAttachments();
+                if (atts != null) {
+                    aTypes.addAll(atts);
+                }
             }
         }
         String [] aTypesAry = new String[aTypes.size()];
@@ -199,14 +207,20 @@ public class User extends Task<Void>{
     }
 
 
-    public Map<String, Long> getSendersFreq(ArrayList<Email> emails) {
-        ArrayList<String> senders = new ArrayList<>();
-        for (Email e : emails) {
-            senders.add(Sender.filterEmailAddress(e.getSender().getAddress()));
+    public Map<String, Long> getSendersOrRecipientsFreq(ArrayList<Email> emails, boolean sent) {
+        ArrayList<String> sendersOrRecipients = new ArrayList<>();
+        if(sent) {
+            for (Email e : emails) {
+                sendersOrRecipients.addAll(e.getRecipients());
+            }
+        } else {
+            for (Email e : emails) {
+                if( !e.getFolder().equalsIgnoreCase("sent mail"))
+                    sendersOrRecipients.add(e.getSender().getAddress());
+            }
         }
-
-        String [] sendersArray = new String[senders.size()];
-        sendersArray = senders.toArray(sendersArray);
+        String [] sendersArray = new String[sendersOrRecipients.size()];
+        sendersArray = sendersOrRecipients.toArray(sendersArray);
 
         Map<String, Long> freqs =
                 Stream.of(sendersArray)
@@ -276,6 +290,11 @@ public class User extends Task<Void>{
         ArrayList<Email> filteredEmails = new ArrayList<>();
 
         if (subFolderName == null && folderName.equals("All")) {
+            for (Email e : emailsToFilter) {
+                if (!e.getFolder().equalsIgnoreCase("sent mail")) {
+                    filteredEmails.add(e);
+                }
+            }
             return emailsToFilter;
         } else if (subFolderName == null) {
             for (Email e: emailsToFilter) {
@@ -335,8 +354,11 @@ public class User extends Task<Void>{
     public synchronized ArrayList<Email> filterByDomain(String domain, ArrayList<Email> emailsToFilter){
         ArrayList<Email> filteredEmails = new ArrayList<>();
         for (Email e: emailsToFilter){
-            if(e.getDomain().equalsIgnoreCase(domain)){
-                filteredEmails.add(e);
+            for(String d : e.getDomain(DashboardController.sentMail)){
+                if(d.equalsIgnoreCase(domain)){
+                    filteredEmails.add(e);
+                    break;
+                }
             }
         }
         return filteredEmails;
@@ -483,6 +505,7 @@ public class User extends Task<Void>{
 
 
     public ArrayList<Sender> getTopSendersForFolder(String folderName, String subFolderName) {
+
         boolean all = false;
         boolean subFolderBool = false;
         if (folderName.equals("AllFolders")) {
@@ -495,7 +518,7 @@ public class User extends Task<Void>{
         ArrayList<String> senderNames = new ArrayList<>();
         for (Email e : emails) {
             if ((e.getFolder().equals(folderName) && e.getSubFolder().equals(subFolderName))|| all || (e.getFolder().equals(folderName) && subFolderBool) ) {
-                if (!senderNames.contains(e.getSender().getAddress())) {
+                if (!senderNames.contains(e.getSender().getAddress()) && !e.getFolder().equalsIgnoreCase("sent mail")) {
                     senderNames.add(e.getSender().getAddress());
                     topSenders.add(new Sender(e.getSender().getAddress()));
                 } else {
@@ -780,7 +803,10 @@ public class User extends Task<Void>{
     public void writeMessages(Folder f, Folder sub, boolean runSentiment, String originPath) {
         System.out.println("Currently reading/writing: " + f.getName() + "    Subfolder: " + sub.getName());
         Message [] messages = new Message[0];
+        boolean sent = false;
 
+        if(f.getName().equalsIgnoreCase("sent mail"))
+            sent = true;
 
         try {
             if (!f.getName().equals(sub.getName())) {
@@ -809,6 +835,7 @@ public class User extends Task<Void>{
             String sender = "Unknown";
             Long receivedDate = 0l;
             try {
+
                 sender = m.getFrom()[0].toString();
                 receivedDate = m.getReceivedDate().getTime();
             } catch (ArrayIndexOutOfBoundsException e) {
@@ -819,9 +846,11 @@ public class User extends Task<Void>{
 
             if (this.getLastLogin() < receivedDate) {
                 numSerializedEmails++;
+
                 //serialize email
                 try {
                     Email e = new Email(messages[i], new Sender(sender), runSentiment);
+                    if (sent) e.setRecipients(m.getAllRecipients());
                     File currentEmail = new File(originPath + receivedDate + ".txt");
                     currentEmail.createNewFile();
 
@@ -861,6 +890,20 @@ public class User extends Task<Void>{
                         bw.write(l);
                     else
                         bw.write("unk");
+
+                    bw.newLine();
+
+                    //write recipients
+                    if(!sent)
+                        bw.write("0");
+                    else {
+                        bw.write(Integer.toString(e.getRecipients().size()));
+                        bw.newLine();
+                        for(String r : e.getRecipients()){
+                            bw.write(encrypt(r));
+                            bw.newLine();
+                        }
+                    }
 
                     //
                     bw.close();
@@ -907,26 +950,17 @@ public class User extends Task<Void>{
 
         }
 
-
-
-        //this right below is simply used to calculate how many emails are in total in the account (look at all folders)
-        for (int i = 0; i<folders.length; i++) {
-            String name = folders[i].getName();
-            if (!name.equalsIgnoreCase("[Gmail]")) {
-                folders[i].open(Folder.READ_ONLY);
-                Message [] messages = folders[i].getMessages();
-                totalNumberOfEmails += messages.length;
-                folders[i].close();
-            }
-
-        }
-
         for (int i = 0; i < folders.length; i++) {
             String name = folders[i].getName();
-            if (!name.equalsIgnoreCase("[Gmail]") /*&& !name.equalsIgnoreCase("inbox")*/ ) {
-                /// Create a new thread to do this!!!!!!!
-                readFolderAndSerializeEmails(folders[i], runSentiment);
+            if (!name.equalsIgnoreCase("inbox") ) {
+                if (name.equalsIgnoreCase("[Gmail]")) {
+                    System.out.println(Arrays.deepToString(folders[i].list()));
+                    readFolderAndSerializeEmails(folders[i].getFolder("Sent Mail"), runSentiment);
+                } else {
+                    /// Create a new thread to do this!!!!!!!
+                    readFolderAndSerializeEmails(folders[i], runSentiment);
 
+                }
             }
         }
     }
@@ -983,7 +1017,7 @@ public class User extends Task<Void>{
 
 
     //add a paramater to specify which emails to populate for the heatmap
-    public int[][] generateDayOfWeekFrequency(ArrayList<Email> emailsOfIntrest) {
+    public int[][] generateDayOfWeekFrequency(ArrayList<Email> emailsOfInterest, Boolean sent) {
 
         int ZERO = 0;
         int ONE = 100;
@@ -1015,37 +1049,41 @@ public class User extends Task<Void>{
 
         dayOfWeekFrequency = new int[7][24];
 
-        for (Email e : emailsOfIntrest) {
-            int dayOfWeek = e.getDayOfWeek() - 1;
-            Date d = e.getDate();
-            String time = dateFormatter.format(d);
-            int t = Integer.parseInt(time);
+            for (Email e : emailsOfInterest) {
+                if ((!e.getFolder().equalsIgnoreCase("sent mail") && !sent) ||
+                        (e.getFolder().equalsIgnoreCase("sent mail") && sent)) {
 
-            if (t >= ZERO && t < ONE) dayOfWeekFrequency[dayOfWeek][0]++;
-            else if (t >= ONE && t < TWO) dayOfWeekFrequency[dayOfWeek][1]++;
-            else if (t >= TWO && t < THREE) dayOfWeekFrequency[dayOfWeek][2]++;
-            else if (t >= THREE && t < FOUR) dayOfWeekFrequency[dayOfWeek][3]++;
-            else if (t >= FOUR && t < FIVE) dayOfWeekFrequency[dayOfWeek][4]++;
-            else if (t >= FIVE && t < SIX) dayOfWeekFrequency[dayOfWeek][5]++;
-            else if (t >= SIX && t < SEVEN) dayOfWeekFrequency[dayOfWeek][6]++;
-            else if (t >= SEVEN && t < EIGHT) dayOfWeekFrequency[dayOfWeek][7]++;
-            else if (t >= EIGHT && t < NINE) dayOfWeekFrequency[dayOfWeek][8]++;
-            else if (t >= NINE && t < TEN) dayOfWeekFrequency[dayOfWeek][9]++;
-            else if (t >= TEN && t < ELEVEN) dayOfWeekFrequency[dayOfWeek][10]++;
-            else if (t >= ELEVEN && t < TWELVE) dayOfWeekFrequency[dayOfWeek][11]++;
-            else if (t >= TWELVE && t < THIRT) dayOfWeekFrequency[dayOfWeek][12]++;
-            else if (t >= THIRT && t < FOURT) dayOfWeekFrequency[dayOfWeek][13]++;
-            else if (t >= FOURT && t < FIFT) dayOfWeekFrequency[dayOfWeek][14]++;
-            else if (t >= FIFT && t < SIXT) dayOfWeekFrequency[dayOfWeek][15]++;
-            else if (t >= SIXT && t < SEVENT) dayOfWeekFrequency[dayOfWeek][16]++;
-            else if (t >= SEVENT && t < EIGHTT) dayOfWeekFrequency[dayOfWeek][17]++;
-            else if (t >= EIGHTT && t < NINET) dayOfWeekFrequency[dayOfWeek][18]++;
-            else if (t >= NINET && t < TWENTY) dayOfWeekFrequency[dayOfWeek][19]++;
-            else if (t >= TWENTY && t < TWENTONE) dayOfWeekFrequency[dayOfWeek][20]++;
-            else if (t >= TWENTONE && t < TWENTTWO) dayOfWeekFrequency[dayOfWeek][21]++;
-            else if (t >= TWENTTWO && t < TWENTTHREE) dayOfWeekFrequency[dayOfWeek][22]++;
-            else if (t >= TWENTTHREE && t < TWENTFOUR) dayOfWeekFrequency[dayOfWeek][23]++;
-        }
+                    int dayOfWeek = e.getDayOfWeek() - 1;
+                    Date d = e.getDate();
+                    String time = dateFormatter.format(d);
+                    int t = Integer.parseInt(time);
+
+                    if (t >= ZERO && t < ONE) dayOfWeekFrequency[dayOfWeek][0]++;
+                    else if (t >= ONE && t < TWO) dayOfWeekFrequency[dayOfWeek][1]++;
+                    else if (t >= TWO && t < THREE) dayOfWeekFrequency[dayOfWeek][2]++;
+                    else if (t >= THREE && t < FOUR) dayOfWeekFrequency[dayOfWeek][3]++;
+                    else if (t >= FOUR && t < FIVE) dayOfWeekFrequency[dayOfWeek][4]++;
+                    else if (t >= FIVE && t < SIX) dayOfWeekFrequency[dayOfWeek][5]++;
+                    else if (t >= SIX && t < SEVEN) dayOfWeekFrequency[dayOfWeek][6]++;
+                    else if (t >= SEVEN && t < EIGHT) dayOfWeekFrequency[dayOfWeek][7]++;
+                    else if (t >= EIGHT && t < NINE) dayOfWeekFrequency[dayOfWeek][8]++;
+                    else if (t >= NINE && t < TEN) dayOfWeekFrequency[dayOfWeek][9]++;
+                    else if (t >= TEN && t < ELEVEN) dayOfWeekFrequency[dayOfWeek][10]++;
+                    else if (t >= ELEVEN && t < TWELVE) dayOfWeekFrequency[dayOfWeek][11]++;
+                    else if (t >= TWELVE && t < THIRT) dayOfWeekFrequency[dayOfWeek][12]++;
+                    else if (t >= THIRT && t < FOURT) dayOfWeekFrequency[dayOfWeek][13]++;
+                    else if (t >= FOURT && t < FIFT) dayOfWeekFrequency[dayOfWeek][14]++;
+                    else if (t >= FIFT && t < SIXT) dayOfWeekFrequency[dayOfWeek][15]++;
+                    else if (t >= SIXT && t < SEVENT) dayOfWeekFrequency[dayOfWeek][16]++;
+                    else if (t >= SEVENT && t < EIGHTT) dayOfWeekFrequency[dayOfWeek][17]++;
+                    else if (t >= EIGHTT && t < NINET) dayOfWeekFrequency[dayOfWeek][18]++;
+                    else if (t >= NINET && t < TWENTY) dayOfWeekFrequency[dayOfWeek][19]++;
+                    else if (t >= TWENTY && t < TWENTONE) dayOfWeekFrequency[dayOfWeek][20]++;
+                    else if (t >= TWENTONE && t < TWENTTWO) dayOfWeekFrequency[dayOfWeek][21]++;
+                    else if (t >= TWENTTWO && t < TWENTTHREE) dayOfWeekFrequency[dayOfWeek][22]++;
+                    else if (t >= TWENTTHREE && t < TWENTFOUR) dayOfWeekFrequency[dayOfWeek][23]++;
+                }
+            }
 
         return dayOfWeekFrequency;
     }

@@ -48,11 +48,13 @@ public class Email {
     File                      serializedEmail;
     private int               dayOfWeek;
     private String            language;
+    private ArrayList<String> recipients;
 
 
     public Email(File f) {
         //to do: recreate emails using this constructor
         attachments = new ArrayList<>();
+        recipients = new ArrayList<>();
         sentimentScores = new int[5];
         recoverEmail(f);
 
@@ -102,6 +104,12 @@ public class Email {
 
             this.language = br.readLine();
 
+            int rCount = Integer.parseInt(br.readLine());
+
+            for(int i = 0; i < rCount; i ++){
+                recipients.add(User.decrypt(br.readLine()));
+            }
+
             br.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -131,9 +139,11 @@ public class Email {
         VMULT = 3;
         message = m;
         sentimentScores = new int[5];
+        recipients = new ArrayList<>();
         sentencesAnalyzed = 0;
         MAXLEN = 300;
         MINLEN = 10;
+
         boolean runSentiment = rs;
         try {
             //System.out.println("Content: \n" + m.getContent().toString());
@@ -276,8 +286,7 @@ it appears to be whenever there is a thread of replies
             if(msgExists)
                 result = "";
         } else if (message.isMimeType("multipart/*")) {
-            MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
-            result = getTextFromMimeMultipart(mimeMultipart);
+            result = getTextFromMimeMultipart((MimeMultipart) message.getContent());
         }
         return result;
     }
@@ -288,19 +297,10 @@ it appears to be whenever there is a thread of replies
         int count = mimeMultipart.getCount();
         if (count == 0)
             throw new MessagingException("Multipart with no body parts not supported.");
-        boolean multipartAlt = new ContentType(mimeMultipart.getContentType()).match("multipart/alternative");
-        boolean multipartMix = new ContentType(mimeMultipart.getContentType()).match("multipart/mixed");
-/*        if (multipartAlt || multipartMix) {
-            System.out.println(mimeMultipart.getContentType() + " ...here are the parts");
-            for(int i = 0; i < count; i ++){
-                System.out.println(mimeMultipart.getBodyPart(i).getContentType());
-            }
-        }*/
+
         String result = "";
         for (int i = 0; i < count; i++) {
-            BodyPart bodyPart = mimeMultipart.getBodyPart(i);
-            //System.out.println(bodyPart.getContentType());
-            result += getTextFromBodyPart(bodyPart);
+            result += getTextFromBodyPart(mimeMultipart.getBodyPart(i));
         }
         return result;
     }
@@ -314,8 +314,7 @@ it appears to be whenever there is a thread of replies
             if(sender.addMessage(result.hashCode()))
                 result = "";
         } else if (bodyPart.isMimeType("text/html")) {
-            String html = (String) bodyPart.getContent();
-            result = org.jsoup.Jsoup.parse(html).text();
+            result = org.jsoup.Jsoup.parse((String) bodyPart.getContent()).text();
             if(sender.addMessage(result.hashCode()))
                 result = "";
         } else if (bodyPart.getContent() instanceof MimeMultipart){
@@ -325,12 +324,9 @@ it appears to be whenever there is a thread of replies
     }
 
     private ArrayList<String> getSentences(String result) {
-        //System.out.println("before: " + result);
-        result = filter(result);
-        //System.out.println("after: " + result);
-        //System.out.println("\nresults: " + result);
-        ArrayList<String> sentences = new ArrayList<String>();
-        String[] split = result.split("~|\\n");
+
+        ArrayList<String> sentences = new ArrayList<>();
+        String[] split = (filter(result)).split("~|\\n");
         for (String s : split) {
             if (s.length() > 0) {
                 String trimmed = s.trim();
@@ -342,7 +338,7 @@ it appears to be whenever there is a thread of replies
                 }
             }
         }
-        //System.out.println("\nsentences: " + sentences);
+
         return sentences;
     }
 
@@ -350,12 +346,12 @@ it appears to be whenever there is a thread of replies
     static Sentiment analyzeSentiment(String message) {
         //System.out.println("Processing annotation");
         Annotation annotation = Pipeline.pipeline().process(message);
-        List<CoreMap> sentence = annotation.get(CoreAnnotations.SentencesAnnotation.class);
+        List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
 
         int sentimentScore = -1;
         double probability = -1;
 
-        for (CoreMap s : sentence) {
+        for (CoreMap s : sentences) {
             Tree tree = s.get(SentimentCoreAnnotations.SentimentAnnotatedTree.class);
             sentimentScore = RNNCoreAnnotations.getPredictedClass(new CoreLabel(tree.label()));
             probability = RNNCoreAnnotations.getPredictedClassProb(new CoreLabel(tree.label()));
@@ -390,46 +386,15 @@ it appears to be whenever there is a thread of replies
             newText = newText.replaceAll(abbreviations[0][i], abbreviations[1][i]);
         }
 
-        String url = "(http|https|ftp|ftps)\\:\\/\\/[a-zA-Z0-9\\-\\.]+\\.[a-zA-Z]{2,3}(\\/\\S*)?";
-        newText = newText.replaceAll(url, "");
-
-        String email = "^([a-z0-9_\\.-]+)@(?!domain.com)([\\da-z\\.-]+)\\.([a-z\\.]{2,6})$";
-        newText = newText.replaceAll(email, "");
-
-        String punctuation = "[`,~,*,#,^,>,\\-,\\n,\\t]";
-        newText = newText.replaceAll(punctuation, "");
-
-        String breakline = "[\\n]";
-        newText = newText.replaceAll(breakline, "\n~");
-
-        newText = newText.replaceAll("\\.", ".~");
-        newText = newText.replaceAll("\\?", "?~");
-        newText = newText.replaceAll("\\!", "!~");
-        newText = newText.replaceAll("\\r", " ");
+        newText = newText.replaceAll("(http|https|ftp|ftps)\\:\\/\\/[a-zA-Z0-9\\-\\.]+\\.[a-zA-Z]{2,3}(\\/\\S*)?", "") //urls
+                .replaceAll("^([a-z0-9_\\.-]+)@(?!domain.com)([\\da-z\\.-]+)\\.([a-z\\.]{2,6})$", "")//email addrs
+                .replaceAll("[`,~,*,#,^,>,\\-,\\n,\\t,\\r]", "")//unwanted chars
+                .replaceAll("\\.", ".~")//replace punctuation with <punct>~
+                .replaceAll("\\?", "?~")
+                .replaceAll("\\!", "!~");
 
         return newText;
     }
-
-/*    private ArrayList<String> getLanguages(ArrayList<String> sentences) throws APIError {
-
-        DetectLanguage.apiKey = API_KEY;
-
-        ArrayList<String> langs = new ArrayList<>();
-
-        for(String s : sentences) {
-
-            List<Result> results = DetectLanguage.detect(s);
-            Result cur;
-
-            for (Result result : results) {
-                cur = result;
-                if (cur.isReliable)
-                    langs.add(cur.language);
-            }
-        }
-
-        return langs;
-    }*/
 
     public int getDayOfWeek() {
         if (getDate() != null) {
@@ -449,7 +414,7 @@ it appears to be whenever there is a thread of replies
             for(int i = 0; i < count; i ++){
                 String fileName = mp.getBodyPart(i).getFileName();
                 try {
-                    if (fileName != null) attachments.add(fileName.substring(fileName.lastIndexOf(".")).trim());
+                    if (fileName != null) attachments.add(fileName.substring(fileName.lastIndexOf(".")).trim().toLowerCase());
                 }
                 catch(StringIndexOutOfBoundsException e){
                     System.out.println(e.getMessage());
@@ -464,19 +429,7 @@ it appears to be whenever there is a thread of replies
     private String detectLanguage(String text) {
         LanguageDetector ld = new OptimaizeLangDetector().loadModels();
         ld.addText(text);
-        LanguageResult detected = ld.detect();
-        return detected.getLanguage();
-    }
-
-    private ArrayList<String> detectLanguages(ArrayList<String> sentences) {
-        ArrayList<String> languages = new ArrayList<>();
-        LanguageDetector ld = new OptimaizeLangDetector().loadModels();
-        for(String s : sentences) {
-            ld.addText(s);
-            languages.add(ld.detect().getLanguage());
-        }
-
-        return languages;
+        return ld.detect().getLanguage();
     }
 
     public boolean isAnswered(){
@@ -542,30 +495,52 @@ it appears to be whenever there is a thread of replies
         return language;
     }
 
-    public String getDomain(){
-        String address = getSender().getAddress().substring(getSender().getAddress().indexOf("@"));
-        int quoteLocation = address.indexOf("\"" /*,address.indexOf("\"")+1*/);
-        int caratLocation = address.indexOf(">");
-        String d;
+    public void setRecipients(Address[] r){
+        for(Address a : r){
+            recipients.add(a.toString());
+        }
+    }
 
-        int earlierLocation = -1;
+    public ArrayList<String> getRecipients() {
+        return recipients;
+    }
 
-        if (quoteLocation < caratLocation && quoteLocation!=-1) {
-            earlierLocation = quoteLocation;
+    public ArrayList<String> getDomain(boolean sent){
+        ArrayList<String> addressesPreFilter = new ArrayList<>();
+        ArrayList<String> addressesPostFilter = new ArrayList<>();
+        if (sent) {
+            for(String r : getRecipients())
+                addressesPreFilter.add(r.substring(r.indexOf("@")));
         } else {
-            if (caratLocation != -1) {
-                earlierLocation = caratLocation;
+            addressesPreFilter.add(getSender().getAddress().substring(getSender().getAddress().indexOf("@")));
+        }
+
+        for (String a : addressesPreFilter) {
+
+            int quoteLocation = a.indexOf("\"" /*,address.indexOf("\"")+1*/);
+            int caratLocation = a.indexOf(">");
+            String d;
+
+            int earlierLocation = -1;
+
+            if (quoteLocation < caratLocation && quoteLocation != -1) {
+                earlierLocation = quoteLocation;
+            } else {
+                if (caratLocation != -1) {
+                    earlierLocation = caratLocation;
+                }
+            }
+
+            if (earlierLocation == -1) {
+                //none of the weird characters are found
+                addressesPostFilter.add(a);
+            } else {
+                //some weird characters are found
+                addressesPostFilter.add(a.substring(a.indexOf("@"), earlierLocation));
             }
         }
 
-        if (earlierLocation == -1) {
-            //none of the weird characters are found
-            return(address);
-        } else {
-            //some weird characters are found
-            d = address.substring(address.indexOf("@"), earlierLocation);
-            return(d);
-        }
+        return addressesPostFilter;
     }
 
     public String toString() {

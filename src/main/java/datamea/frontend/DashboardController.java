@@ -98,8 +98,8 @@ public class DashboardController implements Initializable {
     private DashboardDrawer dashboardDrawer;
     private FilterDrawer filterDrawerClass;
     private static BooleanProperty loadedFromLoginScreen = new SimpleBooleanProperty(false);
-    private static ArrayList<ChartData> topSendersData = new ArrayList<>();
-    private Tile topSendersRadialChart;
+    private static ArrayList<ChartData> topSendersOrRecipientsData = new ArrayList<>();
+    private Tile topSendersOrRecipientsRadialChart;
     private GridPane heatMapGridPane;
     private VBox heatMapAndTitle;
     private Tile foldersSunburstChart;
@@ -122,14 +122,15 @@ public class DashboardController implements Initializable {
     public static Thread updateGauge = null;
     private DoubleProperty scrollPaneLocation = new SimpleDoubleProperty(this, "scrollPaneLocation");
     private BackgroundSentiment backgroundSentiment;
+    public static boolean sentMail;
 
     public static void setStage(Stage s) {
         myStage = s;
     }
 
-    public static void addTopSendersData(ChartData d) {
-        //topSendersData.add(d);
-        topSendersData.add(d);
+    public static void addTopSendersOrRecipientsData(ChartData d) {
+        //topSendersOrRecipientsData.add(d);
+        topSendersOrRecipientsData.add(d);
     }
 
     public User getUser() {
@@ -147,6 +148,8 @@ public class DashboardController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+
+        sentMail = false;
 
         String scrollPaneCss = this.getClass().getClassLoader().getResource("scrollpane.css").toExternalForm();
         scrollPane.getStylesheets().add(scrollPaneCss);
@@ -248,7 +251,7 @@ public class DashboardController implements Initializable {
                     currentUser = Main.getCurrentUser();
 
                     //Top senders Radial Chart:
-                    topSendersRadialChart = TileBuilder.create()
+                    topSendersOrRecipientsRadialChart = TileBuilder.create()
                             .skinType(Tile.SkinType.RADIAL_CHART)
                             .backgroundColor(Color.TRANSPARENT)
                             .title("Top Senders")
@@ -256,12 +259,12 @@ public class DashboardController implements Initializable {
                             .minSize(480, 480)
                             .prefSize(480, 480)
                             .maxSize(480, 480)
-                            .chartData(topSendersData)
+                            .chartData(topSendersOrRecipientsData)
                             .build();
-                    topSendersRadialChart.setCursor(Cursor.HAND);
-                    masonryPane.getChildren().add(topSendersRadialChart);
+                    topSendersOrRecipientsRadialChart.setCursor(Cursor.HAND);
+                    masonryPane.getChildren().add(topSendersOrRecipientsRadialChart);
                     //Change scenes based on top sender ChartData selected
-                    topSendersRadialChart.setOnTileEvent((e) -> {
+                    topSendersOrRecipientsRadialChart.setOnTileEvent((e) -> {
                         if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
                             ChartData data = e.getData();
                             System.out.println("Selected " + data.getName());
@@ -301,7 +304,7 @@ public class DashboardController implements Initializable {
                     masonryPane.getChildren().add(foldersSunburstChart);
 
                     //Domains donut chart
-                    domains = currentUser.getDomainFreq(currentUser.getEmails());
+                    domains = currentUser.getDomainFreq(currentUser.getEmails(), false);
                     int colorCount = 0;
                     PieChart.Data domainOther = new PieChart.Data("Other", 0);
                     int domainCount = 0;
@@ -351,7 +354,7 @@ public class DashboardController implements Initializable {
                     masonryPane.getChildren().add(domainDonutChart);
 
                     //Attachments radial chart
-                    attachments = currentUser.getAttachmentFreq(currentUser.getEmails());
+                    attachments = currentUser.getAttachmentFreq(currentUser.getEmails(), false);
                     int attachmentsCount = 0;
                     int attachmentsTotal = 0;
                     for (Map.Entry<String, Long> entry : attachments.entrySet()) {
@@ -401,7 +404,7 @@ public class DashboardController implements Initializable {
                     //aka, add filter, and then display those results
                     ArrayList<Email> em = Main.getCurrentUser().getEmails();
                     //ArrayList<Email> em2 = Main.getCurrentUser().getEmailsFromFolder("first year admin stuff", "testFolder");
-                    int[][] heatMapData = Main.getCurrentUser().generateDayOfWeekFrequency(em);
+                    int[][] heatMapData = Main.getCurrentUser().generateDayOfWeekFrequency(em, false);
                     heatMapAndTitle = new VBox();
                     Pane heatMapPane = new Pane();
                     Label heatMapTitle = new Label("Received Email Frequency");
@@ -584,6 +587,8 @@ public class DashboardController implements Initializable {
                 domain = null, attachment = null, startDate = null, endDate = null, language = null;
         Date sDate = null, eDate = null;
 
+        sentMail = currentFiltersNames.contains("Sent Mail");
+
         //TODO figure out how to add folder/subfolder stuff along with doing dates
 
         for (Filter f : filters) {
@@ -597,6 +602,8 @@ public class DashboardController implements Initializable {
                 language = f.getName();
             } else if (f.isFolder()) {
                 folderName = f.getName();
+                if (folderName.equalsIgnoreCase("sent mail"))
+                    sentMail = true;
             } else if (f.isStartDate()) {
                 startDate = f.getName();
             } else if (f.isEndDate()) {
@@ -614,7 +621,7 @@ public class DashboardController implements Initializable {
 
         // TODO ADD OTHER CHARTS BELOW
 
-            updateTopSenders(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
+            updateTopSendersOrRecipients(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
             updateDomains(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
             updateAttachments(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
             updateHeatMap(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
@@ -677,11 +684,17 @@ public class DashboardController implements Initializable {
 
         masonryPane.getChildren().removeAll(heatMapAndTitle);
 
-        ArrayList<Email> em = currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment);
-        int[][] heatMapData = currentUser.generateDayOfWeekFrequency(em);
+        String title = sentMail ? "Sent Email Frequency" : "Received Email Frequency";
+
+        ArrayList<Email> em = currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment);
+        int[][] heatMapData;
+        if(folderName != null && folderName.equalsIgnoreCase("sent mail"))
+            heatMapData = currentUser.generateDayOfWeekFrequency(em, true);
+        else
+            heatMapData = currentUser.generateDayOfWeekFrequency(em, false);
         heatMapAndTitle = new VBox();
         Pane heatMapPane = new Pane();
-        Label heatMapTitle = new Label("Received Email Frequency");
+        Label heatMapTitle = new Label(title);
         heatMapTitle.setTextFill(Color.LIGHTGRAY);
         heatMapTitle.setStyle("-fx-font: 24 System;");
         heatMapPane.setPrefSize(600, 480);
@@ -741,49 +754,78 @@ public class DashboardController implements Initializable {
 
     }
 
-    public void updateTopSenders(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment) {
-        masonryPane.getChildren().removeAll(topSendersRadialChart);
+    public void updateTopSendersOrRecipients(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment){
+        masonryPane.getChildren().removeAll(topSendersOrRecipientsRadialChart);
 
         //Update array list of top senders with new folder info
-        topSendersData = new ArrayList<>();
-        Map<String, Long> topSenders = currentUser.getSendersFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment));
+        topSendersOrRecipientsData = new ArrayList<>();
+        String title;
+        Map<String,Long> topSendersOrRecipients;
 
-        //Maps are the worst thing ever, thanks a lot Cedric...
-        List<Map.Entry<String, Long>> entries = new ArrayList<>(topSenders.entrySet());
-        for (int i = 0; i < 7; i++) {
-            //Created ChartData for top senders radial chart
-            ChartData temp = new ChartData();
-            if (i < entries.size()) {
-                temp.setValue((double) entries.get(i).getValue());
-                temp.setName(Sender.filterEmailAddress(entries.get(i).getKey()));
-                temp.setFillColor(User.colors.get(i));
-            } else {
-                temp.setValue(0);
-                temp.setName("");
+        if (sentMail) {
+            topSendersOrRecipients = currentUser.getSendersOrRecipientsFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment), sentMail);
+            title = "Top Recipients";
+
+            List<Map.Entry<String, Long>> entries = new ArrayList<>(topSendersOrRecipients.entrySet());
+            for (int i = 0; i < 7; i++) {
+                //Created ChartData for top senders radial chart
+                ChartData temp = new ChartData();
+                if (i < entries.size()) {
+                    temp.setValue((double) entries.get(i).getValue());
+                    temp.setName(entries.get(i).getKey());
+                    temp.setFillColor(User.colors.get(i));
+                } else {
+                    temp.setValue(0);
+                    temp.setName("");
+                }
+                addTopSendersOrRecipientsData(temp);
+
+            }
+        } else {
+            topSendersOrRecipients = currentUser.getSendersOrRecipientsFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment), sentMail);
+            title = "Top Senders";
+
+            List<Map.Entry<String, Long>> entries = new ArrayList<>(topSendersOrRecipients.entrySet());
+            for (int i = 0; i < 7; i++) {
+                //Created ChartData for top senders radial chart
+                ChartData temp = new ChartData();
+                if (i < entries.size()) {
+                    temp.setValue((double) entries.get(i).getValue());
+                    temp.setName(Sender.filterEmailAddress(entries.get(i).getKey()));
+                    temp.setFillColor(User.colors.get(i));
+                } else {
+                    temp.setValue(0);
+                    temp.setName("");
+                }
+                addTopSendersOrRecipientsData(temp);
             }
 
-            addTopSendersData(temp);
+            //Maps are the worst thing ever, thanks a lot Cedric...
+
+
         }
         //Build new radial chart for top senders
-        topSendersRadialChart = TileBuilder.create()
+        topSendersOrRecipientsRadialChart = TileBuilder.create()
                 .animationDuration(10000)
                 .skinType(Tile.SkinType.RADIAL_CHART)
                 .backgroundColor(Color.TRANSPARENT)
-                .title("Top Senders")
+                .title(title)
                 .titleAlignment(TextAlignment.LEFT)
                 .prefSize(480, 480)
                 .maxSize(480, 480)
-                .chartData(topSendersData)
+                .chartData(topSendersOrRecipientsData)
                 .animated(true)
                 .build();
-        topSendersRadialChart.setOnTileEvent((e) -> {
+        topSendersOrRecipientsRadialChart.setOnTileEvent((e) -> {
             if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
                 ChartData data = e.getData();
                 System.out.println("Selected " + data.getName());
                 addFilter(data.getName(), true, false, false, false, false);
             }
         });
-        masonryPane.getChildren().add(0, topSendersRadialChart);
+
+        masonryPane.getChildren().add(0, topSendersOrRecipientsRadialChart);
+
     }
 
     public void updateDomains(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment) {
@@ -791,7 +833,11 @@ public class DashboardController implements Initializable {
 
         domains = null;
         domainsData = FXCollections.observableArrayList();
-        domains = currentUser.getDomainFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment));
+        if(sentMail)
+            domains = currentUser.getDomainFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment), true);
+        else
+            domains = currentUser.getDomainFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment), false);
+
         PieChart.Data domainOther = new PieChart.Data("Other", 0);
         int domainCount = 0;
         for (Map.Entry<String, Long> entry : domains.entrySet()) {
@@ -845,7 +891,12 @@ public class DashboardController implements Initializable {
         //If the it's not updating from a new folder keep the main folder
 
         attachments = null;
-        attachments = currentUser.getAttachmentFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment));
+
+        if(sentMail)
+            attachments = currentUser.getAttachmentFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment), true);
+        else
+            attachments = currentUser.getAttachmentFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment), false);
+
         attachmentsData = new ArrayList<>();
         int attachmentsCount = 0;
         int attachmentsTotal = 0;
@@ -895,6 +946,14 @@ public class DashboardController implements Initializable {
 
 
     private void addFilter(String name, boolean isTopSender, boolean isFolder, boolean isDomain, boolean isAttachment, boolean isLanguage) {
+
+
+        if (sentMail && isFolder) {
+            if (!name.equalsIgnoreCase("sent mail"))
+                sentMail = false;
+        }
+
+
         if (!currentFiltersNames.contains(name)) {
             currentFiltersNames.add(name);
             Filter newFilter = new Filter(name);
@@ -957,6 +1016,7 @@ public class DashboardController implements Initializable {
                 filterChip.getStylesheets().add(filterCss);
                 filterDrawerClass.filterHbox.getChildren().add(filterChip);
             } else if (isFolder) {
+
 
                 for (Filter f : currentFilters) {
                     int count = 0;
