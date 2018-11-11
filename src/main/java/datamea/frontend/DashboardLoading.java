@@ -137,18 +137,13 @@ public class DashboardLoading implements Initializable {
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if (newValue) {
 
-                    User current = Main.getCurrentUser();
-                    new Thread(current).start();
                     progressBar.progressProperty().unbind();
-                    progressBar.progressProperty().bind(current.progressProperty());
+                    progressBar.progressProperty().bind(Main.getCurrentUser().progressProperty());
                     progressBar.addEventHandler(WorkerStateEvent.WORKER_STATE_RUNNING,
                             new EventHandler<WorkerStateEvent>() {
                                 @Override
                                 public void handle(WorkerStateEvent event) {
-                                    progressBar.setProgress(current.getProgress());
-//                                    if (current.getProgress() > 0.99) {
-//                                        loadingBar.setValue(false);
-//                                    }
+                                    progressBar.setProgress(Main.getCurrentUser().getProgress());
                                     System.out.println("updated progress bar");
                                 }
                             });

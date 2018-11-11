@@ -41,7 +41,7 @@ public class User extends Task<Void>{
         serializeUser(false);
         emails = recoverSerializedEmails();
         folders = recoverFolders();
-        DashboardLoading.setLoadingBarToTrue();
+        System.out.println("User thread is done");
         return null;
     }
 
