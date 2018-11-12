@@ -10,6 +10,7 @@ import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.chart.SunburstChart;
 import eu.hansolo.tilesfx.events.TileEvent;
 import eu.hansolo.tilesfx.events.TreeNodeEvent;
+import eu.hansolo.tilesfx.skins.DonutChartTileSkin;
 import eu.hansolo.tilesfx.tools.TreeNode;
 import javafx.animation.*;
 import javafx.application.Platform;
@@ -31,6 +32,8 @@ import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.Chart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -123,6 +126,7 @@ public class DashboardController implements Initializable {
     private DoubleProperty scrollPaneLocation = new SimpleDoubleProperty(this, "scrollPaneLocation");
     private BackgroundSentiment backgroundSentiment;
     public static boolean sentMail;
+
 
     public static void setStage(Stage s) {
         myStage = s;
@@ -302,6 +306,46 @@ public class DashboardController implements Initializable {
                         }
                     });
                     masonryPane.getChildren().add(foldersSunburstChart);
+                    //Sent VS received chart
+
+                    PieChart.Data sent = new PieChart.Data("Sent", currentUser.numberOfSentMail);
+                    PieChart.Data recevied = new PieChart.Data("Received", User.getTotalNumberOfEmails()-currentUser.numberOfSentMail);
+                    ObservableList<PieChart.Data> sentReceivedData = FXCollections.observableArrayList();
+                    sentReceivedData.add(recevied);
+                    sentReceivedData.add(sent);
+                    DonutChart sentReceivedDonutChart = new DonutChart(sentReceivedData);
+                    sentReceivedDonutChart.setPrefSize(500, 480);
+                    sentReceivedDonutChart.setMaxSize(500, 480);
+                    sentReceivedDonutChart.setTitle("Sent vs Received");
+                    sentReceivedDonutChart.setLegendVisible(true);
+                    sentReceivedDonutChart.setLegendSide(Side.BOTTOM);
+                    sentReceivedDonutChart.setLabelsVisible(true);
+                    sentReceivedDonutChart.getData().stream().forEach(data -> {
+                        Tooltip tooltip = new Tooltip();
+                        tooltip.setText((int) data.getPieValue() + " emails");
+                        Tooltip.install(data.getNode(), tooltip);
+                        data.pieValueProperty().addListener((observableTwo, oldValueTwo, newValueTwo) ->
+                                tooltip.setText((int) newValueTwo + " emails"));
+                    });
+                    for (PieChart.Data d : sentReceivedData) {
+                        d.getNode().addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
+                            @Override
+                            public void handle(MouseEvent e) {
+                                d.getNode().setCursor(Cursor.HAND);
+                            }
+                        });
+                    }
+                    for (PieChart.Data d : sentReceivedData) {
+                        d.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+                            @Override
+                            public void handle(MouseEvent e) {
+                                //addFilter(d.getName());
+                                addFilter(d.getName(), false, false, true, false, false);
+                            }
+                        });
+                    }
+                    sentReceivedDonutChart.getStylesheets().add(this.getClass().getClassLoader().getResource("donutchart.css").toExternalForm());
+                    masonryPane.getChildren().add(sentReceivedDonutChart);
 
                     //Domains donut chart
                     domains = currentUser.getDomainFreq(currentUser.getEmails(), false);
@@ -353,6 +397,10 @@ public class DashboardController implements Initializable {
                     domainDonutChart.getStylesheets().add(this.getClass().getClassLoader().getResource("donutchart.css").toExternalForm());
                     masonryPane.getChildren().add(domainDonutChart);
 
+
+
+
+
                     //Attachments radial chart
                     attachments = currentUser.getAttachmentFreq(currentUser.getEmails(), false);
                     int attachmentsCount = 0;
@@ -399,6 +447,7 @@ public class DashboardController implements Initializable {
                         }
                     });
                     masonryPane.getChildren().add(attachmentsRadialChart);
+
                     //HeatMap:
                     //rather than using em here, assign the value of em to be whatever the list of emails we want
                     //aka, add filter, and then display those results
@@ -486,6 +535,7 @@ public class DashboardController implements Initializable {
                             .animated(true)
                             .build();
                     masonryPane.getChildren().add(sentimentGauge);
+
 
                     backgroundSentiment = new BackgroundSentiment();
                     new Thread (backgroundSentiment).start();

@@ -34,6 +34,7 @@ public class User extends Task<Void>{
 
     int numSerializedEmails = getNumberOfSerializedEmails();
     private static int totalNumberOfEmails = 0;
+    public int numberOfSentMail=0;
 
 
     @Override
@@ -958,6 +959,7 @@ public class User extends Task<Void>{
                 int numSent = f.getMessages().length;
                 f.close();
                 totalNumberOfEmails += numSent;
+                numberOfSentMail +=numSent;
                 System.out.println("adding: " + numSent);
             }
             System.out.println("total number of emails: " + totalNumberOfEmails);
