@@ -112,7 +112,8 @@ public class DashboardController implements Initializable {
     private Map<String, Long> attachments;
     private ArrayList<ChartData> attachmentsData = new ArrayList<>();
     private Map<String, Long> languages;
-    private ArrayList<ChartData> languagesData = new ArrayList<>();
+    private ObservableList<PieChart.Data> languagesData = FXCollections.observableArrayList();
+    private static DonutChart languagesDonutChart;
     public static Tile sentimentGauge;
     private long lastTimerCall;
     private AnimationTimer timer;
@@ -512,12 +513,56 @@ public class DashboardController implements Initializable {
                                     System.out.println("Thread was interrupted");
                                     break;
                                 }
+
                                 DashboardController.sentimentGauge.setValue(Email.getOverallSentimentDbl(currentUser.getOverallSentiment()));
                             }
                         }
                     });
                     DashboardController.updateGauge.start();
 
+                    //languages donut chart
+                    languages = currentUser.getLanguageFreq(currentUser.getEmails(), false);
+                    int languagesCount = 0;
+                    for (Map.Entry<String, Long> entry : languages.entrySet()) {
+                        PieChart.Data temp = new PieChart.Data(entry.getKey(), entry.getValue());
+                        if(!entry.getKey().equals("")) {
+                            languagesData.add(temp);
+                            languagesCount++;
+                        }
+                    }
+                    languagesDonutChart = new DonutChart(languagesData);
+                    languagesDonutChart.setPrefSize(300, 300);
+                    languagesDonutChart.setMaxSize(300, 300);
+                    languagesDonutChart.setTitle("Languages");
+                    languagesDonutChart.setLegendVisible(false);
+                    languagesDonutChart.setLabelsVisible(true);
+                    languagesDonutChart.getData().stream().forEach(data -> {
+                        Tooltip tooltip = new Tooltip();
+                        tooltip.setText((int) data.getPieValue() + " emails");
+                        Tooltip.install(data.getNode(), tooltip);
+                        data.pieValueProperty().addListener((observableTwo, oldValueTwo, newValueTwo) ->
+                                tooltip.setText((int) newValueTwo + " emails"));
+                    });
+                    for (PieChart.Data d : languagesData) {
+                        d.getNode().addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
+                            @Override
+                            public void handle(MouseEvent e) {
+                                d.getNode().setCursor(Cursor.HAND);
+                            }
+                        });
+                    }
+                    for (PieChart.Data d : languagesData) {
+                        d.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+                            @Override
+                            public void handle(MouseEvent e) {
+                                //addFilter(d.getName());
+                                System.out.println("<" + d.getName() + ">");
+                                addFilter(d.getName(), false, false, false, false, true);
+                            }
+                        });
+                    }
+                    languagesDonutChart.getStylesheets().add(this.getClass().getClassLoader().getResource("donutchart.css").toExternalForm());
+                    masonryPane.getChildren().add(languagesDonutChart);
 
                     //Emulate Data
                     lastTimerCall = System.nanoTime();
@@ -621,15 +666,16 @@ public class DashboardController implements Initializable {
 
         // TODO ADD OTHER CHARTS BELOW
 
-            updateTopSendersOrRecipients(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
-            updateDomains(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
-            updateAttachments(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
-            updateHeatMap(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
-            updateSentimentGauge(folderName, subFolderName, sDate, eDate, sender, domain, attachment);
+            updateTopSendersOrRecipients(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
+            updateDomains(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
+            updateAttachments(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
+            updateHeatMap(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
+            updateSentimentGauge(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
+            updateLanguages(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
 
     }
 
-    private void updateSentimentGauge(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment) {
+    private void updateSentimentGauge(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment, String language) {
 
         masonryPane.getChildren().removeAll(sentimentGauge);
         if (updateGauge != null) {
@@ -638,6 +684,7 @@ public class DashboardController implements Initializable {
         updateGauge = new Thread(new Runnable() {
             @Override
             public void run() {
+                ArrayList<Email> em = currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment,language);
                 while (true) {
                     try {
                         updateGauge.sleep(1000);
@@ -645,7 +692,6 @@ public class DashboardController implements Initializable {
                         System.out.println("interrupted thread");
                         break;
                     }
-                    ArrayList<Email> em = currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment);
                     int [] sentimentScores = currentUser.getSentimentForFilteredEmails(em);
                     double score = Email.getOverallSentimentDbl(sentimentScores);
                     DashboardController.sentimentGauge.setValue(score);
@@ -680,18 +726,15 @@ public class DashboardController implements Initializable {
 
     }
 
-    public void updateHeatMap(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment) {
+    public void updateHeatMap(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment, String language) {
 
         masonryPane.getChildren().removeAll(heatMapAndTitle);
 
         String title = sentMail ? "Sent Email Frequency" : "Received Email Frequency";
 
-        ArrayList<Email> em = currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment);
+        ArrayList<Email> em = currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment,language);
         int[][] heatMapData;
-        if(folderName != null && folderName.equalsIgnoreCase("sent mail"))
-            heatMapData = currentUser.generateDayOfWeekFrequency(em, true);
-        else
-            heatMapData = currentUser.generateDayOfWeekFrequency(em, false);
+        heatMapData = currentUser.generateDayOfWeekFrequency(em, sentMail);
         heatMapAndTitle = new VBox();
         Pane heatMapPane = new Pane();
         Label heatMapTitle = new Label(title);
@@ -754,7 +797,7 @@ public class DashboardController implements Initializable {
 
     }
 
-    public void updateTopSendersOrRecipients(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment){
+    public void updateTopSendersOrRecipients(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment, String language){
         masonryPane.getChildren().removeAll(topSendersOrRecipientsRadialChart);
 
         //Update array list of top senders with new folder info
@@ -763,7 +806,7 @@ public class DashboardController implements Initializable {
         Map<String,Long> topSendersOrRecipients;
 
         if (sentMail) {
-            topSendersOrRecipients = currentUser.getSendersOrRecipientsFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment), sentMail);
+            topSendersOrRecipients = currentUser.getSendersOrRecipientsFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment, language), sentMail);
             title = "Top Recipients";
 
             List<Map.Entry<String, Long>> entries = new ArrayList<>(topSendersOrRecipients.entrySet());
@@ -782,7 +825,7 @@ public class DashboardController implements Initializable {
 
             }
         } else {
-            topSendersOrRecipients = currentUser.getSendersOrRecipientsFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment), sentMail);
+            topSendersOrRecipients = currentUser.getSendersOrRecipientsFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment, language), sentMail);
             title = "Top Senders";
 
             List<Map.Entry<String, Long>> entries = new ArrayList<>(topSendersOrRecipients.entrySet());
@@ -828,15 +871,12 @@ public class DashboardController implements Initializable {
 
     }
 
-    public void updateDomains(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment) {
+    public void updateDomains(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment, String language) {
         masonryPane.getChildren().removeAll(domainDonutChart);
 
         domains = null;
         domainsData = FXCollections.observableArrayList();
-        if(sentMail)
-            domains = currentUser.getDomainFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment), true);
-        else
-            domains = currentUser.getDomainFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment), false);
+        domains = currentUser.getDomainFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment,language), sentMail);
 
         PieChart.Data domainOther = new PieChart.Data("Other", 0);
         int domainCount = 0;
@@ -886,16 +926,63 @@ public class DashboardController implements Initializable {
         masonryPane.getChildren().add(domainDonutChart);
     }
 
-    public void updateAttachments(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment) {
+    public void updateLanguages(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment, String language) {
+        masonryPane.getChildren().removeAll(languagesDonutChart);
+
+        languages = null;
+        languagesData = FXCollections.observableArrayList();
+        languages = currentUser.getLanguageFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment,language), sentMail);
+
+        int languagesCount = 0;
+        for (Map.Entry<String, Long> entry : languages.entrySet()) {
+            PieChart.Data temp = new PieChart.Data(entry.getKey(), entry.getValue());
+            if(!entry.getKey().equals("")) {
+                languagesData.add(temp);
+                languagesCount++;
+            }
+        }
+        languagesDonutChart = new DonutChart(languagesData);
+        languagesDonutChart.setPrefSize(300, 300);
+        languagesDonutChart.setMaxSize(300, 300);
+        languagesDonutChart.setTitle("Languages");
+        languagesDonutChart.setLegendVisible(false);
+        languagesDonutChart.setLabelsVisible(true);
+        languagesDonutChart.getData().stream().forEach(data -> {
+            Tooltip tooltip = new Tooltip();
+            tooltip.setText((int) data.getPieValue() + " emails");
+            Tooltip.install(data.getNode(), tooltip);
+            data.pieValueProperty().addListener((observableTwo, oldValueTwo, newValueTwo) ->
+                    tooltip.setText((int) newValueTwo + " emails"));
+        });
+        for (PieChart.Data d : languagesData) {
+            d.getNode().addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent e) {
+                    d.getNode().setCursor(Cursor.HAND);
+                }
+            });
+        }
+        for (PieChart.Data d : languagesData) {
+            d.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent e) {
+                    addFilter(d.getName(), false, false, false, false, true);
+                    //addFilter(d.getName());
+                }
+            });
+        }
+        languagesDonutChart.getStylesheets().add(this.getClass().getClassLoader().getResource("donutchart.css").toExternalForm());
+        masonryPane.getChildren().add(languagesDonutChart);
+    }
+
+
+    public void updateAttachments(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment, String language) {
         masonryPane.getChildren().removeAll(attachmentsRadialChart);
         //If the it's not updating from a new folder keep the main folder
 
         attachments = null;
 
-        if(sentMail)
-            attachments = currentUser.getAttachmentFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment), true);
-        else
-            attachments = currentUser.getAttachmentFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment), false);
+        attachments = currentUser.getAttachmentFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment,language), sentMail);
 
         attachmentsData = new ArrayList<>();
         int attachmentsCount = 0;

@@ -185,7 +185,7 @@ public class Email {
             if(Pipeline.pipeline() == null)
                 Pipeline.initPipeline();
             for (String sentence : sentences) {
-                if (getLanguage() != null) {
+                if (getLanguage() != null && !getLanguage().equals("")) {
                     if (this.getLanguage().equals("en") && sentence.length() < MAXLEN && sentence.length() > MINLEN) {
                         //System.out.println("sentence being analyzed: " + sentence);
                         sentencesAnalyzed++;
@@ -429,7 +429,10 @@ it appears to be whenever there is a thread of replies
     private String detectLanguage(String text) {
         LanguageDetector ld = new OptimaizeLangDetector().loadModels();
         ld.addText(text);
-        return ld.detect().getLanguage();
+        String lang = ld.detect().getLanguage();
+        if(lang.equals(""))
+            return null;
+        return lang;
     }
 
     public boolean isAnswered(){

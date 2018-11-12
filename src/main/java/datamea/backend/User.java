@@ -234,13 +234,15 @@ public class User extends Task<Void>{
 
     }
 
-    public Map<String, Long> getLanguageFreq(ArrayList<Email> emails){
+    public Map<String, Long> getLanguageFreq(ArrayList<Email> emails, boolean sent){
         ArrayList<String> langs = new ArrayList<>();
         for (Email e: emails) {
-            //get everything after the @ symbol
-            String l = e.getLanguage();
-            if(!l.equals("unk")){
-                langs.add(l);
+            if((sent && e.getFolder().equalsIgnoreCase("sent mail")) ||
+                    !sent && !e.getFolder().equalsIgnoreCase("sent mail")) {
+                String l = e.getLanguage();
+                if (!l.equals("unk")) {
+                    langs.add(l);
+                }
             }
         }
         String [] langsAry = new String[langs.size()];
@@ -384,6 +386,15 @@ public class User extends Task<Void>{
         return filteredEmails;
     }
 
+    public ArrayList<Email> filterByLanguage(String language, ArrayList<Email> emailsToFilter){
+        ArrayList<Email> filteredEmails = new ArrayList<>();
+        for (Email e: emailsToFilter){
+                if(e.getLanguage().equalsIgnoreCase(language))
+                    filteredEmails.add(e);
+            }
+        return filteredEmails;
+    }
+
     /**
      * function to control the filters
      * @param folder folder to filter by
@@ -396,7 +407,7 @@ public class User extends Task<Void>{
      * @return ArrayList of emails after each of the filters
      */
 
-    public ArrayList<Email> filter(String folder, String subfolder, Date startDate, Date endDate, String sender, String domain, String attachment){
+    public ArrayList<Email> filter(String folder, String subfolder, Date startDate, Date endDate, String sender, String domain, String attachment, String language){
         ArrayList<Email> filteredEmails = new ArrayList<>();
         if(folder != null || subfolder != null)
             filteredEmails = filterByFolder(folder, subfolder, this.emails);
@@ -420,8 +431,12 @@ public class User extends Task<Void>{
                 filteredEmails = filterByAttachmentType(attachment, this.emails);
             }else filteredEmails = filterByAttachmentType(attachment, filteredEmails);
         }
-
-        if (folder == null && subfolder == null && startDate == null && endDate==null && sender == null && domain == null && attachment==null) {
+        if(language != null){
+            if(filteredEmails.size()==0){
+                filteredEmails = filterByLanguage(language, this.emails);
+            }else filteredEmails = filterByLanguage(language, filteredEmails);
+        }
+        if (folder == null && subfolder == null && startDate == null && endDate==null && sender == null && domain == null && attachment==null && language == null) {
             //no folder was selected so just return all of the emails
             return this.emails;
         }
