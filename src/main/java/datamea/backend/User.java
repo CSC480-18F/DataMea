@@ -34,6 +34,7 @@ public class User extends Task<Void>{
 
     int numSerializedEmails = getNumberOfSerializedEmails();
     private static int totalNumberOfEmails = 0;
+    public int numberOfSentMail=0;
 
 
     @Override
@@ -844,7 +845,10 @@ public class User extends Task<Void>{
                 dashboardLoading.progressBar.setProgress(totalProgress/getTotalNumberOfEmails());
                     });*/
             System.out.println("processing: " + i);
-            this.updateProgress(numSerializedEmails,totalNumberOfEmails/2);
+            this.updateProgress(numSerializedEmails,totalNumberOfEmails);
+
+            //can update a label on loading screen to say this if we want
+            System.out.println(numSerializedEmails + " of " + totalNumberOfEmails);
 
             Message m = messages[i];
             String sender = "Unknown";
@@ -957,17 +961,28 @@ public class User extends Task<Void>{
         for (int i = 0; i<folders.length; i++) {
             String name = folders[i].getName();
             if (!name.equalsIgnoreCase("[Gmail]")) {
+                System.out.println("looking at received mail folder");
                 folders[i].open(Folder.READ_ONLY);
                 Message [] messages = folders[i].getMessages();
                 totalNumberOfEmails += messages.length;
+                System.out.println("adding: " + messages.length);
                 folders[i].close();
+            } else {
+                System.out.println("looking at sent mail folder");
+                Folder f = folders[i].getFolder("Sent Mail");
+                f.open(Folder.READ_ONLY);
+                int numSent = f.getMessages().length;
+                f.close();
+                totalNumberOfEmails += numSent;
+                numberOfSentMail +=numSent;
+                System.out.println("adding: " + numSent);
             }
+            System.out.println("total number of emails: " + totalNumberOfEmails);
 
         }
 
         for (int i = 0; i < folders.length; i++) {
             String name = folders[i].getName();
-            if (!name.equalsIgnoreCase("inbox") ) {
                 if (name.equalsIgnoreCase("[Gmail]")) {
                     System.out.println(Arrays.deepToString(folders[i].list()));
                     readFolderAndSerializeEmails(folders[i].getFolder("Sent Mail"), runSentiment);
@@ -976,7 +991,6 @@ public class User extends Task<Void>{
                     readFolderAndSerializeEmails(folders[i], runSentiment);
 
                 }
-            }
         }
     }
 
