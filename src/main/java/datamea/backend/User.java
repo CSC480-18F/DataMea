@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 public class User extends Task<Void> {
 
     //------------------Declaring Variables------------------//
-    private String USERNAME_FILE = "TextFiles/userNames.txt";
+    private static String USERNAME_FILE = "TextFiles/userNames.txt";
     private String email, password;
     private ArrayList<Email> sentMail;
     private long lastLogin;
@@ -649,7 +649,7 @@ public class User extends Task<Void> {
     }
 
 
-    public boolean existingUser(String address) {
+    public static boolean existingUser(String address) {
         try {
             File f = new File(USERNAME_FILE);
             boolean found = f.exists();
