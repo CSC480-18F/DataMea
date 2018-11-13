@@ -342,7 +342,6 @@ it appears to be whenever there is a thread of replies
         return sentences;
     }
 
-
     static Sentiment analyzeSentiment(String message) {
         //System.out.println("Processing annotation");
         Annotation annotation = Pipeline.pipeline().process(message);
@@ -362,7 +361,6 @@ it appears to be whenever there is a thread of replies
 
         return sentiment;
     }
-
 
     public static String getCurrentTimeStamp() {
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //dd/MM/yyyy
@@ -426,7 +424,7 @@ it appears to be whenever there is a thread of replies
     }
 
 
-    private String detectLanguage(String text) {
+    public String detectLanguage(String text) {
         LanguageDetector ld = new OptimaizeLangDetector().loadModels();
         ld.addText(text);
         String lang = ld.detect().getLanguage();
