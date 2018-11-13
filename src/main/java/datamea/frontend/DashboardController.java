@@ -118,6 +118,7 @@ public class DashboardController implements Initializable {
     private ObservableList<PieChart.Data> languagesData = FXCollections.observableArrayList();
     private static DonutChart languagesDonutChart;
     public static Tile sentimentGauge;
+    public static Tile replyRateGauge;
     private long lastTimerCall;
     private AnimationTimer timer;
     private static final Random RND = new Random();
@@ -449,6 +450,31 @@ public class DashboardController implements Initializable {
                     });
                     masonryPane.getChildren().add(attachmentsRadialChart);
 
+                    replyRateGauge = TileBuilder.create()
+                            .skinType(Tile.SkinType.BAR_GAUGE)
+                            .backgroundColor(Color.TRANSPARENT)
+                            .title("Reply Rate")
+                            .unit("%")
+                            .value(0)
+                            .gradientStops(new Stop(0, Color.valueOf("#fc5c65")),
+                                    new Stop(0.25, Color.valueOf("#fd9644")),
+                                    new Stop(0.5, Color.valueOf("#fed330")),
+                                    new Stop(0.75, Color.valueOf("#26de81")),
+                                    new Stop(1.0, Color.valueOf("#45aaf2")))
+                            .strokeWithGradient(true)
+                            .highlightSections(true)
+                            .averagingPeriod(25)
+                            .autoReferenceValue(true)
+                            .titleAlignment(TextAlignment.LEFT)
+                            .prefSize(350, 350)
+                            .maxSize(350, 350)
+                            .animated(true)
+                            .build();
+                    double replyRate = currentUser.getReplyFrequency(currentUser.getEmails());
+                    replyRateGauge.setValue(replyRate);
+                    masonryPane.getChildren().add(replyRateGauge);
+
+
                     //HeatMap:
                     //rather than using em here, assign the value of em to be whatever the list of emails we want
                     //aka, add filter, and then display those results
@@ -719,10 +745,43 @@ public class DashboardController implements Initializable {
             updateTopSendersOrRecipients(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
             updateDomains(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
             updateAttachments(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
+            updateReplyRate(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
             updateHeatMap(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
             updateSentimentGauge(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
             updateLanguages(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
 
+    }
+
+
+    private void updateReplyRate(String folderName, String subFolderName, Date sDate, Date eDate, String sender, String domain, String attachment, String language) {
+
+        masonryPane.getChildren().remove(replyRateGauge);
+
+        ArrayList<Email> em = currentUser.filter(folderName, subFolderName,sDate,eDate,sender,domain,attachment,language);
+
+        replyRateGauge = TileBuilder.create()
+                .skinType(Tile.SkinType.BAR_GAUGE)
+                .backgroundColor(Color.TRANSPARENT)
+                .title("Reply Rate")
+                .unit("%")
+                .value(0)
+                .gradientStops(new Stop(0, Color.valueOf("#fc5c65")),
+                        new Stop(0.25, Color.valueOf("#fd9644")),
+                        new Stop(0.5, Color.valueOf("#fed330")),
+                        new Stop(0.75, Color.valueOf("#26de81")),
+                        new Stop(1.0, Color.valueOf("#45aaf2")))
+                .strokeWithGradient(true)
+                .highlightSections(true)
+                .averagingPeriod(25)
+                .autoReferenceValue(true)
+                .titleAlignment(TextAlignment.LEFT)
+                .prefSize(350, 350)
+                .maxSize(350, 350)
+                .animated(true)
+                .build();
+        double replyRate = currentUser.getReplyFrequency(em);
+        replyRateGauge.setValue(replyRate);
+        masonryPane.getChildren().add(replyRateGauge);
     }
 
     private void updateSentimentGauge(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment, String language) {

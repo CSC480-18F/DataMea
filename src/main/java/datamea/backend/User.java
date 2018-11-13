@@ -17,16 +17,16 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class User extends Task<Void>{
+public class User extends Task<Void> {
 
     //------------------Declaring Variables------------------//
-    private String                  USERNAME_FILE = "TextFiles/userNames.txt";
-    private String                  email, password;
-    private ArrayList<Email>        sentMail;
-    private long                    lastLogin;
-    private String                  folderName;
-    private ArrayList<Email>        emails;
-    private ArrayList<UserFolder>   folders;
+    private String USERNAME_FILE = "TextFiles/userNames.txt";
+    private String email, password;
+    private ArrayList<Email> sentMail;
+    private long lastLogin;
+    private String folderName;
+    private ArrayList<Email> emails;
+    private ArrayList<UserFolder> folders;
     private int[][] dayOfWeekFrequency;
     private int frequencyDifference = -1;
     public static ArrayList<javafx.scene.paint.Color> colors = new ArrayList<>();
@@ -34,7 +34,7 @@ public class User extends Task<Void>{
 
     int numSerializedEmails = getNumberOfSerializedEmails();
     private static int totalNumberOfEmails = 0;
-    public int numberOfSentMail=0;
+    public int numberOfSentMail = 0;
 
 
     @Override
@@ -68,23 +68,22 @@ public class User extends Task<Void>{
     }
 
 
-
     //TODO | have the sentiment guage take in a paramater - notably, the filtered list of emails so a user can
     //TODO | filter sentiment scores while background sentimenet analysis is running
     public void updateSentimentGaugeFiltered(ArrayList<Email> emails) {
 
-        Platform.runLater(()->{
+        Platform.runLater(() -> {
             DashboardController.sentimentGauge.setValue(Email.getOverallSentimentDbl(getOverallSentiment()));
         });
     }
 
 
     //TODO adjust for sentMail
-    public int [] getOverallSentiment() {
-        ArrayList <Email> emails = recoverSerializedEmails();
-        int [] sentiment = {0,0,0,0,0};
-        for (Email e: emails) {
-            for (int i = 0; i<sentiment.length;i++) {
+    public int[] getOverallSentiment() {
+        ArrayList<Email> emails = recoverSerializedEmails();
+        int[] sentiment = {0, 0, 0, 0, 0};
+        for (Email e : emails) {
+            for (int i = 0; i < sentiment.length; i++) {
                 sentiment[i] += e.getSentimentScores()[i];
             }
         }
@@ -92,10 +91,10 @@ public class User extends Task<Void>{
     }
 
 
-    public int [] getSentimentForFilteredEmails(ArrayList<Email> emails) {
-        int [] sentiment = {0,0,0,0,0};
-        for (Email e: emails) {
-            for (int i = 0; i<sentiment.length;i++) {
+    public int[] getSentimentForFilteredEmails(ArrayList<Email> emails) {
+        int[] sentiment = {0, 0, 0, 0, 0};
+        for (Email e : emails) {
+            for (int i = 0; i < sentiment.length; i++) {
                 sentiment[i] += e.getSentimentScores()[i];
             }
         }
@@ -104,19 +103,24 @@ public class User extends Task<Void>{
 
 
     //TODO
-    public int getReplyFrequency(ArrayList<Email> emails){
+    public double getReplyFrequency(ArrayList<Email> emails) {
         int replied = 0;
-        for(Email e : emails){
-            if(e.getFlags().contains(Flags.Flag.ANSWERED))
-                replied++;
+        for (Email e : emails) {
+            String[] flags = e.getFlags().getUserFlags();
+            String[] flagsSplit = flags[0].split(" ");
+            for (int i = 0; i < flagsSplit.length; i++) {
+                if (flagsSplit[i].equals("\\Answered")) {
+                    replied++;
+                }
+            }
         }
 
-
-        return 0;
+        double rate = ((double)(replied)) / emails.size();
+        return rate*100;
     }
 
 
-    public Map<String, Long> getDomainFreq(ArrayList<Email> emails, Boolean sent){
+    public Map<String, Long> getDomainFreq(ArrayList<Email> emails, Boolean sent) {
         //TODO; refine filters to remove weird chars
 
         ArrayList<String> domains = new ArrayList<>();
@@ -159,7 +163,7 @@ public class User extends Task<Void>{
         }
 
 
-        String [] doms = new String[domains.size()];
+        String[] doms = new String[domains.size()];
         doms = domains.toArray(doms);
 
 
@@ -173,10 +177,10 @@ public class User extends Task<Void>{
         return sorted;
     }
 
-    public Map<String, Long> getAttachmentFreq(ArrayList<Email> emails, Boolean sent){
+    public Map<String, Long> getAttachmentFreq(ArrayList<Email> emails, Boolean sent) {
         ArrayList<String> aTypes = new ArrayList<>();
-        for (Email e: emails) {
-            if((!e.getFolder().equalsIgnoreCase("sent mail") && !sent) ||
+        for (Email e : emails) {
+            if ((!e.getFolder().equalsIgnoreCase("sent mail") && !sent) ||
                     (e.getFolder().equalsIgnoreCase("sent mail") && sent)) {
                 //get everything after the @ symbol
                 ArrayList<String> atts = e.getAttachments();
@@ -185,12 +189,12 @@ public class User extends Task<Void>{
                 }
             }
         }
-        String [] aTypesAry = new String[aTypes.size()];
+        String[] aTypesAry = new String[aTypes.size()];
         aTypesAry = aTypes.toArray(aTypesAry);
-        String [] whiteSpaceRemoved = new String[aTypes.size()];
+        String[] whiteSpaceRemoved = new String[aTypes.size()];
 
         //this below removes whitespace before and after... Temporary fix
-        for (int i = 0; i<aTypes.size(); i++) {
+        for (int i = 0; i < aTypes.size(); i++) {
             String attachment = aTypes.get(i).trim();
             whiteSpaceRemoved[i] = attachment;
         }
@@ -210,17 +214,21 @@ public class User extends Task<Void>{
 
     public Map<String, Long> getSendersOrRecipientsFreq(ArrayList<Email> emails, boolean sent) {
         ArrayList<String> sendersOrRecipients = new ArrayList<>();
-        if(sent) {
+        if (sent) {
             for (Email e : emails) {
-                sendersOrRecipients.addAll(e.getRecipients());
+                ArrayList<String> recipients = e.getRecipients();
+                for (String s: recipients) {
+                    sendersOrRecipients.add(Sender.filterEmailAddress(s));
+                }
             }
         } else {
             for (Email e : emails) {
-                if( !e.getFolder().equalsIgnoreCase("sent mail"))
-                    sendersOrRecipients.add(e.getSender().getAddress());
+                if (!e.getFolder().equalsIgnoreCase("sent mail")) {
+                    sendersOrRecipients.add(Sender.filterEmailAddress(e.getSender().getAddress()));
+                }
             }
         }
-        String [] sendersArray = new String[sendersOrRecipients.size()];
+        String[] sendersArray = new String[sendersOrRecipients.size()];
         sendersArray = sendersOrRecipients.toArray(sendersArray);
 
         Map<String, Long> freqs =
@@ -235,10 +243,10 @@ public class User extends Task<Void>{
 
     }
 
-    public Map<String, Long> getLanguageFreq(ArrayList<Email> emails, boolean sent){
+    public Map<String, Long> getLanguageFreq(ArrayList<Email> emails, boolean sent) {
         ArrayList<String> langs = new ArrayList<>();
-        for (Email e: emails) {
-            if((sent && e.getFolder().equalsIgnoreCase("sent mail")) ||
+        for (Email e : emails) {
+            if ((sent && e.getFolder().equalsIgnoreCase("sent mail")) ||
                     !sent && !e.getFolder().equalsIgnoreCase("sent mail")) {
                 String l = e.getLanguage();
                 if (!l.equals("unk")) {
@@ -246,7 +254,7 @@ public class User extends Task<Void>{
                 }
             }
         }
-        String [] langsAry = new String[langs.size()];
+        String[] langsAry = new String[langs.size()];
         langsAry = langs.toArray(langsAry);
 
 
@@ -283,9 +291,8 @@ public class User extends Task<Void>{
 
 
     /**
-     *
-     * @param folderName Name of the folder to filter by
-     * @param subFolderName Name of the subfolder to filter by
+     * @param folderName     Name of the folder to filter by
+     * @param subFolderName  Name of the subfolder to filter by
      * @param emailsToFilter ArrayList of emails to filter
      * @return ArrayList of filtered emails
      */
@@ -300,7 +307,7 @@ public class User extends Task<Void>{
             }
             return emailsToFilter;
         } else if (subFolderName == null) {
-            for (Email e: emailsToFilter) {
+            for (Email e : emailsToFilter) {
                 if (e.getFolder().equalsIgnoreCase(folderName)) {
                     filteredEmails.add(e);
                 }
@@ -308,23 +315,26 @@ public class User extends Task<Void>{
             return filteredEmails;
         }
 
-        for (Email e: emailsToFilter) {
+        for (Email e : emailsToFilter) {
             if (e.getFolder().equalsIgnoreCase(folderName) && e.getSubFolder().equalsIgnoreCase(subFolderName)) {
                 filteredEmails.add(e);
             }
         }
         return filteredEmails;
     }
-    /** filter for returning emails from a specific sender
+
+    /**
+     * filter for returning emails from a specific sender
+     *
      * @param sender
      * @param emailsToFilter current list of emails
-     * @return  ArrayList of filtered emails
+     * @return ArrayList of filtered emails
      **/
-    public ArrayList<Email> filterbySender(String sender, ArrayList<Email> emailsToFilter){
+    public ArrayList<Email> filterbySender(String sender, ArrayList<Email> emailsToFilter) {
         ArrayList<Email> filteredEmails = new ArrayList<Email>();
-        for(Email e: emailsToFilter){
+        for (Email e : emailsToFilter) {
             String s = e.getSender().filterName();
-            if (s.equalsIgnoreCase(sender)){
+            if (s.equalsIgnoreCase(sender)) {
                 filteredEmails.add(e);
             }
         }
@@ -333,15 +343,16 @@ public class User extends Task<Void>{
 
     /**
      * Filter for returning emails within a date range
-     * @param startDate only emails after this date will be returned
-     * @param endDate only emails before this date will be returned
+     *
+     * @param startDate      only emails after this date will be returned
+     * @param endDate        only emails before this date will be returned
      * @param emailsToFilter ArrayList of emails to filter
      * @return ArrayList of filtered emails
      */
-    public ArrayList<Email> filterByDate(Date startDate, Date endDate, ArrayList<Email> emailsToFilter){
+    public ArrayList<Email> filterByDate(Date startDate, Date endDate, ArrayList<Email> emailsToFilter) {
         ArrayList<Email> filteredEmails = new ArrayList<>();
-        for (Email e: emailsToFilter){
-            if(e.getDate().after(startDate) && e.getDate().before(endDate)){
+        for (Email e : emailsToFilter) {
+            if (e.getDate().after(startDate) && e.getDate().before(endDate)) {
                 filteredEmails.add(e);
             }
         }
@@ -350,15 +361,16 @@ public class User extends Task<Void>{
 
     /**
      * Filter for returning emails sent from specified domain
-     * @param domain domain to filter by
+     *
+     * @param domain         domain to filter by
      * @param emailsToFilter ArrayList of emails to filter
      * @return ArrayList of filtered emails
      */
-    public synchronized ArrayList<Email> filterByDomain(String domain, ArrayList<Email> emailsToFilter){
+    public synchronized ArrayList<Email> filterByDomain(String domain, ArrayList<Email> emailsToFilter) {
         ArrayList<Email> filteredEmails = new ArrayList<>();
-        for (Email e: emailsToFilter){
-            for(String d : e.getDomain(DashboardController.sentMail)){
-                if(d.equalsIgnoreCase(domain)){
+        for (Email e : emailsToFilter) {
+            for (String d : e.getDomain(DashboardController.sentMail)) {
+                if (d.equalsIgnoreCase(domain)) {
                     filteredEmails.add(e);
                     break;
                 }
@@ -369,17 +381,18 @@ public class User extends Task<Void>{
 
     /**
      * Filter for returning emails sent with specified attachment
+     *
      * @param attachmentType attachment to filter by
      * @param emailsToFilter ArrayList of emails to filter
      * @return ArrayList of filtered emails
      */
 
-    public ArrayList<Email> filterByAttachmentType(String attachmentType, ArrayList<Email> emailsToFilter){
+    public ArrayList<Email> filterByAttachmentType(String attachmentType, ArrayList<Email> emailsToFilter) {
         ArrayList<Email> filteredEmails = new ArrayList<>();
-        for (Email e: emailsToFilter){
-            if(e.getAttachments().size() != 0){
-                for(String attachment: e.getAttachments()){
-                    if(attachmentType.equalsIgnoreCase(attachment))
+        for (Email e : emailsToFilter) {
+            if (e.getAttachments().size() != 0) {
+                for (String attachment : e.getAttachments()) {
+                    if (attachmentType.equalsIgnoreCase(attachment))
                         filteredEmails.add(e);
                 }
             }
@@ -387,57 +400,58 @@ public class User extends Task<Void>{
         return filteredEmails;
     }
 
-    public ArrayList<Email> filterByLanguage(String language, ArrayList<Email> emailsToFilter){
+    public ArrayList<Email> filterByLanguage(String language, ArrayList<Email> emailsToFilter) {
         ArrayList<Email> filteredEmails = new ArrayList<>();
-        for (Email e: emailsToFilter){
-                if(e.getLanguage().equalsIgnoreCase(language))
-                    filteredEmails.add(e);
-            }
+        for (Email e : emailsToFilter) {
+            if (e.getLanguage().equalsIgnoreCase(language))
+                filteredEmails.add(e);
+        }
         return filteredEmails;
     }
 
     /**
      * function to control the filters
-     * @param folder folder to filter by
-     * @param subfolder subfolder to filter by
-     * @param startDate beginning date to filter by
-     * @param endDate ending date to filter by
-     * @param sender sender to filter by
-     * @param domain domain to filter by
+     *
+     * @param folder     folder to filter by
+     * @param subfolder  subfolder to filter by
+     * @param startDate  beginning date to filter by
+     * @param endDate    ending date to filter by
+     * @param sender     sender to filter by
+     * @param domain     domain to filter by
      * @param attachment attachment to filter by
      * @return ArrayList of emails after each of the filters
      */
 
-    public ArrayList<Email> filter(String folder, String subfolder, Date startDate, Date endDate, String sender, String domain, String attachment, String language){
+    public ArrayList<Email> filter(String folder, String subfolder, Date startDate, Date endDate, String sender, String domain, String attachment, String language) {
         ArrayList<Email> filteredEmails = new ArrayList<>();
-        if(folder != null || subfolder != null)
+        if (folder != null || subfolder != null)
             filteredEmails = filterByFolder(folder, subfolder, this.emails);
-        if(startDate != null && endDate != null){
+        if (startDate != null && endDate != null) {
             if (filteredEmails.size() == 0)
                 filteredEmails = filterByDate(startDate, endDate, this.emails);
             else filteredEmails = filterByDate(startDate, endDate, filteredEmails);
         }
-        if(sender != null){
-            if(filteredEmails.size() == 0){
+        if (sender != null) {
+            if (filteredEmails.size() == 0) {
                 filteredEmails = filterbySender(sender, this.emails);
-            }else filteredEmails = filterbySender(sender, filteredEmails);
+            } else filteredEmails = filterbySender(sender, filteredEmails);
         }
-        if(domain != null){
-            if(filteredEmails.size()==0){
+        if (domain != null) {
+            if (filteredEmails.size() == 0) {
                 filteredEmails = filterByDomain(domain, this.emails);
-            }else filteredEmails = filterByDomain(domain, filteredEmails);
+            } else filteredEmails = filterByDomain(domain, filteredEmails);
         }
-        if(attachment != null){
-            if(filteredEmails.size()==0){
+        if (attachment != null) {
+            if (filteredEmails.size() == 0) {
                 filteredEmails = filterByAttachmentType(attachment, this.emails);
-            }else filteredEmails = filterByAttachmentType(attachment, filteredEmails);
+            } else filteredEmails = filterByAttachmentType(attachment, filteredEmails);
         }
-        if(language != null){
-            if(filteredEmails.size()==0){
+        if (language != null) {
+            if (filteredEmails.size() == 0) {
                 filteredEmails = filterByLanguage(language, this.emails);
-            }else filteredEmails = filterByLanguage(language, filteredEmails);
+            } else filteredEmails = filterByLanguage(language, filteredEmails);
         }
-        if (folder == null && subfolder == null && startDate == null && endDate==null && sender == null && domain == null && attachment==null && language == null) {
+        if (folder == null && subfolder == null && startDate == null && endDate == null && sender == null && domain == null && attachment == null && language == null) {
             //no folder was selected so just return all of the emails
             return this.emails;
         }
@@ -447,7 +461,7 @@ public class User extends Task<Void>{
 
     // domain filter, attachment filter,
 
-    public TreeNode getFoldersCountForSunburst(){
+    public TreeNode getFoldersCountForSunburst() {
 
         colors.add(javafx.scene.paint.Color.valueOf("#fc5c65"));
         colors.add(javafx.scene.paint.Color.valueOf("#fd9644"));
@@ -470,15 +484,15 @@ public class User extends Task<Void>{
         colors.add(javafx.scene.paint.Color.valueOf("#a5b1c2"));
         colors.add(javafx.scene.paint.Color.valueOf("#4b6584"));
 
-        TreeNode treeRoot   = new TreeNode(new ChartData("ROOT"));
+        TreeNode treeRoot = new TreeNode(new ChartData("ROOT"));
 
         int colorCount = 0;
 
-        for (UserFolder uf: folders) {
+        for (UserFolder uf : folders) {
             int numEmailsInFolder = getNumEmailsInFolder(uf.getFolderName());
             TreeNode temp = new TreeNode(new ChartData(uf.folderName, numEmailsInFolder, colors.get(colorCount)), treeRoot);
 
-            for (String f: uf.subFolders) {
+            for (String f : uf.subFolders) {
                 if (!f.equals(uf.folderName)) {
                     //if the folder does not match the subfolder name, add the node normally
                     int numEmailsInSubFolder = getNumEmailsInSubFolder(uf.getFolderName(), f);
@@ -489,9 +503,9 @@ public class User extends Task<Void>{
                     TreeNode subfold = new TreeNode(new ChartData("", numEmailsInSubFolder, javafx.scene.paint.Color.TRANSPARENT), temp);
                 }
             }
-            if(colorCount < 19) {
+            if (colorCount < 19) {
                 colorCount++;
-            }else{
+            } else {
                 colorCount = 0;
             }
         }
@@ -501,7 +515,7 @@ public class User extends Task<Void>{
 
     public int getNumEmailsInFolder(String folderName) {
         int count = 0;
-        for (Email e: getEmails()) {
+        for (Email e : getEmails()) {
             if (e.getFolder().equals(folderName)) {
                 count++;
             }
@@ -511,7 +525,7 @@ public class User extends Task<Void>{
 
     public int getNumEmailsInSubFolder(String folderName, String subFolderName) {
         int count = 0;
-        for (Email e: getEmails()) {
+        for (Email e : getEmails()) {
             if (e.getFolder().equals(folderName) && e.getSubFolder().equals(subFolderName)) {
                 count++;
             }
@@ -533,7 +547,7 @@ public class User extends Task<Void>{
         ArrayList<Sender> topSenders = new ArrayList<>();
         ArrayList<String> senderNames = new ArrayList<>();
         for (Email e : emails) {
-            if ((e.getFolder().equals(folderName) && e.getSubFolder().equals(subFolderName))|| all || (e.getFolder().equals(folderName) && subFolderBool) ) {
+            if ((e.getFolder().equals(folderName) && e.getSubFolder().equals(subFolderName)) || all || (e.getFolder().equals(folderName) && subFolderBool)) {
                 if (!senderNames.contains(e.getSender().getAddress()) && !e.getFolder().equalsIgnoreCase("sent mail")) {
                     senderNames.add(e.getSender().getAddress());
                     topSenders.add(new Sender(e.getSender().getAddress()));
@@ -556,7 +570,7 @@ public class User extends Task<Void>{
         ArrayList<Sender> topSenders = new ArrayList<>();
         ArrayList<String> senderNames = new ArrayList<>();
 
-        for (Email e: emails) {
+        for (Email e : emails) {
             if (!senderNames.contains(e.getSender())) {
                 senderNames.add(e.getSender().getAddress());
                 topSenders.add(new Sender(e.getSender().getAddress()));
@@ -575,7 +589,6 @@ public class User extends Task<Void>{
     }
 
 
-
     public ArrayList<UserFolder> recoverFolders() {
         ArrayList<UserFolder> f = new ArrayList<>();
         ArrayList<String> folderNames = new ArrayList<>();
@@ -587,7 +600,7 @@ public class User extends Task<Void>{
                 f.add(fold);
                 folderNames.add(e.getFolder());
             } else {
-                for (UserFolder folds: f) {
+                for (UserFolder folds : f) {
                     if (e.getFolder().equals(folds.folderName) && !folds.subFolders.contains(e.getSubFolder())) {
                         //add the subfolder to the userFolder
                         folds.subFolders.add(e.getSubFolder());
@@ -605,14 +618,14 @@ public class User extends Task<Void>{
         emails = new ArrayList<Email>();
         for (File f : e) {
             if (!f.getName().equals("sentimentProgress.txt"))
-            try {
-                Email em = new Email(f);
-                this.emails.add(em);
-            } catch (Exception em) {
-                System.out.println("Email cannot be properly read..");
-                System.out.println(f.getName());
-                em.printStackTrace();
-            }
+                try {
+                    Email em = new Email(f);
+                    this.emails.add(em);
+                } catch (Exception em) {
+                    System.out.println("Email cannot be properly read..");
+                    System.out.println(f.getName());
+                    em.printStackTrace();
+                }
 
 
         }
@@ -734,7 +747,7 @@ public class User extends Task<Void>{
     }
 
 
-    public int getNumberOfSerializedEmails(){
+    public int getNumberOfSerializedEmails() {
 
         try {
             return new File("TextFiles/" + encrypt(email) + "/").listFiles().length;
@@ -758,8 +771,8 @@ public class User extends Task<Void>{
 
             writeMessages(f, f, runSentiment, originPath);
 
-            Folder [] subFolders = f.list();
-            for (Folder sub: subFolders) {
+            Folder[] subFolders = f.list();
+            for (Folder sub : subFolders) {
                 writeMessages(f, sub, runSentiment, originPath);
             }
 
@@ -774,7 +787,7 @@ public class User extends Task<Void>{
         File user = new File("TextFiles/" + encrypt(email) + "/");
 
         File[] emails = user.listFiles();
-        for(File e : emails){
+        for (File e : emails) {
             e.delete();
         }
         System.out.println(user.delete());
@@ -788,14 +801,14 @@ public class User extends Task<Void>{
         ArrayList<String> userNames = new ArrayList<>();
         System.out.println("Email: " + email);
 
-        for(int i = 0; i < count; i ++){
+        for (int i = 0; i < count; i++) {
             String[] name = br.readLine().split(" ");
             String n = name[0];
-            if(name.length > 2){
+            if (name.length > 2) {
                 n = name[0] + " " + name[1];
             }
             System.out.println("decrypted: " + decrypt(n));
-            if(!decrypt(n).contains(email)){
+            if (!decrypt(n).contains(email)) {
                 userNames.add(n);
             }
         }
@@ -807,7 +820,7 @@ public class User extends Task<Void>{
 
         System.out.println(userNames.toString());
 
-        for(String name : userNames){
+        for (String name : userNames) {
             bw.newLine();
             bw.write(encrypt(name));
         }
@@ -818,10 +831,10 @@ public class User extends Task<Void>{
 
     public void writeMessages(Folder f, Folder sub, boolean runSentiment, String originPath) {
         System.out.println("Currently reading/writing: " + f.getName() + "    Subfolder: " + sub.getName());
-        Message [] messages = new Message[0];
+        Message[] messages = new Message[0];
         boolean sent = false;
 
-        if(f.getName().equalsIgnoreCase("sent mail"))
+        if (f.getName().equalsIgnoreCase("sent mail"))
             sent = true;
 
         try {
@@ -845,7 +858,7 @@ public class User extends Task<Void>{
                 dashboardLoading.progressBar.setProgress(totalProgress/getTotalNumberOfEmails());
                     });*/
             System.out.println("processing: " + i);
-            this.updateProgress(numSerializedEmails,totalNumberOfEmails);
+            this.updateProgress(numSerializedEmails, totalNumberOfEmails);
 
             //can update a label on loading screen to say this if we want
             System.out.println(numSerializedEmails + " of " + totalNumberOfEmails);
@@ -905,7 +918,7 @@ public class User extends Task<Void>{
 
                     //write language
                     String l = e.getLanguage();
-                    if(l != null)
+                    if (l != null)
                         bw.write(l);
                     else
                         bw.write("unk");
@@ -913,12 +926,12 @@ public class User extends Task<Void>{
                     bw.newLine();
 
                     //write recipients
-                    if(!sent)
+                    if (!sent)
                         bw.write("0");
                     else {
                         bw.write(Integer.toString(e.getRecipients().size()));
                         bw.newLine();
-                        for(String r : e.getRecipients()){
+                        for (String r : e.getRecipients()) {
                             bw.write(encrypt(r));
                             bw.newLine();
                         }
@@ -958,12 +971,12 @@ public class User extends Task<Void>{
         Folder[] folders = store.getDefaultFolder().list();
 
         //this right below is simply used to calculate how many emails are in total in the account (look at all folders)
-        for (int i = 0; i<folders.length; i++) {
+        for (int i = 0; i < folders.length; i++) {
             String name = folders[i].getName();
             if (!name.equalsIgnoreCase("[Gmail]")) {
                 System.out.println("looking at received mail folder");
                 folders[i].open(Folder.READ_ONLY);
-                Message [] messages = folders[i].getMessages();
+                Message[] messages = folders[i].getMessages();
                 totalNumberOfEmails += messages.length;
                 System.out.println("adding: " + messages.length);
                 folders[i].close();
@@ -974,7 +987,7 @@ public class User extends Task<Void>{
                 int numSent = f.getMessages().length;
                 f.close();
                 totalNumberOfEmails += numSent;
-                numberOfSentMail +=numSent;
+                numberOfSentMail += numSent;
                 System.out.println("adding: " + numSent);
             }
             System.out.println("total number of emails: " + totalNumberOfEmails);
@@ -983,14 +996,14 @@ public class User extends Task<Void>{
 
         for (int i = 0; i < folders.length; i++) {
             String name = folders[i].getName();
-                if (name.equalsIgnoreCase("[Gmail]")) {
-                    System.out.println(Arrays.deepToString(folders[i].list()));
-                    readFolderAndSerializeEmails(folders[i].getFolder("Sent Mail"), runSentiment);
-                } else {
-                    /// Create a new thread to do this!!!!!!!
-                    readFolderAndSerializeEmails(folders[i], runSentiment);
+            if (name.equalsIgnoreCase("[Gmail]")) {
+                System.out.println(Arrays.deepToString(folders[i].list()));
+                readFolderAndSerializeEmails(folders[i].getFolder("Sent Mail"), runSentiment);
+            } else {
+                /// Create a new thread to do this!!!!!!!
+                readFolderAndSerializeEmails(folders[i], runSentiment);
 
-                }
+            }
         }
     }
 
@@ -1036,13 +1049,11 @@ public class User extends Task<Void>{
                 result += ch;
                 ck++;
             }
-        }
-        catch(NullPointerException e){
+        } catch (NullPointerException e) {
             System.out.println("Null Pointer encountered while decrypting in User.decrypt()");
         }
         return result;
     }
-
 
 
     //add a paramater to specify which emails to populate for the heatmap
@@ -1078,46 +1089,46 @@ public class User extends Task<Void>{
 
         dayOfWeekFrequency = new int[7][24];
 
-            for (Email e : emailsOfInterest) {
-                if ((!e.getFolder().equalsIgnoreCase("sent mail") && !sent) ||
-                        (e.getFolder().equalsIgnoreCase("sent mail") && sent)) {
+        for (Email e : emailsOfInterest) {
+            if ((!e.getFolder().equalsIgnoreCase("sent mail") && !sent) ||
+                    (e.getFolder().equalsIgnoreCase("sent mail") && sent)) {
 
-                    int dayOfWeek = e.getDayOfWeek() - 1;
-                    Date d = e.getDate();
-                    String time = dateFormatter.format(d);
-                    int t = Integer.parseInt(time);
+                int dayOfWeek = e.getDayOfWeek() - 1;
+                Date d = e.getDate();
+                String time = dateFormatter.format(d);
+                int t = Integer.parseInt(time);
 
-                    if (t >= ZERO && t < ONE) dayOfWeekFrequency[dayOfWeek][0]++;
-                    else if (t >= ONE && t < TWO) dayOfWeekFrequency[dayOfWeek][1]++;
-                    else if (t >= TWO && t < THREE) dayOfWeekFrequency[dayOfWeek][2]++;
-                    else if (t >= THREE && t < FOUR) dayOfWeekFrequency[dayOfWeek][3]++;
-                    else if (t >= FOUR && t < FIVE) dayOfWeekFrequency[dayOfWeek][4]++;
-                    else if (t >= FIVE && t < SIX) dayOfWeekFrequency[dayOfWeek][5]++;
-                    else if (t >= SIX && t < SEVEN) dayOfWeekFrequency[dayOfWeek][6]++;
-                    else if (t >= SEVEN && t < EIGHT) dayOfWeekFrequency[dayOfWeek][7]++;
-                    else if (t >= EIGHT && t < NINE) dayOfWeekFrequency[dayOfWeek][8]++;
-                    else if (t >= NINE && t < TEN) dayOfWeekFrequency[dayOfWeek][9]++;
-                    else if (t >= TEN && t < ELEVEN) dayOfWeekFrequency[dayOfWeek][10]++;
-                    else if (t >= ELEVEN && t < TWELVE) dayOfWeekFrequency[dayOfWeek][11]++;
-                    else if (t >= TWELVE && t < THIRT) dayOfWeekFrequency[dayOfWeek][12]++;
-                    else if (t >= THIRT && t < FOURT) dayOfWeekFrequency[dayOfWeek][13]++;
-                    else if (t >= FOURT && t < FIFT) dayOfWeekFrequency[dayOfWeek][14]++;
-                    else if (t >= FIFT && t < SIXT) dayOfWeekFrequency[dayOfWeek][15]++;
-                    else if (t >= SIXT && t < SEVENT) dayOfWeekFrequency[dayOfWeek][16]++;
-                    else if (t >= SEVENT && t < EIGHTT) dayOfWeekFrequency[dayOfWeek][17]++;
-                    else if (t >= EIGHTT && t < NINET) dayOfWeekFrequency[dayOfWeek][18]++;
-                    else if (t >= NINET && t < TWENTY) dayOfWeekFrequency[dayOfWeek][19]++;
-                    else if (t >= TWENTY && t < TWENTONE) dayOfWeekFrequency[dayOfWeek][20]++;
-                    else if (t >= TWENTONE && t < TWENTTWO) dayOfWeekFrequency[dayOfWeek][21]++;
-                    else if (t >= TWENTTWO && t < TWENTTHREE) dayOfWeekFrequency[dayOfWeek][22]++;
-                    else if (t >= TWENTTHREE && t < TWENTFOUR) dayOfWeekFrequency[dayOfWeek][23]++;
-                }
+                if (t >= ZERO && t < ONE) dayOfWeekFrequency[dayOfWeek][0]++;
+                else if (t >= ONE && t < TWO) dayOfWeekFrequency[dayOfWeek][1]++;
+                else if (t >= TWO && t < THREE) dayOfWeekFrequency[dayOfWeek][2]++;
+                else if (t >= THREE && t < FOUR) dayOfWeekFrequency[dayOfWeek][3]++;
+                else if (t >= FOUR && t < FIVE) dayOfWeekFrequency[dayOfWeek][4]++;
+                else if (t >= FIVE && t < SIX) dayOfWeekFrequency[dayOfWeek][5]++;
+                else if (t >= SIX && t < SEVEN) dayOfWeekFrequency[dayOfWeek][6]++;
+                else if (t >= SEVEN && t < EIGHT) dayOfWeekFrequency[dayOfWeek][7]++;
+                else if (t >= EIGHT && t < NINE) dayOfWeekFrequency[dayOfWeek][8]++;
+                else if (t >= NINE && t < TEN) dayOfWeekFrequency[dayOfWeek][9]++;
+                else if (t >= TEN && t < ELEVEN) dayOfWeekFrequency[dayOfWeek][10]++;
+                else if (t >= ELEVEN && t < TWELVE) dayOfWeekFrequency[dayOfWeek][11]++;
+                else if (t >= TWELVE && t < THIRT) dayOfWeekFrequency[dayOfWeek][12]++;
+                else if (t >= THIRT && t < FOURT) dayOfWeekFrequency[dayOfWeek][13]++;
+                else if (t >= FOURT && t < FIFT) dayOfWeekFrequency[dayOfWeek][14]++;
+                else if (t >= FIFT && t < SIXT) dayOfWeekFrequency[dayOfWeek][15]++;
+                else if (t >= SIXT && t < SEVENT) dayOfWeekFrequency[dayOfWeek][16]++;
+                else if (t >= SEVENT && t < EIGHTT) dayOfWeekFrequency[dayOfWeek][17]++;
+                else if (t >= EIGHTT && t < NINET) dayOfWeekFrequency[dayOfWeek][18]++;
+                else if (t >= NINET && t < TWENTY) dayOfWeekFrequency[dayOfWeek][19]++;
+                else if (t >= TWENTY && t < TWENTONE) dayOfWeekFrequency[dayOfWeek][20]++;
+                else if (t >= TWENTONE && t < TWENTTWO) dayOfWeekFrequency[dayOfWeek][21]++;
+                else if (t >= TWENTTWO && t < TWENTTHREE) dayOfWeekFrequency[dayOfWeek][22]++;
+                else if (t >= TWENTTHREE && t < TWENTFOUR) dayOfWeekFrequency[dayOfWeek][23]++;
             }
+        }
 
         return dayOfWeekFrequency;
     }
 
-    public int differenceMinMax(int[][] heatMap){
+    public int differenceMinMax(int[][] heatMap) {
 
 
         int min = heatMap[0][0];
@@ -1135,22 +1146,24 @@ public class User extends Task<Void>{
 
     }
 
-    public String getColorForHeatMap(int i, int[][] heatMap){
+    public String getColorForHeatMap(int i, int[][] heatMap) {
 
         int diff = differenceMinMax(heatMap);
 
         float h = .75f;
         float s = 1f;
-        float b = 1f / (float)diff * i;
+        float b = 1f / (float) diff * i;
 
 
-        if(i == 0)
+        if (i == 0)
             return "-fx-background-color: transparent;";
         else
             return "-fx-background-color: #" + Integer.toHexString((Color.HSBtoRGB(h, s, b)));
     }
 
-    public int[][] getDayOfWeekFrequency() { return dayOfWeekFrequency; }
+    public int[][] getDayOfWeekFrequency() {
+        return dayOfWeekFrequency;
+    }
 
     public long getLastLogin() {
         return lastLogin;
@@ -1185,9 +1198,8 @@ public class User extends Task<Void>{
     }
 
 
-
-    public static String getDay(int i){
-        switch(i) {
+    public static String getDay(int i) {
+        switch (i) {
             case 0:
                 return "Sun";
             case 1:
@@ -1206,7 +1218,6 @@ public class User extends Task<Void>{
                 return "";
         }
     }
-
 
 
 }
