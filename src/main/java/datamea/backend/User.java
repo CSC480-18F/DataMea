@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.io.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,6 +38,7 @@ public class User extends Task<Void> {
     int numSerializedEmails = getNumberOfSerializedEmails();
     private static int totalNumberOfEmails = 0;
     public int numberOfSentMail = 0;
+
 
 
     @Override
@@ -829,6 +833,14 @@ public class User extends Task<Void> {
     }
 
 
+    public synchronized void incrementNumSerializeEmails(){
+        numSerializedEmails++;
+    }
+
+    public synchronized int getNumSerializedEmails() {
+        return numSerializedEmails;
+    }
+
     public void writeMessages(Folder f, Folder sub, boolean runSentiment, String originPath) {
         System.out.println("Currently reading/writing: " + f.getName() + "    Subfolder: " + sub.getName());
         Message[] messages = new Message[0];
@@ -857,11 +869,11 @@ public class User extends Task<Void> {
                 dashboardLoading = loader.getController();
                 dashboardLoading.progressBar.setProgress(totalProgress/getTotalNumberOfEmails());
                     });*/
-            System.out.println("processing: " + i);
-            this.updateProgress(numSerializedEmails, totalNumberOfEmails);
 
-            //can update a label on loading screen to say this if we want
-            System.out.println(numSerializedEmails + " of " + totalNumberOfEmails);
+            int currentProgress = getNumberOfSerializedEmails();
+            System.out.println("processing: " + i);
+            this.updateProgress(currentProgress, totalNumberOfEmails);
+            System.out.println(currentProgress + " of " + totalNumberOfEmails);
 
             Message m = messages[i];
             String sender = "Unknown";
@@ -877,7 +889,8 @@ public class User extends Task<Void> {
             }
 
             if (this.getLastLogin() < receivedDate) {
-                numSerializedEmails++;
+
+                incrementNumSerializeEmails();
 
                 //serialize email
                 try {
@@ -994,17 +1007,54 @@ public class User extends Task<Void> {
 
         }
 
+        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        CountDownLatch latch = new CountDownLatch(folders.length);
+
+
         for (int i = 0; i < folders.length; i++) {
+
             String name = folders[i].getName();
             if (name.equalsIgnoreCase("[Gmail]")) {
                 System.out.println(Arrays.deepToString(folders[i].list()));
-                readFolderAndSerializeEmails(folders[i].getFolder("Sent Mail"), runSentiment);
-            } else {
-                /// Create a new thread to do this!!!!!!!
-                readFolderAndSerializeEmails(folders[i], runSentiment);
 
+                final Folder sentMail = folders[i].getFolder("Sent Mail");
+
+
+                Runnable read = new Runnable() {
+                    @Override
+                    public void run() {
+                        System.out.println("reading sent mail folder -- thread started");
+                        readFolderAndSerializeEmails(sentMail, runSentiment);
+                        latch.countDown();
+                    }
+                };
+
+                executor.execute(read);
+
+            } else {
+
+                final Folder currentFolder = folders[i];
+
+                Runnable read = new Runnable() {
+                    @Override
+                    public void run() {
+                        System.out.println("reading current folder --- thread started");
+                        readFolderAndSerializeEmails(currentFolder, runSentiment);
+                        latch.countDown();
+                    }
+                };
+
+                executor.execute(read);
             }
         }
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            System.out.println("cannot wait longer for threads to finish");
+        }
+
+        executor.shutdown();
     }
 
 
