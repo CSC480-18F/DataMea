@@ -429,39 +429,42 @@ public class User extends Task<Void> {
     public ArrayList<Email> filter(String folder, String subfolder, Date startDate, Date endDate, String sender, String domain, String attachment, String language) {
         ArrayList<Email> filteredEmails = new ArrayList<>();
         if (folder != null || subfolder != null)
-            filteredEmails = filterByFolder(folder, subfolder, this.emails);
+            filteredEmails = filterByFolder(folder, subfolder, recoverSerializedEmails());
         if (startDate != null && endDate != null) {
             if (filteredEmails.size() == 0)
-                filteredEmails = filterByDate(startDate, endDate, this.emails);
+                filteredEmails = filterByDate(startDate, endDate, recoverSerializedEmails());
             else filteredEmails = filterByDate(startDate, endDate, filteredEmails);
         }
         if (sender != null) {
             if (filteredEmails.size() == 0) {
-                filteredEmails = filterbySender(sender, this.emails);
+                filteredEmails = filterbySender(sender, recoverSerializedEmails());
             } else filteredEmails = filterbySender(sender, filteredEmails);
         }
         if (domain != null) {
             if (filteredEmails.size() == 0) {
-                filteredEmails = filterByDomain(domain, this.emails);
+                filteredEmails = filterByDomain(domain, recoverSerializedEmails());
             } else filteredEmails = filterByDomain(domain, filteredEmails);
         }
         if (attachment != null) {
             if (filteredEmails.size() == 0) {
-                filteredEmails = filterByAttachmentType(attachment, this.emails);
+                filteredEmails = filterByAttachmentType(attachment, recoverSerializedEmails());
             } else filteredEmails = filterByAttachmentType(attachment, filteredEmails);
         }
         if (language != null) {
             if (filteredEmails.size() == 0) {
-                filteredEmails = filterByLanguage(language, this.emails);
+                filteredEmails = filterByLanguage(language, recoverSerializedEmails());
             } else filteredEmails = filterByLanguage(language, filteredEmails);
         }
         if (folder == null && subfolder == null && startDate == null && endDate == null && sender == null && domain == null && attachment == null && language == null) {
             //no folder was selected so just return all of the emails
-            return this.emails;
+            return recoverSerializedEmails();
         }
 
         return filteredEmails;
     }
+
+
+
 
     // domain filter, attachment filter,
 

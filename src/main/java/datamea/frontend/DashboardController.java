@@ -573,9 +573,11 @@ public class DashboardController implements Initializable {
 
 
                     sentimentTimeline = new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {
-                        ArrayList<Email> em = currentUser.getEmails();
+
                         @Override
                         public void handle(ActionEvent event) {
+                            ArrayList<Email> em = currentUser.recoverSerializedEmails();
+
                             int [] sentimentScores = currentUser.getSentimentForFilteredEmails(em);
                             double score = Email.getOverallSentimentDbl(sentimentScores);
                             sentimentGauge.setValue(score);
@@ -774,9 +776,9 @@ public class DashboardController implements Initializable {
         masonryPane.getChildren().removeAll(sentimentGauge);
         sentimentTimeline.stop();
         sentimentTimeline= new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {
-        ArrayList<Email> em = currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment,language);
             @Override
             public void handle(ActionEvent event) {
+                ArrayList<Email> em = currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment,language);
                 int [] sentimentScores = currentUser.getSentimentForFilteredEmails(em);
                 double score = Email.getOverallSentimentDbl(sentimentScores);
                 sentimentGauge.setValue(score);
