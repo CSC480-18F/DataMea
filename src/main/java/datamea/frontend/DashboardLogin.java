@@ -160,7 +160,6 @@ public class DashboardLogin implements Initializable {
             public void run() {
                 Platform.runLater(() -> {
                     try{
-
                         Properties props = System.getProperties();
                         props.setProperty("mail.store.protocol", "imaps");
                         props.setProperty("mail.store.protocol", "imaps");
@@ -215,15 +214,20 @@ public class DashboardLogin implements Initializable {
         }
         try {
             DashboardLoading.setStage(myStage);
-            Parent homePageParent = FXMLLoader.load(getClass().getClassLoader().getResource("Loading_Screen.fxml"));
+            Parent homePageParent;
+            if (User.existingUser(getEmail())){
+                homePageParent = FXMLLoader.load(getClass().getClassLoader().getResource("Second_Loading_Screen.fxml"));
+            } else{
+                homePageParent = FXMLLoader.load(getClass().getClassLoader().getResource("Loading_Screen.fxml"));
+                DashboardLoading.setReadyLoadingScreenToTrue();
+                DashboardLoading.setLoadingOnCloseRequest(true);
+            }
 
             loginSuccessful.addListener(new ChangeListener<Boolean>() {
                 @Override
                 public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                     if (newValue) {
                         //Scene homePage = new Scene(homePageParent,myStage.getWidth(), myStage.getHeight());
-                        DashboardLoading.setReadyLoadingScreenToTrue();
-                        DashboardLoading.setLoadingOnCloseRequest(true);
                         setScene(homePageParent);
                         myStage.show();
                         myStage.requestFocus();

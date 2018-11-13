@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXSpinner?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<StackPane fx:id="loadingStackPane" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox fx:id="loadingVbox" alignment="CENTER" style="-fx-spacing: 30;">
+         <children>
+            <ImageView fitHeight="160.0" fitWidth="274.0" pickOnBounds="true">
+               <image>
+                  <Image url="@DataMeaLogo.png" />
+               </image>
+               <effect>
+                  <DropShadow color="#00000040" height="20.0" radius="9.5" width="20.0" />
+               </effect>
+            </ImageView>
+            <Text fill="#ebe5e5" strokeType="OUTSIDE" strokeWidth="0.0" text="Welcome back! We're is loading your statistics now, Data Mea will be ready shortly." textAlignment="CENTER" wrappingWidth="400.0000059604645">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Text>
+            <JFXSpinner radius="50.0" stylesheets="@spinner.css" VBox.vgrow="ALWAYS" />
+         </children>
+      </VBox>
+   </children>
+</StackPane>

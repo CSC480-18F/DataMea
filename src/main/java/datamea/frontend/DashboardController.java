@@ -1,6 +1,5 @@
 package datamea.frontend;
 
-import com.jfoenix.controls.events.JFXDialogEvent;
 import datamea.backend.*;
 import com.jfoenix.controls.*;
 import com.jfoenix.transitions.hamburger.HamburgerBasicCloseTransition;
@@ -229,7 +228,7 @@ public class DashboardController implements Initializable {
             basicCloseTransition.setRate(basicCloseTransition.getRate() * -1);
             basicCloseTransition.play();
             if (drawer.isOpened()) {
-                if (settingsDrawer.isOpened()){
+                if (settingsDrawer.isOpened()) {
                     settingsDrawer.close();
                     dashboardDrawer.settingsButton.setText("Open Settings");
                     final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(2);
@@ -312,6 +311,11 @@ public class DashboardController implements Initializable {
             okay.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
+                    try {
+                        currentUser.resetUser();
+                    } catch(IOException e){
+                        e.printStackTrace();
+                    }
                     wrongInfo.close();
                     Platform.exit();
                     System.exit(0);
@@ -324,7 +328,7 @@ public class DashboardController implements Initializable {
                     wrongInfo.close();
                 }
             });
-            content.setActions(okay,cancel);
+            content.setActions(okay, cancel);
             wrongInfo.show();
         });
 
@@ -381,6 +385,7 @@ public class DashboardController implements Initializable {
                             .sunburstTree(currentUser.getFoldersCountForSunburst())
                             .sunburstInteractive(true)
                             .build();
+                    //Broken because of sentiment?????
                     foldersSunburstChart.setOnTileEvent((e) -> {
                         if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
                             System.out.println("Clicked on folder " + e.getData().getName());
@@ -389,10 +394,10 @@ public class DashboardController implements Initializable {
                         }
                     });
                     masonryPane.getChildren().add(foldersSunburstChart);
-                    //Sent VS received chart
 
+                    //Sent VS received chart
                     PieChart.Data sent = new PieChart.Data("Sent", currentUser.numberOfSentMail);
-                    PieChart.Data recevied = new PieChart.Data("Received", User.getTotalNumberOfEmails()-currentUser.numberOfSentMail);
+                    PieChart.Data recevied = new PieChart.Data("Received", User.getTotalNumberOfEmails() - currentUser.numberOfSentMail);
                     ObservableList<PieChart.Data> sentReceivedData = FXCollections.observableArrayList();
                     sentReceivedData.add(recevied);
                     sentReceivedData.add(sent);
@@ -635,7 +640,7 @@ public class DashboardController implements Initializable {
 
 
                     backgroundSentiment = new BackgroundSentiment();
-                    new Thread (backgroundSentiment).start();
+                    new Thread(backgroundSentiment).start();
                     progressBar.progressProperty().unbind();
                     progressBar.setProgress(0);
                     progressBar.progressProperty().bind(backgroundSentiment.progressProperty());
@@ -653,7 +658,7 @@ public class DashboardController implements Initializable {
                         @Override
                         public void handle(ActionEvent event) {
                             ArrayList<Email> em = currentUser.recoverSerializedEmails();
-                            int [] sentimentScores = currentUser.getSentimentForFilteredEmails(em);
+                            int[] sentimentScores = currentUser.getSentimentForFilteredEmails(em);
                             double score = Email.getOverallSentimentDbl(sentimentScores);
                             sentimentGauge.setValue(score);
                         }
@@ -666,7 +671,7 @@ public class DashboardController implements Initializable {
                     int languagesCount = 0;
                     for (Map.Entry<String, Long> entry : languages.entrySet()) {
                         PieChart.Data temp = new PieChart.Data(entry.getKey(), entry.getValue());
-                        if(!entry.getKey().equals("")) {
+                        if (!entry.getKey().equals("")) {
                             languagesData.add(temp);
                             languagesCount++;
                         }
@@ -721,7 +726,7 @@ public class DashboardController implements Initializable {
                                     settingsDrawer.setVisible(false);
                                 }
                             }, 500, TimeUnit.MILLISECONDS);
-                            if (settingsDrawer.isOpened()){
+                            if (settingsDrawer.isOpened()) {
                                 settingsDrawer.close();
                                 dashboardDrawer.settingsButton.setText("Open Settings");
                                 final ScheduledThreadPoolExecutor settingsExecutor = new ScheduledThreadPoolExecutor(2);
@@ -745,7 +750,6 @@ public class DashboardController implements Initializable {
                 }
             }
         });
-
 
 
         homeOnCloseRequest.addListener(new ChangeListener<Boolean>() {
@@ -802,7 +806,7 @@ public class DashboardController implements Initializable {
             if (folderName.startsWith("          ")) {
                 subFolderName = folderName.trim();
 
-                for (UserFolder f: currentUser.getFolders()) {
+                for (UserFolder f : currentUser.getFolders()) {
                     for (String s : f.subFolders) {
                         if (s.equals(subFolderName)) {
                             folderName = f.folderName;
@@ -820,19 +824,18 @@ public class DashboardController implements Initializable {
         System.out.println("Folder:" + folderName + " Subfolder: " + subFolderName);
 
 
-
         //TODO Modify the string that is being passed in, to be a valid date
         //TODO modify the filters so that they take a language -- shouldnt take very long
 
         // TODO ADD OTHER CHARTS BELOW
 
-            updateTopSendersOrRecipients(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
-            updateDomains(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
-            updateAttachments(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
-            updateReplyRate(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
-            updateHeatMap(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
-            updateSentimentGauge(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
-            updateLanguages(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
+        updateTopSendersOrRecipients(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
+        updateDomains(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
+        updateAttachments(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
+        updateReplyRate(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
+        updateHeatMap(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
+        updateSentimentGauge(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
+        updateLanguages(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
 
     }
 
@@ -841,7 +844,7 @@ public class DashboardController implements Initializable {
 
         masonryPane.getChildren().remove(replyRateGauge);
 
-        ArrayList<Email> em = currentUser.filter(folderName, subFolderName,sDate,eDate,sender,domain,attachment,language);
+        ArrayList<Email> em = currentUser.filter(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
 
         replyRateGauge = TileBuilder.create()
                 .skinType(Tile.SkinType.BAR_GAUGE)
@@ -872,11 +875,11 @@ public class DashboardController implements Initializable {
 
         masonryPane.getChildren().removeAll(sentimentGauge);
         sentimentTimeline.stop();
-        sentimentTimeline= new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {
+        sentimentTimeline = new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                ArrayList<Email> em = currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment,language);
-                int [] sentimentScores = currentUser.getSentimentForFilteredEmails(em);
+                ArrayList<Email> em = currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment, language);
+                int[] sentimentScores = currentUser.getSentimentForFilteredEmails(em);
                 double score = Email.getOverallSentimentDbl(sentimentScores);
                 sentimentGauge.setValue(score);
             }
@@ -914,7 +917,7 @@ public class DashboardController implements Initializable {
 
         String title = sentMail ? "Sent Email Frequency" : "Received Email Frequency";
 
-        ArrayList<Email> em = currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment,language);
+        ArrayList<Email> em = currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment, language);
         int[][] heatMapData;
         heatMapData = currentUser.generateDayOfWeekFrequency(em, sentMail);
         heatMapAndTitle = new VBox();
@@ -979,13 +982,13 @@ public class DashboardController implements Initializable {
 
     }
 
-    public void updateTopSendersOrRecipients(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment, String language){
+    public void updateTopSendersOrRecipients(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment, String language) {
         masonryPane.getChildren().removeAll(topSendersOrRecipientsRadialChart);
 
         //Update array list of top senders with new folder info
         topSendersOrRecipientsData = new ArrayList<>();
         String title;
-        Map<String,Long> topSendersOrRecipients;
+        Map<String, Long> topSendersOrRecipients;
 
         if (sentMail) {
             topSendersOrRecipients = currentUser.getSendersOrRecipientsFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment, language), sentMail);
@@ -1059,7 +1062,7 @@ public class DashboardController implements Initializable {
 
         domains = null;
         domainsData = FXCollections.observableArrayList();
-        domains = currentUser.getDomainFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment,language), sentMail);
+        domains = currentUser.getDomainFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment, language), sentMail);
 
         PieChart.Data domainOther = new PieChart.Data("Other", 0);
         int domainCount = 0;
@@ -1115,12 +1118,12 @@ public class DashboardController implements Initializable {
 
         languages = null;
         languagesData = FXCollections.observableArrayList();
-        languages = currentUser.getLanguageFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment,language), sentMail);
+        languages = currentUser.getLanguageFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment, language), sentMail);
 
         int languagesCount = 0;
         for (Map.Entry<String, Long> entry : languages.entrySet()) {
             PieChart.Data temp = new PieChart.Data(entry.getKey(), entry.getValue());
-            if(!entry.getKey().equals("")) {
+            if (!entry.getKey().equals("")) {
                 languagesData.add(temp);
                 languagesCount++;
             }
@@ -1167,7 +1170,7 @@ public class DashboardController implements Initializable {
 
         attachments = null;
 
-        attachments = currentUser.getAttachmentFreq(currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment,language), sentMail);
+        attachments = currentUser.getAttachmentFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment, language), sentMail);
 
         attachmentsData = new ArrayList<>();
         int attachmentsCount = 0;
@@ -1509,8 +1512,8 @@ public class DashboardController implements Initializable {
     }
 
     //Open Filters drawer when a filter is clicked
-    private void openFilterDrawer(){
-        if (filtersDrawer.isClosed()){
+    private void openFilterDrawer() {
+        if (filtersDrawer.isClosed()) {
             filtersDrawer.setVisible(true);
             filtersDrawer.open();
             changeScrollPaneHeight(75);

@@ -23,6 +23,10 @@
     -fx-text-fill: white;
 }
 
+.jfx-hamburger {
+    -fx-cursor: hand;
+}
+
 .jfx-rippler {
     -jfx-rippler-fill: #ff931e;
 }
