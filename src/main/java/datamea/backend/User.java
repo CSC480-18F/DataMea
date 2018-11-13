@@ -1197,6 +1197,9 @@ public class User extends Task<Void> {
         return totalNumberOfEmails;
     }
 
+    public ArrayList<UserFolder> getFolders() {
+        return folders;
+    }
 
     public static String getDay(int i) {
         switch (i) {

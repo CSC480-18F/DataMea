@@ -712,6 +712,7 @@ public class DashboardController implements Initializable {
 
         //TODO figure out how to add folder/subfolder stuff along with doing dates
 
+
         for (Filter f : filters) {
             if (f.isTopSender()) {
                 sender = f.getName();
@@ -732,9 +733,30 @@ public class DashboardController implements Initializable {
             }
         }
 
-        if (subFolderName == null) {
-            subFolderName = folderName;
+
+        if (folderName != null) {
+
+            //this indicates that it is a subfolder
+            if (folderName.startsWith("          ")) {
+                subFolderName = folderName.trim();
+
+                for (UserFolder f: currentUser.getFolders()) {
+                    for (String s : f.subFolders) {
+                        if (s.equals(subFolderName)) {
+                            folderName = f.folderName;
+                            break;
+                        }
+                    }
+                }
+
+            } else {
+                subFolderName = folderName;
+            }
+
         }
+
+        System.out.println("Folder:" + folderName + " Subfolder: " + subFolderName);
+
 
 
         //TODO Modify the string that is being passed in, to be a valid date
@@ -1192,7 +1214,7 @@ public class DashboardController implements Initializable {
                 icon.setGlyphName("USER");
                 icon.setFill(Paint.valueOf("#34495e"));
                 filterChipHBox.getChildren().add(icon);
-                Label nameLabel = new Label(name);
+                Label nameLabel = new Label();
                 nameLabel.setAlignment(Pos.CENTER_LEFT);
                 nameLabel.maxWidth(Double.MAX_VALUE);
                 filterChipHBox.getChildren().add(nameLabel);
