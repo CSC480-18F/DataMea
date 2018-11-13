@@ -235,7 +235,7 @@ public class DashboardController implements Initializable {
                     executor.schedule(new Runnable() {
                         @Override
                         public void run() {
-                            settingsDrawer.setVisible(false);
+                            Platform.runLater(()->settingsDrawer.setVisible(false));
                         }
                     }, 500, TimeUnit.MILLISECONDS);
                 }
@@ -248,8 +248,10 @@ public class DashboardController implements Initializable {
                 executor.schedule(new Runnable() {
                     @Override
                     public void run() {
-                        drawer.setVisible(false);
-                        hamburger.setDisable(false);
+                        Platform.runLater(()->{
+                            drawer.setVisible(false);
+                            hamburger.setDisable(false);
+                        });
                     }
                 }, 500, TimeUnit.MILLISECONDS);
             } else {
@@ -268,7 +270,7 @@ public class DashboardController implements Initializable {
                 executor.schedule(new Runnable() {
                     @Override
                     public void run() {
-                        filtersDrawer.setVisible(false);
+                        Platform.runLater(()-> filtersDrawer.setVisible(false));
                     }
                 }, 500, TimeUnit.MILLISECONDS);
             } else {
@@ -291,7 +293,7 @@ public class DashboardController implements Initializable {
                 executor.schedule(new Runnable() {
                     @Override
                     public void run() {
-                        settingsDrawer.setVisible(false);
+                        Platform.runLater(()-> settingsDrawer.setVisible(false));
                     }
                 }, 500, TimeUnit.MILLISECONDS);
             } else {
@@ -649,9 +651,26 @@ public class DashboardController implements Initializable {
                                 @Override
                                 public void handle(WorkerStateEvent event) {
                                     progressBar.setProgress(backgroundSentiment.getProgress());
-                                    System.out.println("updated progress bar");
+                                    if (backgroundSentiment.getProgress() == 1.0){
+                                        progressBar.setVisible(false);
+                                        JFXSnackbar notification = new JFXSnackbar(anchorPane);
+                                        notification.getStylesheets().add(this.getClass().getClassLoader().getResource("Dashboard_css.css").toExternalForm());
+                                        notification.show("Sentiment score is done",5000);
+                                    }
                                 }
                             });
+
+                    if (backgroundSentiment.getProgress() != 1.0){
+                        JFXSnackbar notification = new JFXSnackbar(anchorPane);
+                        notification.getStylesheets().add(this.getClass().getClassLoader().getResource("Dashboard_css.css").toExternalForm());
+                        final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(2);
+                        executor.schedule(new Runnable() {
+                            @Override
+                            public void run() {
+                                Platform.runLater(()->notification.show("Sentiment score is calculating",5000));
+                            }
+                        }, 2000, TimeUnit.MILLISECONDS);
+                    }
 
 
                     sentimentTimeline = new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {
@@ -723,7 +742,7 @@ public class DashboardController implements Initializable {
                             drawerExecutor.schedule(new Runnable() {
                                 @Override
                                 public void run() {
-                                    settingsDrawer.setVisible(false);
+                                    Platform.runLater(()->settingsDrawer.setVisible(false));
                                 }
                             }, 500, TimeUnit.MILLISECONDS);
                             if (settingsDrawer.isOpened()) {
@@ -733,7 +752,7 @@ public class DashboardController implements Initializable {
                                 settingsExecutor.schedule(new Runnable() {
                                     @Override
                                     public void run() {
-                                        settingsDrawer.setVisible(false);
+                                        Platform.runLater(()->settingsDrawer.setVisible(false));
                                     }
                                 }, 500, TimeUnit.MILLISECONDS);
                             }
