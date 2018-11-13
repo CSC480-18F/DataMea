@@ -438,16 +438,18 @@ it appears to be whenever there is a thread of replies
 
     }
 
-    public void addEmailToSender(){ getSender().addEmail(this);}
+    //public void addEmailToSender(){ getSender().addEmail(this);}
 
+    /*
     public ArrayList<String> getSentences() {
         return sentences;
     }
+    */
 
     public int[] getSentimentScores() {
         return sentimentScores;
     }
-
+    /*
     public int getSentencesAnalyzed() {
         return sentencesAnalyzed;
     }
@@ -467,6 +469,7 @@ it appears to be whenever there is a thread of replies
     public String getSentimentPctStr() {
         return sentimentPctStr;
     }
+    */
 
     public Date getDate() {
         return date;

@@ -1,8 +1,11 @@
 package datamea.backend;
 
-import junit.framework.Assert;
+
 import junit.framework.TestCase;
+
+import javax.mail.MessagingException;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class EmailTest extends TestCase {
@@ -14,13 +17,15 @@ public class EmailTest extends TestCase {
     }
 
     public void testGetOverallSentimentDbl() {
-
+        int[] testArray = new int[]{1,1,1,1,1};
+        assertEquals(Email.getOverallSentimentDbl(testArray), 50.0);
     }
 
+    //ask how to test
     public void testAnalyzeSentiment() {
     }
 
-
+    //ask what to send filter
     public void testFilter() {
     }
 
@@ -28,7 +33,17 @@ public class EmailTest extends TestCase {
         assertEquals(EMAIL.getDayOfWeek(), 2);
     }
 
-    public void testExtractAttachments() {
+    //Ask about how to test
+    public void testExtractAttachments() throws MessagingException, IOException {
+        ArrayList<String> testAttachments = new ArrayList<>();
+        ArrayList<String> expected = new ArrayList<>();
+        try{
+            testAttachments = EMAIL.extractAttachments();
+        }catch (StringIndexOutOfBoundsException s){
+            System.out.println(s.getMessage());
+        }
+
+        assertEquals(testAttachments, expected);
 
     }
 
@@ -36,11 +51,8 @@ public class EmailTest extends TestCase {
         assertFalse(EMAIL.isAnswered());
     }
 
-    public void testAddEmailToSender() {
-    }
 
-    public void testGetSentences() {
-    }
+
 
     public void testGetSentimentScores() {
         boolean test = true;
@@ -52,14 +64,7 @@ public class EmailTest extends TestCase {
         assertTrue(test);
     }
 
-    public void testGetSentencesAnalyzed() {
-    }
 
-    public void testGetSentimentPct() {
-    }
-
-    public void testGetContent() {
-    }
 
 
     public void testGetSentimentPctStr() {
@@ -98,13 +103,12 @@ public class EmailTest extends TestCase {
     }
 
     public void testGetLanguage() {
-        assertEquals(EMAIL.getLanguage(),"de");
+        assertEquals(EMAIL.getLanguage(),"unk");
     }
 
     public void testGetDomain() {
-        assertEquals(EMAIL.getDomain(), "@uni-due.de");
+        assertEquals(EMAIL.getDomain(false), "[@uni-due.de]");
     }
 
-    public void testToString() {
-    }
+
 }
