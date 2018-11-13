@@ -638,6 +638,53 @@ public class User extends Task<Void> {
     }
 
 
+    public boolean existingUser() {
+        try {
+            File f = new File(USERNAME_FILE);
+            boolean found = f.exists();
+            if (!found) {
+                return false;
+            }
+
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            int numAccounts;
+
+            String numString = br.readLine();
+            String[] lines;
+            String encryptedAddress = encrypt(email);
+            if (numString == null) {
+                return false;
+            } else {
+                //look for existing user index
+                numAccounts = Integer.parseInt(numString);
+                lines = new String[numAccounts];
+                String[] accountHashes = new String[numAccounts];
+                String s;
+                int i = 0;
+
+                while ((s = br.readLine()) != null) {
+                    lines[i] = s;
+                    String[] stuff = s.split(" ");
+                    accountHashes[i] = stuff[0];
+                    String decryptedSavedEmail = decrypt(accountHashes[i]);
+                    String userTypedEmail = decrypt(encryptedAddress);
+                    if (decryptedSavedEmail.equals(userTypedEmail)) {
+                        return true;
+                    }
+                    i++;
+                }
+
+                br.close();
+            }
+
+            return false;
+        }catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
     public void serializeUser(boolean runSentiment) throws IOException, javax.mail.MessagingException {
 
         File f = new File(USERNAME_FILE);
@@ -870,7 +917,7 @@ public class User extends Task<Void> {
                 dashboardLoading.progressBar.setProgress(totalProgress/getTotalNumberOfEmails());
                     });*/
 
-            int currentProgress = getNumberOfSerializedEmails();
+            int currentProgress = getNumSerializedEmails();
             System.out.println("processing: " + i);
             this.updateProgress(currentProgress, totalNumberOfEmails);
             System.out.println(currentProgress + " of " + totalNumberOfEmails);
