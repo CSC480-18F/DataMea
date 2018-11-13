@@ -1269,7 +1269,7 @@ public class DashboardController implements Initializable {
                 icon.setGlyphName("USER");
                 icon.setFill(Paint.valueOf("#34495e"));
                 filterChipHBox.getChildren().add(icon);
-                Label nameLabel = new Label();
+                Label nameLabel = new Label(name);
                 nameLabel.setAlignment(Pos.CENTER_LEFT);
                 nameLabel.maxWidth(Double.MAX_VALUE);
                 filterChipHBox.getChildren().add(nameLabel);
