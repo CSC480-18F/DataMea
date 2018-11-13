@@ -1414,6 +1414,7 @@ public class DashboardController implements Initializable {
         if (filtersDrawer.isClosed()){
             filtersDrawer.setVisible(true);
             filtersDrawer.open();
+            changeScrollPaneHeight(75);
             filtersButton.setText("Close Filters");
         }
     }
