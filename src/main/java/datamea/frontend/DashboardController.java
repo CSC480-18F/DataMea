@@ -333,17 +333,7 @@ public class DashboardController implements Initializable {
                         d.getNode().addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
                             @Override
                             public void handle(MouseEvent e) {
-                                d.getNode().setCursor(Cursor.HAND);
-                            }
-                        });
-                    }
-                    for (PieChart.Data d : sentReceivedData) {
-                        d.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-                            @Override
-                            public void handle(MouseEvent e) {
-                                //addFilter(d.getName());
-                                openFilterDrawer();
-                                addFilter(d.getName(), false, false, true, false, false);
+                                d.getNode().setCursor(Cursor.DEFAULT);
                             }
                         });
                     }
