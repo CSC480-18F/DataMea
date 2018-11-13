@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox fx:id="settingsDrawerVBox" prefHeight="600.0" prefWidth="200.0" style="-fx-background-color: #2f3640; -fx-spacing: 10;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="datamea.frontend.SettingsDrawer">
+   <children>
+      <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="200.0" style="-fx-background-color: #2f3640;" />
+      <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="200.0">
+         <children>
+            <JFXButton fx:id="creditsButton" alignment="CENTER" depthTest="DISABLE" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="200.0" ripplerFill="#ff931e" style="-fx-background-color: #2f3640; -fx-background-radius: 0;" text="Credits" textAlignment="CENTER" textFill="#718093">
+               <font>
+                  <Font size="14.0" />
+               </font>
+               <effect>
+                  <DropShadow radius="4.75" width="0.0" />
+               </effect>
+            </JFXButton>
+         </children>
+         <effect>
+            <DropShadow color="#252b33" height="50.0" radius="12.0" spread="0.1" width="0.0" />
+         </effect>
+      </Pane>
+      <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="200.0">
+         <children>
+            <JFXButton fx:id="resetButton" alignment="CENTER" depthTest="DISABLE" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="200.0" ripplerFill="#ff931e" style="-fx-background-color: #2f3640; -fx-background-radius: 0;" text="Reset" textAlignment="CENTER" textFill="#eb4d4b">
+               <graphic>
+                  <FontAwesomeIconView fill="#eb4d4b" glyphName="UNDO" scaleX="-1.0" size="14" />
+               </graphic>
+               <font>
+                  <Font size="14.0" />
+               </font>
+               <effect>
+                  <DropShadow radius="4.75" width="0.0" />
+               </effect>
+            </JFXButton>
+         </children>
+         <effect>
+            <DropShadow color="#252b33" height="50.0" radius="12.0" spread="0.1" width="0.0" />
+         </effect>
+      </Pane>
+   </children>
+</VBox>

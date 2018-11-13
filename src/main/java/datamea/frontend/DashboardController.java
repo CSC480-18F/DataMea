@@ -1,5 +1,6 @@
 package datamea.frontend;
 
+import com.jfoenix.controls.events.JFXDialogEvent;
 import datamea.backend.*;
 import com.jfoenix.controls.*;
 import com.jfoenix.transitions.hamburger.HamburgerBasicCloseTransition;
@@ -41,10 +42,13 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.Stop;
+import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
+
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -57,11 +61,18 @@ import static javafx.scene.layout.AnchorPane.setTopAnchor;
 
 public class DashboardController implements Initializable {
 
+    //------------------Get FXML Variables------------------//
+    @FXML
+    private StackPane stackPane;
+
     @FXML
     private JFXDrawer drawer;
 
     @FXML
     private JFXDrawer filtersDrawer;
+
+    @FXML
+    private JFXDrawer settingsDrawer;
 
     @FXML
     private JFXHamburger hamburger;
@@ -98,6 +109,7 @@ public class DashboardController implements Initializable {
     private static Stage myStage;
     private DashboardDrawer dashboardDrawer;
     private FilterDrawer filterDrawerClass;
+    private SettingsDrawer settingsDrawerClass;
     private static BooleanProperty loadedFromLoginScreen = new SimpleBooleanProperty(false);
     private static ArrayList<ChartData> topSendersOrRecipientsData = new ArrayList<>();
     private Tile topSendersOrRecipientsRadialChart;
@@ -117,14 +129,12 @@ public class DashboardController implements Initializable {
     private static DonutChart languagesDonutChart;
     public static Tile sentimentGauge;
     public static Tile replyRateGauge;
-    private static final Random RND = new Random();
     private ArrayList<Filter> currentFilters = new ArrayList<>();
     private ArrayList<String> currentFiltersNames = new ArrayList<>(); //easiest way of keeping track of whether or not we added a filter already don't yell at me lol it's greasy its 2am cut me some slack gosh
     private DoubleProperty scrollPaneLocation = new SimpleDoubleProperty(this, "scrollPaneLocation");
     private BackgroundSentiment backgroundSentiment;
     public static boolean sentMail;
     private Timeline sentimentTimeline = null;
-
 
     public static void setStage(Stage s) {
         myStage = s;
@@ -159,12 +169,15 @@ public class DashboardController implements Initializable {
         //Resizing crap, this took way to long to figure out thanks javafx
         scrollPane.setFitToWidth(true);
         Platform.runLater(() -> scrollPane.requestLayout());
+        anchorPane.prefWidthProperty().bind(stackPane.widthProperty());
+        anchorPane.prefHeightProperty().bind(stackPane.heightProperty());
         topBarGridPane.prefWidthProperty().bind(anchorPane.widthProperty());
         masonryPane.prefWidthProperty().bind(anchorPane.widthProperty());
         centerColumn.maxWidthProperty().bind(topBarGridPane.widthProperty());
         gridPaneLeft.maxWidthProperty().bind(topBarGridPane.widthProperty());
         gridPaneRight.maxWidthProperty().bind(topBarGridPane.widthProperty());
         drawer.prefHeightProperty().bind(anchorPane.heightProperty());
+        settingsDrawer.prefHeightProperty().bind(anchorPane.heightProperty());
         filtersDrawer.prefWidthProperty().bind(anchorPane.widthProperty());
         progressBar.prefWidthProperty().bind(anchorPane.widthProperty());
 
@@ -173,15 +186,19 @@ public class DashboardController implements Initializable {
 
         drawer.setVisible(false);
         filtersDrawer.setVisible(false);
+        settingsDrawer.setVisible(false);
         //Allows you to click through the drawer if it's not visible (so we set it invisible when it's not open)
         drawer.setPickOnBounds(false);
         filtersDrawer.setPickOnBounds(false);
+        settingsDrawer.setPickOnBounds(false);
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("Dashboard_Drawer.fxml"));
-            VBox box = loader.load();
+            AnchorPane pane = loader.load();
             dashboardDrawer = loader.getController();
+            dashboardDrawer.drawerAnchorpane.maxHeightProperty().bind(anchorPane.heightProperty());
             dashboardDrawer.dashboardDrawerVBox.maxHeightProperty().bind(anchorPane.heightProperty());
-            drawer.setSidePane(box);
+            dashboardDrawer.drawerScrollpane.getStylesheets().add(scrollPaneCss);
+            drawer.setSidePane(pane);
         } catch (IOException ex) {
             Logger.getLogger(DashboardController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -196,12 +213,33 @@ public class DashboardController implements Initializable {
             Logger.getLogger(DashboardController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("Settings_Drawer.fxml"));
+            VBox settingsVBox = loader.load();
+            settingsDrawerClass = loader.getController();
+            settingsDrawerClass.settingsDrawerVBox.maxHeightProperty().bind(anchorPane.heightProperty());
+            settingsDrawer.setSidePane(settingsVBox);
+        } catch (IOException ex) {
+            Logger.getLogger(DashboardController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         HamburgerBasicCloseTransition basicCloseTransition = new HamburgerBasicCloseTransition(hamburger);
         basicCloseTransition.setRate(-1);
         hamburger.addEventHandler(MouseEvent.MOUSE_PRESSED, (e) -> {
             basicCloseTransition.setRate(basicCloseTransition.getRate() * -1);
             basicCloseTransition.play();
             if (drawer.isOpened()) {
+                if (settingsDrawer.isOpened()){
+                    settingsDrawer.close();
+                    dashboardDrawer.settingsButton.setText("Open Settings");
+                    final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(2);
+                    executor.schedule(new Runnable() {
+                        @Override
+                        public void run() {
+                            settingsDrawer.setVisible(false);
+                        }
+                    }, 500, TimeUnit.MILLISECONDS);
+                }
                 DashboardDrawer.setShrinkListToTrue();
                 drawer.close();
                 hamburger.setDisable(true);
@@ -246,6 +284,49 @@ public class DashboardController implements Initializable {
             updateAllCharts(currentFilters);
         });
 
+        dashboardDrawer.settingsButton.addEventHandler(MouseEvent.MOUSE_PRESSED, (e) -> {
+            if (settingsDrawer.isOpened()) {
+                settingsDrawer.close();
+                dashboardDrawer.settingsButton.setText("Open Settings");
+                final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(2);
+                executor.schedule(new Runnable() {
+                    @Override
+                    public void run() {
+                        settingsDrawer.setVisible(false);
+                    }
+                }, 500, TimeUnit.MILLISECONDS);
+            } else {
+                settingsDrawer.setVisible(true);
+                settingsDrawer.open();
+                dashboardDrawer.settingsButton.setText("Close Settings");
+            }
+        });
+
+        settingsDrawerClass.resetButton.addEventHandler(MouseEvent.MOUSE_PRESSED, (e) -> {
+            JFXDialogLayout content = new JFXDialogLayout();
+            content.setHeading(new Text("All progress will be lost!"));
+            content.setBody(new Text("Are you sure you want to reset your Data Mea, the program will close and you will have to re-login and load again."));
+            JFXDialog wrongInfo = new JFXDialog(stackPane, content, JFXDialog.DialogTransition.CENTER);
+            JFXButton okay = new JFXButton("Okay");
+            JFXButton cancel = new JFXButton("Cancel");
+            okay.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    wrongInfo.close();
+                    Platform.exit();
+                    System.exit(0);
+                    //Delete TextFiles here
+                }
+            });
+            cancel.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    wrongInfo.close();
+                }
+            });
+            content.setActions(okay,cancel);
+            wrongInfo.show();
+        });
 
         loadedFromLoginScreen.addListener(new ChangeListener<Boolean>() {
             @Override
@@ -390,10 +471,6 @@ public class DashboardController implements Initializable {
                     }
                     domainDonutChart.getStylesheets().add(this.getClass().getClassLoader().getResource("donutchart.css").toExternalForm());
                     masonryPane.getChildren().add(domainDonutChart);
-
-
-
-
 
                     //Attachments radial chart
                     attachments = currentUser.getAttachmentFreq(currentUser.getEmails(), false);
@@ -573,9 +650,9 @@ public class DashboardController implements Initializable {
 
 
                     sentimentTimeline = new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {
-                        ArrayList<Email> em = currentUser.getEmails();
                         @Override
                         public void handle(ActionEvent event) {
+                            ArrayList<Email> em = currentUser.recoverSerializedEmails();
                             int [] sentimentScores = currentUser.getSentimentForFilteredEmails(em);
                             double score = Email.getOverallSentimentDbl(sentimentScores);
                             sentimentGauge.setValue(score);
@@ -634,6 +711,28 @@ public class DashboardController implements Initializable {
                         public void handle(javafx.scene.input.MouseEvent event) {
                             String folderSelected = dashboardDrawer.list.get(dashboardDrawer.listView.getSelectionModel().getSelectedIndex());
                             System.out.print("Selected" + folderSelected);
+                            basicCloseTransition.setRate(basicCloseTransition.getRate() * -1);
+                            basicCloseTransition.play();
+                            drawer.close();
+                            final ScheduledThreadPoolExecutor drawerExecutor = new ScheduledThreadPoolExecutor(2);
+                            drawerExecutor.schedule(new Runnable() {
+                                @Override
+                                public void run() {
+                                    settingsDrawer.setVisible(false);
+                                }
+                            }, 500, TimeUnit.MILLISECONDS);
+                            if (settingsDrawer.isOpened()){
+                                settingsDrawer.close();
+                                dashboardDrawer.settingsButton.setText("Open Settings");
+                                final ScheduledThreadPoolExecutor settingsExecutor = new ScheduledThreadPoolExecutor(2);
+                                settingsExecutor.schedule(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        settingsDrawer.setVisible(false);
+                                    }
+                                }, 500, TimeUnit.MILLISECONDS);
+                            }
+                            openFilterDrawer();
                             addFilter(folderSelected, false, true, false, false, false);
                         }
                     });

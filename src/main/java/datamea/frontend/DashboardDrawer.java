@@ -1,5 +1,6 @@
 package datamea.frontend;
 
+import com.jfoenix.controls.JFXButton;
 import datamea.backend.Main;
 import datamea.backend.UserFolder;
 import com.jfoenix.controls.JFXListView;
@@ -12,6 +13,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -23,6 +26,15 @@ public class DashboardDrawer implements Initializable{
 
     @FXML
     public VBox dashboardDrawerVBox;
+
+    @FXML
+    public JFXButton settingsButton;
+
+    @FXML
+    public ScrollPane drawerScrollpane;
+
+    @FXML
+    public AnchorPane drawerAnchorpane;
 
     //------------------Declaring Variables------------------//
     public static ObservableList<String> list = FXCollections.observableArrayList();

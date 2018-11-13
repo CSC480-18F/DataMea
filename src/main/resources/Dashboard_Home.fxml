@@ -15,61 +15,72 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="datamea.frontend.DashboardController">
+
+<StackPane fx:id="stackPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="datamea.frontend.DashboardController">
    <children>
-      <ScrollPane fx:id="scrollPane" layoutY="50.0" style="-fx-background-color: #353b48;" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="50.0">
-         <content>
-            <JFXMasonryPane fx:id="masonryPane" cellHeight="50.0" cellWidth="50.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="550.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" />
-         </content>
-      </ScrollPane>
-      <JFXDrawer fx:id="filtersDrawer" defaultDrawerSize="200.0" direction="TOP" layoutY="50.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="75.0" prefWidth="1000.0">
-         <effect>
-            <DropShadow height="2.5" radius="1.375" spread="0.25" width="5.0" />
-         </effect>
-      </JFXDrawer>
-      <JFXProgressBar fx:id="progressBar" layoutY="50.0" prefHeight="5.0" prefWidth="1000.0" stylesheets="@home_progressbar.css" AnchorPane.topAnchor="50.0" />
-      <GridPane fx:id="topBarGridPane" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="1000.0" scaleShape="false" style="-fx-background-color: #2f3640;">
-         <columnConstraints>
-            <ColumnConstraints fx:id="gridPaneLeft" halignment="LEFT" hgrow="ALWAYS" maxWidth="307.33331298828125" minWidth="10.0" prefWidth="304.6666564941406" />
-            <ColumnConstraints fx:id="centerColumn" halignment="CENTER" hgrow="ALWAYS" maxWidth="366.66668701171875" minWidth="10.0" prefWidth="366.66668701171875" />
-            <ColumnConstraints fx:id="gridPaneRight" halignment="RIGHT" hgrow="ALWAYS" maxWidth="318.66668701171875" minWidth="10.0" prefWidth="305.33331298828125" />
-         </columnConstraints>
-         <rowConstraints>
-            <RowConstraints minHeight="10.0" valignment="CENTER" vgrow="SOMETIMES" />
-         </rowConstraints>
+      <AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #353b48;">
          <children>
-            <ImageView fx:id="logo" fitHeight="40.0" fitWidth="120.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.vgrow="NEVER">
-               <image>
-                  <Image url="@DataMea2.png" />
-               </image>
-            </ImageView>
-            <JFXButton fx:id="filtersButton" alignment="CENTER_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="120.0" ripplerFill="#ff931e" text="Open Filters" textAlignment="CENTER" textFill="#718093" GridPane.columnIndex="2" GridPane.halignment="RIGHT">
-               <graphic>
-                  <FontAwesomeIconView fill="#718093" glyphName="SLIDERS" size="14" />
-               </graphic>
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </JFXButton>
+            <ScrollPane fx:id="scrollPane" layoutY="50.0" style="-fx-background-color: #353b48;" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="50.0">
+               <content>
+                  <JFXMasonryPane fx:id="masonryPane" cellHeight="50.0" cellWidth="50.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="550.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" />
+               </content>
+            </ScrollPane>
+            <JFXDrawer fx:id="filtersDrawer" defaultDrawerSize="200.0" direction="TOP" layoutY="50.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="75.0" prefWidth="1000.0">
+               <effect>
+                  <DropShadow height="2.5" radius="1.375" spread="0.25" width="5.0" />
+               </effect>
+            </JFXDrawer>
+            <JFXProgressBar fx:id="progressBar" layoutY="50.0" prefHeight="5.0" prefWidth="1000.0" stylesheets="@home_progressbar.css" AnchorPane.topAnchor="50.0" />
+            <GridPane fx:id="topBarGridPane" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="1000.0" scaleShape="false" style="-fx-background-color: #2f3640;">
+               <columnConstraints>
+                  <ColumnConstraints fx:id="gridPaneLeft" halignment="LEFT" hgrow="ALWAYS" maxWidth="307.33331298828125" minWidth="10.0" prefWidth="304.6666564941406" />
+                  <ColumnConstraints fx:id="centerColumn" halignment="CENTER" hgrow="ALWAYS" maxWidth="366.66668701171875" minWidth="10.0" prefWidth="366.66668701171875" />
+                  <ColumnConstraints fx:id="gridPaneRight" halignment="RIGHT" hgrow="ALWAYS" maxWidth="318.66668701171875" minWidth="10.0" prefWidth="305.33331298828125" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints minHeight="10.0" valignment="CENTER" vgrow="SOMETIMES" />
+               </rowConstraints>
+               <children>
+                  <ImageView fx:id="logo" fitHeight="40.0" fitWidth="120.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.vgrow="NEVER">
+                     <image>
+                        <Image url="@DataMea2.png" />
+                     </image>
+                  </ImageView>
+                  <JFXButton fx:id="filtersButton" alignment="CENTER_RIGHT" ripplerFill="#ff931e" text="Filters" textFill="#718093" GridPane.columnIndex="2" GridPane.halignment="RIGHT">
+                     <graphic>
+                        <FontAwesomeIconView fill="#718093" glyphName="SLIDERS" size="14" />
+                     </graphic>
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </JFXButton>
+               </children>
+               <padding>
+                  <Insets left="10.0" right="10.0" />
+               </padding>
+               <effect>
+                  <DropShadow height="10.0" radius="2.0" spread="0.05" width="0.0" />
+               </effect>
+            </GridPane>
+            <JFXDrawer fx:id="settingsDrawer" defaultDrawerSize="400.0" layoutX="200.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="200.0">
+               <effect>
+                  <DropShadow height="2.5" radius="1.375" spread="0.25" width="5.0" />
+               </effect>
+            </JFXDrawer>
+            <JFXDrawer fx:id="drawer" defaultDrawerSize="200.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="200.0">
+               <effect>
+                  <DropShadow height="2.5" radius="1.375" spread="0.25" width="5.0" />
+               </effect>
+            </JFXDrawer>
+            <JFXHamburger fx:id="hamburger" alignment="CENTER_LEFT" layoutX="12.5" layoutY="12.5" prefHeight="25.0" prefWidth="25.0" stylesheets="@Dashboard_css.css">
+               <effect>
+                  <DropShadow color="#0000007f" height="5.0" radius="2.0" spread="0.25" width="5.0" />
+               </effect>
+            </JFXHamburger>
          </children>
-         <padding>
-            <Insets left="10.0" right="10.0" />
-         </padding>
-         <effect>
-            <DropShadow height="10.0" radius="2.0" spread="0.05" width="0.0" />
-         </effect>
-      </GridPane>
-      <JFXDrawer fx:id="drawer" defaultDrawerSize="200.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="200.0">
-         <effect>
-            <DropShadow height="2.5" radius="1.375" spread="0.25" width="5.0" />
-         </effect>
-      </JFXDrawer>
-      <JFXHamburger fx:id="hamburger" alignment="CENTER_LEFT" layoutX="12.5" layoutY="12.5" prefHeight="25.0" prefWidth="25.0" stylesheets="@Dashboard_css.css">
-         <effect>
-            <DropShadow color="#0000007f" height="5.0" radius="2.0" spread="0.25" width="5.0" />
-         </effect>
-      </JFXHamburger>
+      </AnchorPane>
    </children>
-</AnchorPane>
+</StackPane>
