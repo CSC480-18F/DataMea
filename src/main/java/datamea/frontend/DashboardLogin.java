@@ -14,19 +14,25 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.effect.BoxBlur;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javax.mail.Session;
 import javax.mail.Store;
+import java.awt.*;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -49,6 +55,9 @@ public class DashboardLogin implements Initializable {
 
     @FXML
     VBox vBox;
+
+    @FXML
+    Hyperlink cannotLogin;
 
     //------------------Declaring Variables------------------//
     private static String email, password;
@@ -171,8 +180,7 @@ public class DashboardLogin implements Initializable {
                         loginSuccessful.setValue(true);
                         Main.setStartLoadingToTrue();
                     }
-                    catch(javax.mail.AuthenticationFailedException  e)
-                    {
+                    catch(javax.mail.AuthenticationFailedException  e) {
                         BoxBlur blur = new BoxBlur(3,3,3);
                         JFXDialogLayout content = new JFXDialogLayout();
                         content.setHeading(new Text("Incorrect Login!"));
@@ -195,10 +203,34 @@ public class DashboardLogin implements Initializable {
                             vBox.setEffect(null);
                             opened = false;
                         });
-                    }catch(javax.mail.NoSuchProviderException f){
-                        f.printStackTrace();
-                    }catch(javax.mail.MessagingException g){
+                    }catch (com.sun.mail.util.MailConnectException f){
+                        BoxBlur blur = new BoxBlur(3,3,3);
+                        JFXDialogLayout content = new JFXDialogLayout();
+                        content.setHeading(new Text("No internet connection!"));
+                        content.setBody(new Text("Please make sure you are connected to the internet and try again."));
+                        JFXDialog wrongInfo = new JFXDialog(stackPane,content, JFXDialog.DialogTransition.CENTER);
+                        JFXButton button =  new JFXButton("Okay");
+                        button.setOnAction(new EventHandler<ActionEvent>() {
+                            @Override
+                            public void handle(ActionEvent event) {
+                                wrongInfo.close();
+                            }
+                        });
+                        content.setActions(button);
+                        if (!opened) {
+                            wrongInfo.show();
+                            vBox.setEffect(blur);
+                            opened = true;
+                        }
+                        wrongInfo.setOnDialogClosed((JFXDialogEvent closedEvent) -> {
+                            vBox.setEffect(null);
+                            opened = false;
+                        });
+                    }
+                    catch(javax.mail.NoSuchProviderException g){
                         g.printStackTrace();
+                    }catch(javax.mail.MessagingException h){
+                        h.printStackTrace();
                     }
                 });
             }
@@ -222,6 +254,44 @@ public class DashboardLogin implements Initializable {
                 DashboardLoading.setReadyLoadingScreenToTrue();
                 DashboardLoading.setLoadingOnCloseRequest(true);
             }
+
+            cannotLogin.addEventHandler(MouseEvent.MOUSE_PRESSED, (e) -> {
+                BoxBlur blur = new BoxBlur(3,3,3);
+                JFXDialogLayout content = new JFXDialogLayout();
+                content.setHeading(new Text("Cannot Login?"));
+                Hyperlink link = new Hyperlink("\n\n\n\nhttps://support.google.com/accounts/answer/185833");
+                link.setBorder(Border.EMPTY);
+                link.setPadding(new Insets(4, 0, 4, 0));
+                link.addEventHandler(MouseEvent.MOUSE_PRESSED, (f) -> {
+                    try {
+                        Desktop.getDesktop().browse(new URI("https://support.google.com/accounts/answer/185833"));
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    } catch (URISyntaxException e1) {
+                        e1.printStackTrace();
+                    }
+                });
+                content.setBody(new Text("Data Mea currently only works with a Gmail account, aka a Google Mail account.\nIf you have two step authentication enabled, please set a app password to login with DataMea at: "), link);
+                JFXDialog wrongInfo = new JFXDialog(stackPane,content, JFXDialog.DialogTransition.CENTER);
+                JFXButton button =  new JFXButton("Okay");
+                button.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        wrongInfo.close();
+                    }
+                });
+                content.setActions(button);
+                if (!opened) {
+                    wrongInfo.show();
+                    vBox.setEffect(blur);
+                    opened = true;
+                }
+                wrongInfo.setOnDialogClosed((JFXDialogEvent closedEvent) -> {
+                    vBox.setEffect(null);
+                    opened = false;
+                    cannotLogin.setVisited(false);
+                });
+            });
 
             loginSuccessful.addListener(new ChangeListener<Boolean>() {
                 @Override

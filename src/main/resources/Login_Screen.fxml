@@ -6,6 +6,7 @@
 <?import com.jfoenix.controls.JFXTextField?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.effect.Reflection?>
 <?import javafx.scene.image.Image?>
@@ -56,7 +57,7 @@
                               </Pane>
                               <HBox alignment="CENTER" layoutX="55.0" layoutY="-3.0" style="-fx-spacing: 15;">
                                  <children>
-                                    <JFXCheckBox fx:id="rememberEmail" onMouseClicked="#erasePreviousLogin" checkedColor="#ff931e" text="Remember my Email" textFill="#ebe5e5" unCheckedColor="#e0e0e0" />
+                                    <JFXCheckBox fx:id="rememberEmail" checkedColor="#ff931e" onMouseClicked="#erasePreviousLogin" text="Remember my Email" textFill="#ebe5e5" unCheckedColor="#ebe5e5" />
                                     <JFXButton fx:id="loginButton" alignment="CENTER" contentDisplay="RIGHT" onAction="#login" prefHeight="35.0" prefWidth="125.0" ripplerFill="#ff931e" style="-fx-background-color: #f5f6fa; -fx-padding: 5; -fx-border-color: #a4b0be; -fx-border-radius: 5; -fx-background-radius: 5;" text="Login with">
                                        <graphic>
                                           <FontAwesomeIconView glyphName="GOOGLE" opacity="0.6" />
@@ -71,6 +72,7 @@
                         </Pane>
                      </children>
                   </VBox>
+                  <Hyperlink fx:id="cannotLogin" style="-fx-border-color: transparent;" text="Cannot login?" textFill="#ebe6e67f" />
                </children>
             </VBox>
          </children>
