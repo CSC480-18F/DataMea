@@ -10,7 +10,6 @@ import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.chart.SunburstChart;
 import eu.hansolo.tilesfx.events.TileEvent;
 import eu.hansolo.tilesfx.events.TreeNodeEvent;
-import eu.hansolo.tilesfx.skins.DonutChartTileSkin;
 import eu.hansolo.tilesfx.tools.TreeNode;
 import javafx.animation.*;
 import javafx.application.Platform;
@@ -23,6 +22,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.WorkerStateEvent;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -32,8 +32,6 @@ import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.Chart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -119,15 +117,13 @@ public class DashboardController implements Initializable {
     private static DonutChart languagesDonutChart;
     public static Tile sentimentGauge;
     public static Tile replyRateGauge;
-    private long lastTimerCall;
-    private AnimationTimer timer;
     private static final Random RND = new Random();
     private ArrayList<Filter> currentFilters = new ArrayList<>();
     private ArrayList<String> currentFiltersNames = new ArrayList<>(); //easiest way of keeping track of whether or not we added a filter already don't yell at me lol it's greasy its 2am cut me some slack gosh
-    public static Thread updateGauge = null;
     private DoubleProperty scrollPaneLocation = new SimpleDoubleProperty(this, "scrollPaneLocation");
     private BackgroundSentiment backgroundSentiment;
     public static boolean sentMail;
+    private Timeline sentimentTimeline = null;
 
 
     public static void setStage(Stage s) {
@@ -229,6 +225,7 @@ public class DashboardController implements Initializable {
         filtersButton.addEventHandler(MouseEvent.MOUSE_PRESSED, (e) -> {
             if (filtersDrawer.isOpened()) {
                 filtersDrawer.close();
+                filtersButton.setText("Open Filters");
                 changeScrollPaneHeight(0);
                 final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(2);
                 executor.schedule(new Runnable() {
@@ -240,6 +237,7 @@ public class DashboardController implements Initializable {
             } else {
                 filtersDrawer.setVisible(true);
                 filtersDrawer.open();
+                filtersButton.setText("Close Filters");
                 changeScrollPaneHeight(75);
             }
         });
@@ -274,6 +272,7 @@ public class DashboardController implements Initializable {
                         if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
                             ChartData data = e.getData();
                             System.out.println("Selected " + data.getName());
+                            openFilterDrawer();
                             addFilter(data.getName(), true, false, false, false, false);
                         }
                     });
@@ -304,6 +303,7 @@ public class DashboardController implements Initializable {
                     foldersSunburstChart.setOnTileEvent((e) -> {
                         if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
                             System.out.println("Clicked on folder " + e.getData().getName());
+                            openFilterDrawer();
                             addFilter(e.getData().getName(), false, true, false, false, false);
                         }
                     });
@@ -342,6 +342,7 @@ public class DashboardController implements Initializable {
                             @Override
                             public void handle(MouseEvent e) {
                                 //addFilter(d.getName());
+                                openFilterDrawer();
                                 addFilter(d.getName(), false, false, true, false, false);
                             }
                         });
@@ -392,6 +393,7 @@ public class DashboardController implements Initializable {
                             @Override
                             public void handle(MouseEvent e) {
                                 //addFilter(d.getName());
+                                openFilterDrawer();
                                 addFilter(d.getName(), false, false, true, false, false);
                             }
                         });
@@ -444,6 +446,7 @@ public class DashboardController implements Initializable {
                             DashboardDrawer.setLoadFolderList(false);
                             ChartData data = e.getData();
                             System.out.println("Selected " + data.getName());
+                            openFilterDrawer();
                             addFilter(data.getName(), false, false, false, true, false);
                             //addFilter(data.getName());
                         }
@@ -579,22 +582,17 @@ public class DashboardController implements Initializable {
                             });
 
 
-                    DashboardController.updateGauge = new Thread(new Runnable() {
+                    sentimentTimeline = new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {
+                        ArrayList<Email> em = currentUser.getEmails();
                         @Override
-                        public void run() {
-                            while (true) {
-                                try {
-                                    Thread.sleep(1000);
-                                } catch (InterruptedException e) {
-                                    System.out.println("Thread was interrupted");
-                                    break;
-                                }
-
-                                DashboardController.sentimentGauge.setValue(Email.getOverallSentimentDbl(currentUser.getOverallSentiment()));
-                            }
+                        public void handle(ActionEvent event) {
+                            int [] sentimentScores = currentUser.getSentimentForFilteredEmails(em);
+                            double score = Email.getOverallSentimentDbl(sentimentScores);
+                            sentimentGauge.setValue(score);
                         }
-                    });
-                    DashboardController.updateGauge.start();
+                    }));
+                    sentimentTimeline.setCycleCount(Animation.INDEFINITE);
+                    sentimentTimeline.play();
 
                     //languages donut chart
                     languages = currentUser.getLanguageFreq(currentUser.getEmails(), false);
@@ -640,21 +638,6 @@ public class DashboardController implements Initializable {
                     languagesDonutChart.getStylesheets().add(this.getClass().getClassLoader().getResource("donutchart.css").toExternalForm());
                     masonryPane.getChildren().add(languagesDonutChart);
 
-                    //Emulate Data
-                    lastTimerCall = System.nanoTime();
-                    /*timer = new AnimationTimer() {
-                        @Override
-                        public void handle(final long now) {
-                            if (now > lastTimerCall + 2_000_000_000) {
-                                sentimentGauge.setValue(RND.nextDouble() * sentimentGauge.getRange() + sentimentGauge.getMinValue());
-
-                                lastTimerCall = now;
-                            }
-                        }
-                    };
-                    timer.start();*/
-
-
                     //Update List of folders in drawer
                     dashboardDrawer.listView.setOnMouseClicked(new ListViewHandler() {
                         @Override
@@ -665,18 +648,8 @@ public class DashboardController implements Initializable {
                         }
                     });
 
+                    //Get sentiment from previous launch if any
                     DashboardController.sentimentGauge.setValue(Email.getOverallSentimentDbl(currentUser.getOverallSentiment()));
-
-
-                    //leads to issues
-                    /*masonryPane.addEventHandler(MouseEvent.MOUSE_PRESSED, (e) -> {
-                        if(drawer.isOpened()){
-                            drawer.close();
-                        }
-                        if(filtersDrawer.isOpened()){
-                            filtersDrawer.close();
-                        }
-                    });*/
 
                     //Allows the scroll pane to resize the masonry pane after nodes are added, keep at bottom!
                     Platform.runLater(() -> scrollPane.requestLayout());
@@ -809,29 +782,18 @@ public class DashboardController implements Initializable {
     private void updateSentimentGauge(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment, String language) {
 
         masonryPane.getChildren().removeAll(sentimentGauge);
-        if (updateGauge != null) {
-            updateGauge.interrupt();
-        }
-        updateGauge = new Thread(new Runnable() {
+        sentimentTimeline.stop();
+        sentimentTimeline= new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {
+            ArrayList<Email> em = currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment,language);
             @Override
-            public void run() {
-                ArrayList<Email> em = currentUser.filter(folderName, subFolderName,startDate,endDate,sender,domain,attachment,language);
-                while (true) {
-                    try {
-                        updateGauge.sleep(1000);
-                    } catch (InterruptedException e) {
-                        System.out.println("interrupted thread");
-                        break;
-                    }
-                    int [] sentimentScores = currentUser.getSentimentForFilteredEmails(em);
-                    double score = Email.getOverallSentimentDbl(sentimentScores);
-                    DashboardController.sentimentGauge.setValue(score);
-                }
-
+            public void handle(ActionEvent event) {
+                int [] sentimentScores = currentUser.getSentimentForFilteredEmails(em);
+                double score = Email.getOverallSentimentDbl(sentimentScores);
+                sentimentGauge.setValue(score);
             }
-        });
-
-        updateGauge.start();
+        }));
+        sentimentTimeline.setCycleCount(Animation.INDEFINITE);
+        sentimentTimeline.play();
 
         sentimentGauge = TileBuilder.create()
                 .skinType(Tile.SkinType.BAR_GAUGE)
@@ -994,6 +956,7 @@ public class DashboardController implements Initializable {
             if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
                 ChartData data = e.getData();
                 System.out.println("Selected " + data.getName());
+                openFilterDrawer();
                 addFilter(data.getName(), true, false, false, false, false);
             }
         });
@@ -1048,6 +1011,7 @@ public class DashboardController implements Initializable {
             d.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent e) {
+                    openFilterDrawer();
                     addFilter(d.getName(), false, false, true, false, false);
                     //addFilter(d.getName());
                 }
@@ -1097,6 +1061,7 @@ public class DashboardController implements Initializable {
             d.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent e) {
+                    openFilterDrawer();
                     addFilter(d.getName(), false, false, false, false, true);
                     //addFilter(d.getName());
                 }
@@ -1155,6 +1120,7 @@ public class DashboardController implements Initializable {
                 DashboardDrawer.setLoadFolderList(false);
                 ChartData data = e.getData();
                 System.out.println("Selected " + data.getName());
+                openFilterDrawer();
                 addFilter(data.getName(), false, false, false, true, false);
                 //addFilter(data.getName());
             }
@@ -1451,5 +1417,14 @@ public class DashboardController implements Initializable {
 
     private void updateScrollPaneAnchors() {
         setTopAnchor(scrollPane, 50 + getMasonryPaneLocation());
+    }
+
+    //Open Filters drawer when a filter is clicked
+    private void openFilterDrawer(){
+        if (filtersDrawer.isClosed()){
+            filtersDrawer.setVisible(true);
+            filtersDrawer.open();
+            filtersButton.setText("Close Filters");
+        }
     }
 }

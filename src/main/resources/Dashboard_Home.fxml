@@ -24,12 +24,12 @@
             <JFXMasonryPane fx:id="masonryPane" cellHeight="50.0" cellWidth="50.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="550.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" />
          </content>
       </ScrollPane>
-      <JFXProgressBar fx:id="progressBar" layoutY="50.0" prefHeight="5.0" prefWidth="1000.0" stylesheets="@home_progressbar.css" AnchorPane.topAnchor="50.0" />
       <JFXDrawer fx:id="filtersDrawer" defaultDrawerSize="200.0" direction="TOP" layoutY="50.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="75.0" prefWidth="1000.0">
          <effect>
             <DropShadow height="2.5" radius="1.375" spread="0.25" width="5.0" />
          </effect>
       </JFXDrawer>
+      <JFXProgressBar fx:id="progressBar" layoutY="50.0" prefHeight="5.0" prefWidth="1000.0" stylesheets="@home_progressbar.css" AnchorPane.topAnchor="50.0" />
       <GridPane fx:id="topBarGridPane" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="1000.0" scaleShape="false" style="-fx-background-color: #2f3640;">
          <columnConstraints>
             <ColumnConstraints fx:id="gridPaneLeft" halignment="LEFT" hgrow="ALWAYS" maxWidth="307.33331298828125" minWidth="10.0" prefWidth="304.6666564941406" />
@@ -45,7 +45,7 @@
                   <Image url="@DataMea2.png" />
                </image>
             </ImageView>
-            <JFXButton fx:id="filtersButton" alignment="CENTER_RIGHT" ripplerFill="#ff931e" text="Filters" textFill="#718093" GridPane.columnIndex="2" GridPane.halignment="RIGHT">
+            <JFXButton fx:id="filtersButton" alignment="CENTER_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="120.0" ripplerFill="#ff931e" text="Open Filters" textAlignment="CENTER" textFill="#718093" GridPane.columnIndex="2" GridPane.halignment="RIGHT">
                <graphic>
                   <FontAwesomeIconView fill="#718093" glyphName="SLIDERS" size="14" />
                </graphic>

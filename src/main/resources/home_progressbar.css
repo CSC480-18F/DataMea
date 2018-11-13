@@ -3,5 +3,5 @@
 }
 
 .jfx-progress-bar > .track {
-    -fx-background-color: #353b48;
+    -fx-background-color: transparent;
 }
