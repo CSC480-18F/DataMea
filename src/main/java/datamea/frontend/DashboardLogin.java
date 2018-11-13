@@ -169,7 +169,6 @@ public class DashboardLogin implements Initializable {
                         store.connect("imap.gmail.com", DashboardLogin.getEmail(), DashboardLogin.getPassword());
                         //User currentUser = new User(DashboardLogin.getEmail(), DashboardLogin.getPassword(), true);
                         rememeberUserName(DashboardLogin.getEmail(),rememberEmail.isSelected());
-
                         loginSuccessful.setValue(true);
                         Main.setStartLoadingToTrue();
                     }

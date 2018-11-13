@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.io.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,6 +38,7 @@ public class User extends Task<Void> {
     int numSerializedEmails = getNumberOfSerializedEmails();
     private static int totalNumberOfEmails = 0;
     public int numberOfSentMail = 0;
+
 
 
     @Override
@@ -425,39 +429,42 @@ public class User extends Task<Void> {
     public ArrayList<Email> filter(String folder, String subfolder, Date startDate, Date endDate, String sender, String domain, String attachment, String language) {
         ArrayList<Email> filteredEmails = new ArrayList<>();
         if (folder != null || subfolder != null)
-            filteredEmails = filterByFolder(folder, subfolder, this.emails);
+            filteredEmails = filterByFolder(folder, subfolder, recoverSerializedEmails());
         if (startDate != null && endDate != null) {
             if (filteredEmails.size() == 0)
-                filteredEmails = filterByDate(startDate, endDate, this.emails);
+                filteredEmails = filterByDate(startDate, endDate, recoverSerializedEmails());
             else filteredEmails = filterByDate(startDate, endDate, filteredEmails);
         }
         if (sender != null) {
             if (filteredEmails.size() == 0) {
-                filteredEmails = filterbySender(sender, this.emails);
+                filteredEmails = filterbySender(sender, recoverSerializedEmails());
             } else filteredEmails = filterbySender(sender, filteredEmails);
         }
         if (domain != null) {
             if (filteredEmails.size() == 0) {
-                filteredEmails = filterByDomain(domain, this.emails);
+                filteredEmails = filterByDomain(domain, recoverSerializedEmails());
             } else filteredEmails = filterByDomain(domain, filteredEmails);
         }
         if (attachment != null) {
             if (filteredEmails.size() == 0) {
-                filteredEmails = filterByAttachmentType(attachment, this.emails);
+                filteredEmails = filterByAttachmentType(attachment, recoverSerializedEmails());
             } else filteredEmails = filterByAttachmentType(attachment, filteredEmails);
         }
         if (language != null) {
             if (filteredEmails.size() == 0) {
-                filteredEmails = filterByLanguage(language, this.emails);
+                filteredEmails = filterByLanguage(language, recoverSerializedEmails());
             } else filteredEmails = filterByLanguage(language, filteredEmails);
         }
         if (folder == null && subfolder == null && startDate == null && endDate == null && sender == null && domain == null && attachment == null && language == null) {
             //no folder was selected so just return all of the emails
-            return this.emails;
+            return recoverSerializedEmails();
         }
 
         return filteredEmails;
     }
+
+
+
 
     // domain filter, attachment filter,
 
@@ -631,6 +638,53 @@ public class User extends Task<Void> {
         }
 
         return emails;
+    }
+
+
+    public boolean existingUser() {
+        try {
+            File f = new File(USERNAME_FILE);
+            boolean found = f.exists();
+            if (!found) {
+                return false;
+            }
+
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            int numAccounts;
+
+            String numString = br.readLine();
+            String[] lines;
+            String encryptedAddress = encrypt(email);
+            if (numString == null) {
+                return false;
+            } else {
+                //look for existing user index
+                numAccounts = Integer.parseInt(numString);
+                lines = new String[numAccounts];
+                String[] accountHashes = new String[numAccounts];
+                String s;
+                int i = 0;
+
+                while ((s = br.readLine()) != null) {
+                    lines[i] = s;
+                    String[] stuff = s.split(" ");
+                    accountHashes[i] = stuff[0];
+                    String decryptedSavedEmail = decrypt(accountHashes[i]);
+                    String userTypedEmail = decrypt(encryptedAddress);
+                    if (decryptedSavedEmail.equals(userTypedEmail)) {
+                        return true;
+                    }
+                    i++;
+                }
+
+                br.close();
+            }
+
+            return false;
+        }catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
 
@@ -829,6 +883,14 @@ public class User extends Task<Void> {
     }
 
 
+    public synchronized void incrementNumSerializeEmails(){
+        numSerializedEmails++;
+    }
+
+    public synchronized int getNumSerializedEmails() {
+        return numSerializedEmails;
+    }
+
     public void writeMessages(Folder f, Folder sub, boolean runSentiment, String originPath) {
         System.out.println("Currently reading/writing: " + f.getName() + "    Subfolder: " + sub.getName());
         Message[] messages = new Message[0];
@@ -857,11 +919,11 @@ public class User extends Task<Void> {
                 dashboardLoading = loader.getController();
                 dashboardLoading.progressBar.setProgress(totalProgress/getTotalNumberOfEmails());
                     });*/
-            System.out.println("processing: " + i);
-            this.updateProgress(numSerializedEmails, totalNumberOfEmails);
 
-            //can update a label on loading screen to say this if we want
-            System.out.println(numSerializedEmails + " of " + totalNumberOfEmails);
+            int currentProgress = getNumSerializedEmails();
+            System.out.println("processing: " + i);
+            this.updateProgress(currentProgress, totalNumberOfEmails);
+            System.out.println(currentProgress + " of " + totalNumberOfEmails);
 
             Message m = messages[i];
             String sender = "Unknown";
@@ -877,7 +939,8 @@ public class User extends Task<Void> {
             }
 
             if (this.getLastLogin() < receivedDate) {
-                numSerializedEmails++;
+
+                incrementNumSerializeEmails();
 
                 //serialize email
                 try {
@@ -994,17 +1057,54 @@ public class User extends Task<Void> {
 
         }
 
+        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        CountDownLatch latch = new CountDownLatch(folders.length);
+
+
         for (int i = 0; i < folders.length; i++) {
+
             String name = folders[i].getName();
             if (name.equalsIgnoreCase("[Gmail]")) {
                 System.out.println(Arrays.deepToString(folders[i].list()));
-                readFolderAndSerializeEmails(folders[i].getFolder("Sent Mail"), runSentiment);
-            } else {
-                /// Create a new thread to do this!!!!!!!
-                readFolderAndSerializeEmails(folders[i], runSentiment);
 
+                final Folder sentMail = folders[i].getFolder("Sent Mail");
+
+
+                Runnable read = new Runnable() {
+                    @Override
+                    public void run() {
+                        System.out.println("reading sent mail folder -- thread started");
+                        readFolderAndSerializeEmails(sentMail, runSentiment);
+                        latch.countDown();
+                    }
+                };
+
+                executor.execute(read);
+
+            } else {
+
+                final Folder currentFolder = folders[i];
+
+                Runnable read = new Runnable() {
+                    @Override
+                    public void run() {
+                        System.out.println("reading current folder --- thread started");
+                        readFolderAndSerializeEmails(currentFolder, runSentiment);
+                        latch.countDown();
+                    }
+                };
+
+                executor.execute(read);
             }
         }
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            System.out.println("cannot wait longer for threads to finish");
+        }
+
+        executor.shutdown();
     }
 
 
