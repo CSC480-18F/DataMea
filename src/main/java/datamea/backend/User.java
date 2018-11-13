@@ -317,13 +317,21 @@ public class User extends Task<Void> {
                 }
             }
             return filteredEmails;
-        }
-
-        for (Email e : emailsToFilter) {
-            if (e.getFolder().equalsIgnoreCase(folderName) && e.getSubFolder().equalsIgnoreCase(subFolderName)) {
-                filteredEmails.add(e);
+        } else if ((subFolderName == folderName) && folderName != null ) {
+            for (Email e: emailsToFilter) {
+                if (e.getFolder().equalsIgnoreCase(folderName)) {
+                    filteredEmails.add(e);
+                }
+            }
+        } else {
+            for (Email e : emailsToFilter) {
+                if (e.getFolder().equalsIgnoreCase(folderName) && e.getSubFolder().equalsIgnoreCase(subFolderName)) {
+                    filteredEmails.add(e);
+                }
             }
         }
+
+
         return filteredEmails;
     }
 
