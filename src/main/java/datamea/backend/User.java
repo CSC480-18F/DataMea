@@ -649,7 +649,7 @@ public class User extends Task<Void> {
     }
 
 
-    public boolean existingUser() {
+    public boolean existingUser(String address) {
         try {
             File f = new File(USERNAME_FILE);
             boolean found = f.exists();
@@ -662,7 +662,7 @@ public class User extends Task<Void> {
 
             String numString = br.readLine();
             String[] lines;
-            String encryptedAddress = encrypt(email);
+            String encryptedAddress = encrypt(address);
             if (numString == null) {
                 return false;
             } else {
