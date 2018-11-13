@@ -55,6 +55,11 @@ public class DashboardDrawer implements Initializable{
                 if (newValue) {
                     for (UserFolder f : Main.getFolders()){
                         list.add(f.getFolderName());
+                        for (String subFolder: f.subFolders) {
+                            if (!subFolder.equals(f.getFolderName())) {
+                                list.add("          " + subFolder);
+                            }
+                        }
                     }
                     listView.setItems(list);
                     Platform.runLater(new Runnable() {
