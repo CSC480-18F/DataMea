@@ -56,6 +56,9 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
+        DashboardLogin.setStage(primaryStage);
+        DashboardLoading.setStage(primaryStage);
+        DashboardController.setStage(primaryStage);
         File textFilesDir = new File("TextFiles/");
         textFilesDir.mkdirs();
         Platform.setImplicitExit(false);
@@ -66,9 +69,6 @@ public class Main extends Application {
         primaryStage.setScene(new Scene(root));
         root.requestFocus();
         primaryStage.show();
-        DashboardLogin.setStage(primaryStage);
-        DashboardLoading.setStage(primaryStage);
-        DashboardController.setStage(primaryStage);
 
         colors.add(javafx.scene.paint.Color.valueOf("#fc5c65"));
         colors.add(javafx.scene.paint.Color.valueOf("#fd9644"));

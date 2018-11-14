@@ -505,6 +505,10 @@ it appears to be whenever there is a thread of replies
         }
     }
 
+    public void setSentimentScores(int[] sentimentScores) {
+        this.sentimentScores = sentimentScores;
+    }
+
     public ArrayList<String> getRecipients() {
         return recipients;
     }

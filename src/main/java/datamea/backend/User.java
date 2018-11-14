@@ -139,7 +139,9 @@ public class User extends Task<Void> {
         }
 
         for (String address : addresses) {
-            address = address.substring(address.indexOf("@"));
+            if (address.indexOf("@") != -1) {
+                address = address.substring(address.indexOf("@"));
+            }
             int quoteLocation = address.indexOf("\"" /*,address.indexOf("\"")+1*/);
             int caratLocation = address.indexOf(">");
             String d;
@@ -436,31 +438,32 @@ public class User extends Task<Void> {
 
     public ArrayList<Email> filter(String folder, String subfolder, Date startDate, Date endDate, String sender, String domain, String attachment, String language) {
         ArrayList<Email> filteredEmails = new ArrayList<>();
+        ArrayList<Email> serializedEmails = recoverSerializedEmails();
         if (folder != null || subfolder != null)
-            filteredEmails = filterByFolder(folder, subfolder, recoverSerializedEmails());
+            filteredEmails = filterByFolder(folder, subfolder, serializedEmails);
         if (startDate != null && endDate != null) {
             if (filteredEmails.size() == 0)
-                filteredEmails = filterByDate(startDate, endDate, recoverSerializedEmails());
+                filteredEmails = filterByDate(startDate, endDate, serializedEmails);
             else filteredEmails = filterByDate(startDate, endDate, filteredEmails);
         }
         if (sender != null) {
             if (filteredEmails.size() == 0) {
-                filteredEmails = filterbySender(sender, recoverSerializedEmails());
+                filteredEmails = filterbySender(sender, serializedEmails);
             } else filteredEmails = filterbySender(sender, filteredEmails);
         }
         if (domain != null) {
             if (filteredEmails.size() == 0) {
-                filteredEmails = filterByDomain(domain, recoverSerializedEmails());
+                filteredEmails = filterByDomain(domain, serializedEmails);
             } else filteredEmails = filterByDomain(domain, filteredEmails);
         }
         if (attachment != null) {
             if (filteredEmails.size() == 0) {
-                filteredEmails = filterByAttachmentType(attachment, recoverSerializedEmails());
+                filteredEmails = filterByAttachmentType(attachment, serializedEmails);
             } else filteredEmails = filterByAttachmentType(attachment, filteredEmails);
         }
         if (language != null) {
             if (filteredEmails.size() == 0) {
-                filteredEmails = filterByLanguage(language, recoverSerializedEmails());
+                filteredEmails = filterByLanguage(language, serializedEmails);
             } else filteredEmails = filterByLanguage(language, filteredEmails);
         }
         if (folder == null && subfolder == null && startDate == null && endDate == null && sender == null && domain == null && attachment == null && language == null) {
@@ -476,7 +479,7 @@ public class User extends Task<Void> {
 
     // domain filter, attachment filter,
 
-    public TreeNode getFoldersCountForSunburst() {
+    public TreeNode getFoldersCountForSunburst(ArrayList<Email> filteredEmails) {
 
         colors.add(javafx.scene.paint.Color.valueOf("#fc5c65"));
         colors.add(javafx.scene.paint.Color.valueOf("#fd9644"));
@@ -503,34 +506,66 @@ public class User extends Task<Void> {
 
         int colorCount = 0;
 
-        for (UserFolder uf : folders) {
-            int numEmailsInFolder = getNumEmailsInFolder(uf.getFolderName());
-            TreeNode temp = new TreeNode(new ChartData(uf.folderName, numEmailsInFolder, colors.get(colorCount)), treeRoot);
+        ArrayList<String> filteredFoldersNames = new ArrayList<>();
 
-            for (String f : uf.subFolders) {
-                if (!f.equals(uf.folderName)) {
-                    //if the folder does not match the subfolder name, add the node normally
-                    int numEmailsInSubFolder = getNumEmailsInSubFolder(uf.getFolderName(), f);
-                    TreeNode subfold = new TreeNode(new ChartData(f, numEmailsInSubFolder, colors.get(colorCount)), temp);
-                } else {
-                    //else, add the node but make it invisible so it takes up the correct section of the pie
-                    int numEmailsInSubFolder = getNumEmailsInSubFolder(uf.getFolderName(), f);
-                    TreeNode subfold = new TreeNode(new ChartData("", numEmailsInSubFolder, javafx.scene.paint.Color.TRANSPARENT), temp);
-                }
-            }
-            if (colorCount < 19) {
-                colorCount++;
-            } else {
-                colorCount = 0;
+        for (Email e : filteredEmails) {
+            if (!filteredFoldersNames.contains(e.getFolder() + " -> " + e.getSubFolder())) {
+                filteredFoldersNames.add(e.getFolder() + " -> " + e.getSubFolder());
             }
         }
+
+        for (UserFolder uf : folders) {
+
+            if (uf.containsFolder(filteredFoldersNames)) {
+
+
+                int numEmailsInFolder = getNumEmailsInFolder(uf.getFolderName(), filteredEmails);
+
+                TreeNode temp = new TreeNode(new ChartData(uf.folderName, numEmailsInFolder, colors.get(colorCount)), treeRoot);
+
+                if (uf.containsSubFolder(filteredFoldersNames)) {
+                    for (String f : uf.subFolders) {
+                        if (!f.equals(uf.folderName)) {
+                            //if the folder does not match the subfolder name, add the node normally
+                            int numEmailsInSubFolder = getNumEmailsInSubFolder(uf.getFolderName(), f, filteredEmails);
+                            TreeNode subfold = new TreeNode(new ChartData(f, numEmailsInSubFolder, colors.get(colorCount)), temp);
+                        } else {
+                            //else, add the node but make it invisible so it takes up the correct section of the pie
+                            int numEmailsInSubFolder = getNumEmailsInSubFolder(uf.getFolderName(), f, filteredEmails);
+                            TreeNode subfold = new TreeNode(new ChartData("", numEmailsInSubFolder, javafx.scene.paint.Color.TRANSPARENT), temp);
+                        }
+                    }
+                }
+
+                if (colorCount < 19) {
+                    colorCount++;
+                } else {
+                    colorCount = 0;
+                }
+            }
+
+        }
+
+        javafx.scene.paint.Color lastColor = colors.get(colorCount--);
+
+        int numLeafs = treeRoot.getNoOfLeafNodes();
+        if (numLeafs == 1) {
+            //add a useless node so that the sunburst chart keeps its shape
+            TreeNode filler = new TreeNode(new ChartData("", 0.0001, lastColor), treeRoot);
+        }
+
+        TreeNode singularNode = (TreeNode)treeRoot.getChildren().get(0);
+        if (singularNode.getNoOfLeafNodes() == 1) {
+            TreeNode filler = new TreeNode(new ChartData("", 0.00001, lastColor),(TreeNode)treeRoot.getChildren().get(0));
+        }
+
         return treeRoot;
     }
 
 
-    public int getNumEmailsInFolder(String folderName) {
+    public int getNumEmailsInFolder(String folderName, ArrayList<Email> filteredEmails) {
         int count = 0;
-        for (Email e : getEmails()) {
+        for (Email e : filteredEmails) {
             if (e.getFolder().equals(folderName)) {
                 count++;
             }
@@ -538,9 +573,9 @@ public class User extends Task<Void> {
         return count;
     }
 
-    public int getNumEmailsInSubFolder(String folderName, String subFolderName) {
+    public int getNumEmailsInSubFolder(String folderName, String subFolderName,ArrayList<Email> filteredEmails ) {
         int count = 0;
-        for (Email e : getEmails()) {
+        for (Email e : filteredEmails) {
             if (e.getFolder().equals(folderName) && e.getSubFolder().equals(subFolderName)) {
                 count++;
             }

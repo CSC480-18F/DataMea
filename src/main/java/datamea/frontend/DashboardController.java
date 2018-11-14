@@ -235,7 +235,7 @@ public class DashboardController implements Initializable {
                     executor.schedule(new Runnable() {
                         @Override
                         public void run() {
-                            settingsDrawer.setVisible(false);
+                            Platform.runLater(()->settingsDrawer.setVisible(false));
                         }
                     }, 500, TimeUnit.MILLISECONDS);
                 }
@@ -248,8 +248,10 @@ public class DashboardController implements Initializable {
                 executor.schedule(new Runnable() {
                     @Override
                     public void run() {
-                        drawer.setVisible(false);
-                        hamburger.setDisable(false);
+                        Platform.runLater(()->{
+                            drawer.setVisible(false);
+                            hamburger.setDisable(false);
+                        });
                     }
                 }, 500, TimeUnit.MILLISECONDS);
             } else {
@@ -268,7 +270,7 @@ public class DashboardController implements Initializable {
                 executor.schedule(new Runnable() {
                     @Override
                     public void run() {
-                        filtersDrawer.setVisible(false);
+                        Platform.runLater(()-> filtersDrawer.setVisible(false));
                     }
                 }, 500, TimeUnit.MILLISECONDS);
             } else {
@@ -291,7 +293,7 @@ public class DashboardController implements Initializable {
                 executor.schedule(new Runnable() {
                     @Override
                     public void run() {
-                        settingsDrawer.setVisible(false);
+                        Platform.runLater(()-> settingsDrawer.setVisible(false));
                     }
                 }, 500, TimeUnit.MILLISECONDS);
             } else {
@@ -363,7 +365,7 @@ public class DashboardController implements Initializable {
                     });
 
                     //Folders SunburstChart:
-                    TreeNode<ChartData> folderTree = currentUser.getFoldersCountForSunburst();
+                    TreeNode<ChartData> folderTree = currentUser.getFoldersCountForSunburst(currentUser.getEmails());
                     folderTree.setOnTreeNodeEvent(e -> {
                         System.out.println("TreeNodeEvent");
                         TreeNodeEvent.EventType type = e.getType();
@@ -382,7 +384,7 @@ public class DashboardController implements Initializable {
                             .sunburstTextOrientation(SunburstChart.TextOrientation.HORIZONTAL)
                             .minSize(400, 480)
                             .prefSize(400, 480)
-                            .sunburstTree(currentUser.getFoldersCountForSunburst())
+                            .sunburstTree(currentUser.getFoldersCountForSunburst(currentUser.getEmails()))
                             .sunburstInteractive(true)
                             .build();
                     //Broken because of sentiment?????
@@ -649,9 +651,26 @@ public class DashboardController implements Initializable {
                                 @Override
                                 public void handle(WorkerStateEvent event) {
                                     progressBar.setProgress(backgroundSentiment.getProgress());
-                                    System.out.println("updated progress bar");
+                                    if (backgroundSentiment.getProgress() == 1.0){
+                                        progressBar.setVisible(false);
+                                        JFXSnackbar notification = new JFXSnackbar(anchorPane);
+                                        notification.getStylesheets().add(this.getClass().getClassLoader().getResource("Dashboard_css.css").toExternalForm());
+                                        notification.show("Sentiment score is done",5000);
+                                    }
                                 }
                             });
+
+                    if (backgroundSentiment.getProgress() != 1.0){
+                        JFXSnackbar notification = new JFXSnackbar(anchorPane);
+                        notification.getStylesheets().add(this.getClass().getClassLoader().getResource("Dashboard_css.css").toExternalForm());
+                        final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(2);
+                        executor.schedule(new Runnable() {
+                            @Override
+                            public void run() {
+                                Platform.runLater(()->notification.show("Sentiment score is calculating",5000));
+                            }
+                        }, 2000, TimeUnit.MILLISECONDS);
+                    }
 
 
                     sentimentTimeline = new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {
@@ -723,7 +742,7 @@ public class DashboardController implements Initializable {
                             drawerExecutor.schedule(new Runnable() {
                                 @Override
                                 public void run() {
-                                    settingsDrawer.setVisible(false);
+                                    Platform.runLater(()->drawer.setVisible(false));
                                 }
                             }, 500, TimeUnit.MILLISECONDS);
                             if (settingsDrawer.isOpened()) {
@@ -733,7 +752,7 @@ public class DashboardController implements Initializable {
                                 settingsExecutor.schedule(new Runnable() {
                                     @Override
                                     public void run() {
-                                        settingsDrawer.setVisible(false);
+                                        Platform.runLater(()->settingsDrawer.setVisible(false));
                                     }
                                 }, 500, TimeUnit.MILLISECONDS);
                             }
@@ -829,22 +848,63 @@ public class DashboardController implements Initializable {
 
         // TODO ADD OTHER CHARTS BELOW
 
-        updateTopSendersOrRecipients(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
-        updateDomains(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
-        updateAttachments(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
-        updateReplyRate(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
-        updateHeatMap(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
+        ArrayList<Email> em = currentUser.filter(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
+
+        updateTopSendersOrRecipients(em);
+        updateSunBurstChart(em);
+        updateDomains(em);
+        updateAttachments(em);
+        updateReplyRate(em);
+        updateHeatMap(em);
         updateSentimentGauge(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
         updateLanguages(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
 
     }
 
+    private void updateSunBurstChart(ArrayList<Email> em) {
 
-    private void updateReplyRate(String folderName, String subFolderName, Date sDate, Date eDate, String sender, String domain, String attachment, String language) {
+        masonryPane.getChildren().remove(foldersSunburstChart);
+
+
+        TreeNode<ChartData> folderTree = currentUser.getFoldersCountForSunburst(em);
+        folderTree.setOnTreeNodeEvent(e -> {
+            System.out.println("TreeNodeEvent");
+            TreeNodeEvent.EventType type = e.getType();
+            if (TreeNodeEvent.EventType.NODE_SELECTED == type) {
+                TreeNode<ChartData> segment = e.getSource();
+                foldersSunburstChart.fireTileEvent(new TileEvent(TileEvent.EventType.SELECTED_CHART_DATA, segment.getItem()));
+            }
+        });
+        foldersSunburstChart = TileBuilder.create()
+                .skinType(Tile.SkinType.SUNBURST)
+                .backgroundColor(Color.TRANSPARENT)
+                .sunburstBackgroundColor(Color.TRANSPARENT)
+                .title("Folder Structure")
+                .textVisible(true)
+                .titleAlignment(TextAlignment.LEFT)
+                .sunburstTextOrientation(SunburstChart.TextOrientation.HORIZONTAL)
+                .minSize(400, 480)
+                .prefSize(400, 480)
+                .sunburstTree(currentUser.getFoldersCountForSunburst(em))
+                .sunburstInteractive(true)
+                .build();
+        //Broken because of sentiment?????
+        foldersSunburstChart.setOnTileEvent((e) -> {
+            if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
+                System.out.println("Clicked on folder " + e.getData().getName());
+                openFilterDrawer();
+                addFilter(e.getData().getName(), false, true, false, false, false);
+            }
+        });
+        masonryPane.getChildren().add(foldersSunburstChart);
+
+
+    }
+
+
+    private void updateReplyRate(ArrayList<Email> em) {
 
         masonryPane.getChildren().remove(replyRateGauge);
-
-        ArrayList<Email> em = currentUser.filter(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
 
         replyRateGauge = TileBuilder.create()
                 .skinType(Tile.SkinType.BAR_GAUGE)
@@ -911,13 +971,12 @@ public class DashboardController implements Initializable {
 
     }
 
-    public void updateHeatMap(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment, String language) {
+    public void updateHeatMap(ArrayList<Email> em) {
 
         masonryPane.getChildren().removeAll(heatMapAndTitle);
 
         String title = sentMail ? "Sent Email Frequency" : "Received Email Frequency";
 
-        ArrayList<Email> em = currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment, language);
         int[][] heatMapData;
         heatMapData = currentUser.generateDayOfWeekFrequency(em, sentMail);
         heatMapAndTitle = new VBox();
@@ -982,7 +1041,7 @@ public class DashboardController implements Initializable {
 
     }
 
-    public void updateTopSendersOrRecipients(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment, String language) {
+    public void updateTopSendersOrRecipients(ArrayList<Email> em) {
         masonryPane.getChildren().removeAll(topSendersOrRecipientsRadialChart);
 
         //Update array list of top senders with new folder info
@@ -991,7 +1050,7 @@ public class DashboardController implements Initializable {
         Map<String, Long> topSendersOrRecipients;
 
         if (sentMail) {
-            topSendersOrRecipients = currentUser.getSendersOrRecipientsFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment, language), sentMail);
+            topSendersOrRecipients = currentUser.getSendersOrRecipientsFreq(em, sentMail);
             title = "Top Recipients";
 
             List<Map.Entry<String, Long>> entries = new ArrayList<>(topSendersOrRecipients.entrySet());
@@ -1010,7 +1069,7 @@ public class DashboardController implements Initializable {
 
             }
         } else {
-            topSendersOrRecipients = currentUser.getSendersOrRecipientsFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment, language), sentMail);
+            topSendersOrRecipients = currentUser.getSendersOrRecipientsFreq(em, sentMail);
             title = "Top Senders";
 
             List<Map.Entry<String, Long>> entries = new ArrayList<>(topSendersOrRecipients.entrySet());
@@ -1057,12 +1116,12 @@ public class DashboardController implements Initializable {
 
     }
 
-    public void updateDomains(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment, String language) {
+    public void updateDomains(ArrayList<Email> em) {
         masonryPane.getChildren().removeAll(domainDonutChart);
 
         domains = null;
         domainsData = FXCollections.observableArrayList();
-        domains = currentUser.getDomainFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment, language), sentMail);
+        domains = currentUser.getDomainFreq(em, sentMail);
 
         PieChart.Data domainOther = new PieChart.Data("Other", 0);
         int domainCount = 0;
@@ -1164,13 +1223,13 @@ public class DashboardController implements Initializable {
     }
 
 
-    public void updateAttachments(String folderName, String subFolderName, Date startDate, Date endDate, String sender, String domain, String attachment, String language) {
+    public void updateAttachments(ArrayList<Email> em) {
         masonryPane.getChildren().removeAll(attachmentsRadialChart);
         //If the it's not updating from a new folder keep the main folder
 
         attachments = null;
 
-        attachments = currentUser.getAttachmentFreq(currentUser.filter(folderName, subFolderName, startDate, endDate, sender, domain, attachment, language), sentMail);
+        attachments = currentUser.getAttachmentFreq(em, sentMail);
 
         attachmentsData = new ArrayList<>();
         int attachmentsCount = 0;
