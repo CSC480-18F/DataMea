@@ -477,7 +477,7 @@ public class User extends Task<Void> {
 
     // domain filter, attachment filter,
 
-    public TreeNode getFoldersCountForSunburst() {
+    public TreeNode getFoldersCountForSunburst(ArrayList<Email> filteredEmails) {
 
         colors.add(javafx.scene.paint.Color.valueOf("#fc5c65"));
         colors.add(javafx.scene.paint.Color.valueOf("#fd9644"));
@@ -504,34 +504,52 @@ public class User extends Task<Void> {
 
         int colorCount = 0;
 
-        for (UserFolder uf : folders) {
-            int numEmailsInFolder = getNumEmailsInFolder(uf.getFolderName());
-            TreeNode temp = new TreeNode(new ChartData(uf.folderName, numEmailsInFolder, colors.get(colorCount)), treeRoot);
+        ArrayList<String> filteredFoldersNames = new ArrayList<>();
 
-            for (String f : uf.subFolders) {
-                if (!f.equals(uf.folderName)) {
-                    //if the folder does not match the subfolder name, add the node normally
-                    int numEmailsInSubFolder = getNumEmailsInSubFolder(uf.getFolderName(), f);
-                    TreeNode subfold = new TreeNode(new ChartData(f, numEmailsInSubFolder, colors.get(colorCount)), temp);
+        for (Email e : filteredEmails) {
+            if (!filteredFoldersNames.contains(e.getFolder() + " -> " + e.getSubFolder())) {
+                filteredFoldersNames.add(e.getFolder() + " -> " + e.getSubFolder());
+            }
+        }
+
+        for (UserFolder uf : folders) {
+
+            if (uf.containsFolder(filteredFoldersNames)) {
+
+
+                int numEmailsInFolder = getNumEmailsInFolder(uf.getFolderName(), filteredEmails);
+
+                TreeNode temp = new TreeNode(new ChartData(uf.folderName, numEmailsInFolder, colors.get(colorCount)), treeRoot);
+
+                if (uf.containsSubFolder(filteredFoldersNames)) {
+                    for (String f : uf.subFolders) {
+                        if (!f.equals(uf.folderName)) {
+                            //if the folder does not match the subfolder name, add the node normally
+                            int numEmailsInSubFolder = getNumEmailsInSubFolder(uf.getFolderName(), f, filteredEmails);
+                            TreeNode subfold = new TreeNode(new ChartData(f, numEmailsInSubFolder, colors.get(colorCount)), temp);
+                        } else {
+                            //else, add the node but make it invisible so it takes up the correct section of the pie
+                            int numEmailsInSubFolder = getNumEmailsInSubFolder(uf.getFolderName(), f, filteredEmails);
+                            TreeNode subfold = new TreeNode(new ChartData("", numEmailsInSubFolder, javafx.scene.paint.Color.TRANSPARENT), temp);
+                        }
+                    }
+                }
+
+                if (colorCount < 19) {
+                    colorCount++;
                 } else {
-                    //else, add the node but make it invisible so it takes up the correct section of the pie
-                    int numEmailsInSubFolder = getNumEmailsInSubFolder(uf.getFolderName(), f);
-                    TreeNode subfold = new TreeNode(new ChartData("", numEmailsInSubFolder, javafx.scene.paint.Color.TRANSPARENT), temp);
+                    colorCount = 0;
                 }
             }
-            if (colorCount < 19) {
-                colorCount++;
-            } else {
-                colorCount = 0;
-            }
+
         }
         return treeRoot;
     }
 
 
-    public int getNumEmailsInFolder(String folderName) {
+    public int getNumEmailsInFolder(String folderName, ArrayList<Email> filteredEmails) {
         int count = 0;
-        for (Email e : getEmails()) {
+        for (Email e : filteredEmails) {
             if (e.getFolder().equals(folderName)) {
                 count++;
             }
@@ -539,9 +557,9 @@ public class User extends Task<Void> {
         return count;
     }
 
-    public int getNumEmailsInSubFolder(String folderName, String subFolderName) {
+    public int getNumEmailsInSubFolder(String folderName, String subFolderName,ArrayList<Email> filteredEmails ) {
         int count = 0;
-        for (Email e : getEmails()) {
+        for (Email e : filteredEmails) {
             if (e.getFolder().equals(folderName) && e.getSubFolder().equals(subFolderName)) {
                 count++;
             }

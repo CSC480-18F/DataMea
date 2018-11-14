@@ -365,7 +365,7 @@ public class DashboardController implements Initializable {
                     });
 
                     //Folders SunburstChart:
-                    TreeNode<ChartData> folderTree = currentUser.getFoldersCountForSunburst();
+                    TreeNode<ChartData> folderTree = currentUser.getFoldersCountForSunburst(currentUser.getEmails());
                     folderTree.setOnTreeNodeEvent(e -> {
                         System.out.println("TreeNodeEvent");
                         TreeNodeEvent.EventType type = e.getType();
@@ -384,7 +384,7 @@ public class DashboardController implements Initializable {
                             .sunburstTextOrientation(SunburstChart.TextOrientation.HORIZONTAL)
                             .minSize(400, 480)
                             .prefSize(400, 480)
-                            .sunburstTree(currentUser.getFoldersCountForSunburst())
+                            .sunburstTree(currentUser.getFoldersCountForSunburst(currentUser.getEmails()))
                             .sunburstInteractive(true)
                             .build();
                     //Broken because of sentiment?????
@@ -849,12 +849,55 @@ public class DashboardController implements Initializable {
         // TODO ADD OTHER CHARTS BELOW
 
         updateTopSendersOrRecipients(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
+        updateSunBurstChart(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
         updateDomains(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
         updateAttachments(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
         updateReplyRate(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
         updateHeatMap(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
         updateSentimentGauge(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
         updateLanguages(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
+
+    }
+
+    private void updateSunBurstChart(String folderName, String subFolderName, Date sDate, Date eDate, String sender, String domain, String attachment, String language) {
+
+        masonryPane.getChildren().remove(foldersSunburstChart);
+
+        ArrayList<Email> em = currentUser.filter(folderName, subFolderName, sDate, eDate, sender, domain, attachment, language);
+
+
+        TreeNode<ChartData> folderTree = currentUser.getFoldersCountForSunburst(em);
+        folderTree.setOnTreeNodeEvent(e -> {
+            System.out.println("TreeNodeEvent");
+            TreeNodeEvent.EventType type = e.getType();
+            if (TreeNodeEvent.EventType.NODE_SELECTED == type) {
+                TreeNode<ChartData> segment = e.getSource();
+                foldersSunburstChart.fireTileEvent(new TileEvent(TileEvent.EventType.SELECTED_CHART_DATA, segment.getItem()));
+            }
+        });
+        foldersSunburstChart = TileBuilder.create()
+                .skinType(Tile.SkinType.SUNBURST)
+                .backgroundColor(Color.TRANSPARENT)
+                .sunburstBackgroundColor(Color.TRANSPARENT)
+                .title("Folder Structure")
+                .textVisible(true)
+                .titleAlignment(TextAlignment.LEFT)
+                .sunburstTextOrientation(SunburstChart.TextOrientation.HORIZONTAL)
+                .minSize(400, 480)
+                .prefSize(400, 480)
+                .sunburstTree(currentUser.getFoldersCountForSunburst(em))
+                .sunburstInteractive(true)
+                .build();
+        //Broken because of sentiment?????
+        foldersSunburstChart.setOnTileEvent((e) -> {
+            if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
+                System.out.println("Clicked on folder " + e.getData().getName());
+                openFilterDrawer();
+                addFilter(e.getData().getName(), false, true, false, false, false);
+            }
+        });
+        masonryPane.getChildren().add(foldersSunburstChart);
+
 
     }
 
