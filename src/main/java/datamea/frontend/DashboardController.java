@@ -742,7 +742,7 @@ public class DashboardController implements Initializable {
                             drawerExecutor.schedule(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Platform.runLater(()->settingsDrawer.setVisible(false));
+                                    Platform.runLater(()->drawer.setVisible(false));
                                 }
                             }, 500, TimeUnit.MILLISECONDS);
                             if (settingsDrawer.isOpened()) {

@@ -65,6 +65,7 @@ public class DashboardLogin implements Initializable {
     private        BooleanProperty loginSuccessful = new SimpleBooleanProperty(false);
     private        boolean opened = false;
     private        static String lastEmail;
+    boolean        firstLogin = false;
 
     @FXML
     public void getEmailField(KeyEvent event) {
@@ -250,9 +251,8 @@ public class DashboardLogin implements Initializable {
             if (User.existingUser(getEmail())){
                 homePageParent = FXMLLoader.load(getClass().getClassLoader().getResource("Second_Loading_Screen.fxml"));
             } else{
+                firstLogin = true;
                 homePageParent = FXMLLoader.load(getClass().getClassLoader().getResource("Loading_Screen.fxml"));
-                DashboardLoading.setReadyLoadingScreenToTrue();
-                DashboardLoading.setLoadingOnCloseRequest(true);
             }
 
             cannotLogin.addEventHandler(MouseEvent.MOUSE_PRESSED, (e) -> {
@@ -297,6 +297,10 @@ public class DashboardLogin implements Initializable {
                 @Override
                 public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                     if (newValue) {
+                        if (firstLogin){
+                            DashboardLoading.setReadyLoadingScreenToTrue();
+                            DashboardLoading.setLoadingOnCloseRequest(true);
+                        }
                         //Scene homePage = new Scene(homePageParent,myStage.getWidth(), myStage.getHeight());
                         setScene(homePageParent);
                         myStage.show();
