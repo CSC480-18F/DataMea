@@ -543,6 +543,20 @@ public class User extends Task<Void> {
             }
 
         }
+
+        javafx.scene.paint.Color lastColor = colors.get(colorCount--);
+
+        int numLeafs = treeRoot.getNoOfLeafNodes();
+        if (numLeafs == 1) {
+            //add a useless node so that the sunburst chart keeps its shape
+            TreeNode filler = new TreeNode(new ChartData("", 0.0001, lastColor), treeRoot);
+        }
+
+        TreeNode singularNode = (TreeNode)treeRoot.getChildren().get(0);
+        if (singularNode.getNoOfLeafNodes() == 1) {
+            TreeNode filler = new TreeNode(new ChartData("", 0.00001, lastColor),singularNode);
+        }
+
         return treeRoot;
     }
 
