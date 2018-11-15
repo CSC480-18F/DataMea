@@ -13,7 +13,7 @@ public class EmailTest extends TestCase {
     private final Email EMAIL = new Email(TEXT_FILE);
 
     public void testRecoverEmail() {
-
+        ;
     }
 
     public void testGetOverallSentimentDbl() {
@@ -33,7 +33,7 @@ public class EmailTest extends TestCase {
         assertEquals(EMAIL.getDayOfWeek(), 2);
     }
 
-    //Ask about how to test
+    //need help
     public void testExtractAttachments() throws MessagingException, IOException {
         ArrayList<String> testAttachments = new ArrayList<>();
         ArrayList<String> expected = new ArrayList<>();
@@ -65,9 +65,8 @@ public class EmailTest extends TestCase {
     }
 
 
-
-
     public void testGetSentimentPctStr() {
+
     }
 
     public void testGetDate() {
