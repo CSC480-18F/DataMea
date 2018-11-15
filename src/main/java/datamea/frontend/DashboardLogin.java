@@ -66,6 +66,7 @@ public class DashboardLogin implements Initializable {
     private        boolean opened = false;
     private        static String lastEmail;
     boolean        firstLogin = false;
+    private        Parent homePageParent;
 
     @FXML
     public void getEmailField(KeyEvent event) {
@@ -245,15 +246,7 @@ public class DashboardLogin implements Initializable {
             setEmail();
             checkRememberedEmail();
         }
-        try {
             DashboardLoading.setStage(myStage);
-            Parent homePageParent;
-            if (User.existingUser(getEmail())){
-                homePageParent = FXMLLoader.load(getClass().getClassLoader().getResource("Second_Loading_Screen.fxml"));
-            } else{
-                firstLogin = true;
-                homePageParent = FXMLLoader.load(getClass().getClassLoader().getResource("Loading_Screen.fxml"));
-            }
 
             cannotLogin.addEventHandler(MouseEvent.MOUSE_PRESSED, (e) -> {
                 BoxBlur blur = new BoxBlur(3,3,3);
@@ -297,6 +290,17 @@ public class DashboardLogin implements Initializable {
                 @Override
                 public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                     if (newValue) {
+                        try {
+                            if (User.existingUser(getEmail())) {
+                                homePageParent = FXMLLoader.load(getClass().getClassLoader().getResource("Second_Loading_Screen.fxml"));
+                            } else {
+                                firstLogin = true;
+                                homePageParent = FXMLLoader.load(getClass().getClassLoader().getResource("Loading_Screen.fxml"));
+                            }
+                        }catch(IOException io){
+                            io.printStackTrace();
+                        }
+
                         if (firstLogin){
                             DashboardLoading.setReadyLoadingScreenToTrue();
                             DashboardLoading.setLoadingOnCloseRequest(true);
@@ -308,9 +312,6 @@ public class DashboardLogin implements Initializable {
                     }
                 }
             });
-        }catch(IOException e){
-            e.printStackTrace();
-        }
     }
 
     public void setScene(Parent root) {
