@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<ScrollPane fx:id="creditsScrollpane" fitToWidth="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="500.0" style="-fx-background-color: #2f3640;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="datamea.frontend.Credits">
+   <content>
+      <VBox alignment="TOP_CENTER" prefWidth="500.0" style="-fx-background-color: #2f3640; -fx-spacing: 30; -fx-padding: 50 50 50 50;">
+         <children>
+            <ImageView fitHeight="142.0" fitWidth="251.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@DataMeaLogo.png" />
+               </image>
+            </ImageView>
+            <VBox alignment="TOP_CENTER" style="-fx-spacing: 2;">
+               <children>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="State University of New York at Oswego" textAlignment="CENTER">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="CSC 480-18F: Software Design - Fall 2018 Project" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+               </children>
+            </VBox>
+            <VBox alignment="TOP_CENTER" style="-fx-spacing: 2;">
+               <children>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Project Stake Holder:" textAlignment="CENTER">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Bastian Tenbergen" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+               </children>
+            </VBox>
+            <VBox alignment="TOP_CENTER" style="-fx-spacing: 2;">
+               <children>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Project Manager:" textAlignment="CENTER">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Bastian Tenbergen" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+               </children>
+            </VBox>
+            <VBox alignment="TOP_CENTER" style="-fx-spacing: 2;">
+               <children>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Requirements:" textAlignment="CENTER">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Dylan Rizzo" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Mike Carroll" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Ethan Osborne" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Tyler Dominick" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Ray Breton" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+               </children>
+            </VBox>
+            <VBox alignment="TOP_CENTER" style="-fx-spacing: 2;">
+               <children>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Useability:" textAlignment="CENTER">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Mike Carroll" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Ethan Osborne" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Sylvia pericles" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Ray Breton" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+               </children>
+            </VBox>
+            <VBox alignment="TOP_CENTER" style="-fx-spacing: 2;">
+               <children>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Quality Assurance:" textAlignment="CENTER">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Gaoping Lin" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Sylvia pericles" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Ray Breton" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Douglas Myrdek" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Cedric Hansen" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Andy Vadnais" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+               </children>
+            </VBox>
+            <VBox alignment="TOP_CENTER" style="-fx-spacing: 2;">
+               <children>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Engine:" textAlignment="CENTER">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Cedric Hansen" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Dougas Myrdek" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Andy Vadnais" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Dylan Rizzo" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Tyler Dominck" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Gaoping Lin" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+               </children>
+            </VBox>
+            <VBox alignment="TOP_CENTER" style="-fx-spacing: 2;">
+               <children>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="GUI:" textAlignment="CENTER">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Dougas Myrdek" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Cedric Hansen" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Andy Vadnais" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Dylan Rizzo" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Ray Breton" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+               </children>
+            </VBox>
+            <VBox alignment="TOP_CENTER" style="-fx-spacing: 2;">
+               <children>
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="For more Information check out out Github:" textAlignment="CENTER">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Text>
+                  <Hyperlink fx:id="github" text="https://github.com/CSC480-18F/DataMea/" textFill="#009aff" />
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </content>
+</ScrollPane>
