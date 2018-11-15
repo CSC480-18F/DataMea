@@ -196,7 +196,8 @@ public class DashboardController implements Initializable {
             dashboardDrawer = loader.getController();
             dashboardDrawer.drawerAnchorpane.maxHeightProperty().bind(anchorPane.heightProperty());
             dashboardDrawer.dashboardDrawerVBox.maxHeightProperty().bind(anchorPane.heightProperty());
-            dashboardDrawer.drawerScrollpane.getStylesheets().add(scrollPaneCss);
+            String darkerScrollPaneCss = this.getClass().getClassLoader().getResource("darker_scrollpane.css").toExternalForm();
+            dashboardDrawer.drawerScrollpane.getStylesheets().add(darkerScrollPaneCss);
             drawer.setSidePane(pane);
         } catch (IOException ex) {
             Logger.getLogger(DashboardController.class.getName()).log(Level.SEVERE, null, ex);
