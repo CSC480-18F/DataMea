@@ -139,7 +139,9 @@ public class User extends Task<Void> {
         }
 
         for (String address : addresses) {
-            address = address.substring(address.indexOf("@"));
+            if (address.indexOf("@") != -1) {
+                address = address.substring(address.indexOf("@"));
+            }
             int quoteLocation = address.indexOf("\"" /*,address.indexOf("\"")+1*/);
             int caratLocation = address.indexOf(">");
             String d;
@@ -554,7 +556,7 @@ public class User extends Task<Void> {
 
         TreeNode singularNode = (TreeNode)treeRoot.getChildren().get(0);
         if (singularNode.getNoOfLeafNodes() == 1) {
-            TreeNode filler = new TreeNode(new ChartData("", 0.00001, lastColor),singularNode);
+            TreeNode filler = new TreeNode(new ChartData("", 0.00001, lastColor),(TreeNode)treeRoot.getChildren().get(0));
         }
 
         return treeRoot;
