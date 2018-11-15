@@ -3,6 +3,7 @@ package datamea.frontend;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -18,6 +19,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class Credits implements Initializable {
     @FXML
@@ -42,7 +45,6 @@ public class Credits implements Initializable {
                 e1.printStackTrace();
             }
         });
-
 
         Timeline timeline = new Timeline();
         timeline.setCycleCount(1);

@@ -10,7 +10,7 @@
 
 <ScrollPane fx:id="creditsScrollpane" fitToWidth="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="500.0" style="-fx-background-color: #2f3640;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="datamea.frontend.Credits">
    <content>
-      <VBox alignment="TOP_CENTER" prefWidth="500.0" style="-fx-background-color: #2f3640; -fx-spacing: 30; -fx-padding: 20 20 20 20;">
+      <VBox alignment="TOP_CENTER" prefWidth="500.0" style="-fx-background-color: #2f3640; -fx-spacing: 30; -fx-padding: 50 50 50 50;">
          <children>
             <ImageView fitHeight="142.0" fitWidth="251.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -61,7 +61,7 @@
             </VBox>
             <VBox alignment="TOP_CENTER" style="-fx-spacing: 2;">
                <children>
-                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Requirements::" textAlignment="CENTER">
+                  <Text fill="#d3deeb" strokeType="OUTSIDE" strokeWidth="0.0" text="Requirements:" textAlignment="CENTER">
                      <font>
                         <Font size="16.0" />
                      </font>
