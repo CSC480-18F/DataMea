@@ -2,10 +2,10 @@
 ![](DataMea-example.gif)
 
 ###Downloads:
--[Mac (.dmg)](https://mega.nz/#!a2hyiALI!Kg6-E9OWwEXvphABGX2GFEF8CBRJPv2oZF1Jb3SwLww).
--Windows (.exe) * *coming soon* *
--Linux (.deb) * *coming soon* *
--Linux (.rpm) * *coming soon* *
+- [Mac (.dmg)](https://mega.nz/#!a2hyiALI!Kg6-E9OWwEXvphABGX2GFEF8CBRJPv2oZF1Jb3SwLww).
+- Windows (.exe) * *coming soon* *
+- Linux (.deb) * *coming soon* *
+- Linux (.rpm) * *coming soon* *
 
 
 ###To run this project, have at least Maven 3 installed and then pull the project.
