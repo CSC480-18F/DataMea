@@ -11,13 +11,13 @@
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.web.WebView?>
 
-<StackPane fx:id="loadingStackPane" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="datamea.frontend.DashboardLoading">
+<StackPane fx:id="loadingStackPane" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #353b48;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="datamea.frontend.DashboardLoading">
    <children>
       <VBox fx:id="loadingVbox" alignment="CENTER" style="-fx-spacing: 20;">
          <children>
-            <ImageView fitHeight="160.0" fitWidth="274.0" pickOnBounds="true">
+            <ImageView fitHeight="201.0" fitWidth="350.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@DataMeaLogo.png" />
+                  <Image url="@datamea-new.png" />
                </image>
                <effect>
                   <DropShadow color="#00000040" height="20.0" radius="9.5" width="20.0" />
