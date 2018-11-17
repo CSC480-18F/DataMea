@@ -132,5 +132,13 @@ public class UserTest extends TestCase {
     }
 
     public void testGetDay() {
+        int i = 0;
+        assertEquals(User.getDay(i),"Sun");
+    }
+    public void testGetFolders(){
+        int i = 0;
+        float h = .75f;
+        float s = 1f;
+        //float b = 1f / (float) diff * i;
     }
 }
