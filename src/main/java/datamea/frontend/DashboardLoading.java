@@ -3,7 +3,6 @@ package datamea.frontend;
 import com.jfoenix.controls.*;
 import com.jfoenix.controls.events.JFXDialogEvent;
 import datamea.backend.Main;
-import datamea.backend.User;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;

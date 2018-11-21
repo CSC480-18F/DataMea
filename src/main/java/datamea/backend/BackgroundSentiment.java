@@ -1,19 +1,9 @@
 package datamea.backend;
 
-import datamea.frontend.DashboardController;
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
-import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.layout.AnchorPane;
-import javafx.util.Duration;
-
 import javax.mail.*;
 import java.io.*;
-import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Properties;
 

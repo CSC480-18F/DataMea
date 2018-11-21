@@ -237,6 +237,7 @@ public class DashboardLogin implements Initializable {
                 });
             }
         }, 200, TimeUnit.MILLISECONDS);
+        executor.shutdown();
     }
 
     @Override

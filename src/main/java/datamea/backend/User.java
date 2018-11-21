@@ -6,7 +6,6 @@ import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.tools.TreeNode;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-
 import javax.mail.*;
 import java.awt.*;
 import java.io.IOException;

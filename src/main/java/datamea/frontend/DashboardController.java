@@ -46,8 +46,6 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
-
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -239,6 +237,7 @@ public class DashboardController implements Initializable {
                             Platform.runLater(()->settingsDrawer.setVisible(false));
                         }
                     }, 500, TimeUnit.MILLISECONDS);
+                    executor.shutdown();
                 }
                 DashboardDrawer.setShrinkListToTrue();
                 drawer.close();
@@ -255,6 +254,7 @@ public class DashboardController implements Initializable {
                         });
                     }
                 }, 500, TimeUnit.MILLISECONDS);
+                executor.shutdown();
             } else {
                 drawer.setVisible(true);
                 drawer.open();
@@ -274,6 +274,7 @@ public class DashboardController implements Initializable {
                         Platform.runLater(()-> filtersDrawer.setVisible(false));
                     }
                 }, 500, TimeUnit.MILLISECONDS);
+                executor.shutdown();
             } else {
                 filtersDrawer.setVisible(true);
                 filtersDrawer.open();
@@ -297,6 +298,7 @@ public class DashboardController implements Initializable {
                         Platform.runLater(()-> settingsDrawer.setVisible(false));
                     }
                 }, 500, TimeUnit.MILLISECONDS);
+                executor.shutdown();
             } else {
                 settingsDrawer.setVisible(true);
                 settingsDrawer.open();
@@ -671,6 +673,7 @@ public class DashboardController implements Initializable {
                                 Platform.runLater(()->notification.show("Sentiment score is calculating",5000));
                             }
                         }, 2000, TimeUnit.MILLISECONDS);
+                        executor.shutdown();
                     }
 
 
@@ -746,6 +749,7 @@ public class DashboardController implements Initializable {
                                     Platform.runLater(()->drawer.setVisible(false));
                                 }
                             }, 500, TimeUnit.MILLISECONDS);
+                            drawerExecutor.shutdown();
                             if (settingsDrawer.isOpened()) {
                                 settingsDrawer.close();
                                 dashboardDrawer.settingsButton.setText("Open Settings");
@@ -756,6 +760,7 @@ public class DashboardController implements Initializable {
                                         Platform.runLater(()->settingsDrawer.setVisible(false));
                                     }
                                 }, 500, TimeUnit.MILLISECONDS);
+                                settingsExecutor.shutdown();
                             }
                             openFilterDrawer();
                             addFilter(folderSelected, false, true, false, false, false);
