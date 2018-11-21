@@ -46,7 +46,7 @@
         <dependency>
             <groupId>com.github.HanSolo</groupId>
             <artifactId>tilesfx</artifactId>
-            <version>2c52447</version>
+            <version>5ba4ff4</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
