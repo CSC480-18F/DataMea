@@ -44,9 +44,13 @@ public class SenderTest extends TestCase {
     }
 
     public void testAddEmail() {
+
     }
 
     public void testAddMessage() {
+        Sender s = new Sender("test@gmail.com");
+        assertEquals(false, s.addMessage("test".hashCode()));
+        assertEquals(true, s.addMessage("test".hashCode()));
     }
 
 }
