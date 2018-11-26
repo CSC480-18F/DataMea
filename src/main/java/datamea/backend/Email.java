@@ -551,6 +551,15 @@ it appears to be whenever there is a thread of replies
         return addressesPostFilter;
     }
 
+    public boolean hasAttachment(String attachment){
+        for (String a:attachments) {
+            if(a.equals(attachment)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public String toString() {
         if (this.sentimentPctStr != null)
             return "From: " + this.sender + "\nTitle:" + this.title + "\nDate: " + date + "\nFlags: " + flags.toString()

@@ -1344,6 +1344,15 @@ public class User extends Task<Void> {
         return folders;
     }
 
+    public void setEmails(ArrayList<Email> emails) {
+        this.emails = emails;
+    }
+
+    public void setFolders(ArrayList<UserFolder> folders) {
+        this.folders = folders;
+    }
+
+
     public static String getDay(int i) {
         switch (i) {
             case 0:
