@@ -3,8 +3,7 @@ package datamea.backend;
 
 import junit.framework.TestCase;
 
-import javax.jws.soap.SOAPBinding;
-import javax.mail.MessagingException;
+import javax.mail.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -65,21 +64,37 @@ public class EmailTest extends TestCase {
         assertEquals(EMAIL4.getDayOfWeek(), 5);
     }
 
-    //need help from Andy
+    //Done
     public void testExtractAttachments() throws MessagingException, IOException {
-        ArrayList<String> testAttachments = new ArrayList<>();
-        ArrayList<String> expected = new ArrayList<>();
-        try{
-            testAttachments = EMAIL.extractAttachments();
-        }catch (StringIndexOutOfBoundsException s){
-            System.out.println(s.getMessage());
-        }
+        Properties props = System.getProperties();
+        props.setProperty("mail.store.protocol", "imaps");
+        Session session = Session.getDefaultInstance(props, null);
+        Store store = session.getStore("imaps");
+        Message[] messages = null;
+        Email e = null;
 
-        assertEquals(testAttachments, expected);
+        ArrayList<String> expected = new ArrayList<>(3);
+        expected.add(".png");
+        expected.add(".jpg");
+        expected.add(".jpg");
+
+        try {
+            store.connect("imap.gmail.com", "tdominick.test@gmail.com", "DataMeacsc480");
+            Folder folder = store.getFolder("TEST");
+            folder.open(Folder.READ_ONLY);
+            messages = folder.getMessages();
+            e = new Email(messages[0], null, false);
+            folder.close();
+
+            assertEquals(expected, e.extractAttachments());
+
+        } catch (MessagingException er) {
+            er.printStackTrace();
+        }
 
     }
 
-    //test fails when it shouldn't
+    //test fails when it shouldn't - bug
     public void testIsAnswered() {
         assertFalse(EMAIL.isAnswered());
         assertTrue(EMAIL4.isAnswered());
@@ -91,10 +106,6 @@ public class EmailTest extends TestCase {
         for(int i = 0; i < 5; i++){
             assertEquals(EMAIL.getSentimentScores()[i], testScores[i]);
         }
-    }
-
-    //need help from Andy
-    public void testGetSentimentPctStr() {
     }
 
     //Done
