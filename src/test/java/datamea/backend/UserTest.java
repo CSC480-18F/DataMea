@@ -256,31 +256,53 @@ public class UserTest extends TestCase {
         }
     }
 
+    //Recover serialized user needs to take file path as parameter, cant test currently
     public void testRecoverSerializedEmails() {
+
     }
 
+    //ask cedric
     public void testSerializeUser() {
     }
 
+    //ask cedric
     public void testCreateSerializedUserFolder() {
     }
 
+    //ask cedric reads from text files generated at runtime cant test properly
     public void testReadFolderAndSerializeEmails() {
     }
 
+    //ask cedric
     public void testResetUser() {
     }
 
+    // ask cedric
     public void testWriteMessages() {
     }
 
+    //ask cedric
     public void testUpdateSerializedFolders() {
     }
 
     public void testEncrypt() {
+        String test1 = "abcdefg";
+        String test2 = "mno12A";
+        String test3 = "AbCjj+aabbcc";
+
+        assertEquals("egeilli", testUser.encrypt(test1));
+        assertEquals("qsq69G", testUser.encrypt(test2));
+        assertEquals("EgEoq1ceefhe", testUser.encrypt(test3));
     }
 
     public void testDecrypt() {
+        String test1 = "egeilli";
+        String test2 = "qsq69G";
+        String test3 = "EgEoq1ceefhe";
+
+        assertEquals("abcdefg", testUser.decrypt(test1));
+        assertEquals("mno12A", testUser.decrypt(test2));
+        assertEquals("AbCjj+aabbcc", testUser.decrypt(test3));
     }
 
     public void testGenerateDayOfWeekFrequency() {
