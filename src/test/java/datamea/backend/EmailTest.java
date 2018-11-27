@@ -48,6 +48,11 @@ public class EmailTest extends TestCase {
 
     //ask Andy how to test
     public void testAnalyzeSentiment() {
+        String text = "This is a test string to be used for sentiment analysis.";
+
+        Sentiment sentiment = Email.analyzeSentiment(text);
+
+        assertFalse(sentiment == null);
 
 
     }
