@@ -286,7 +286,13 @@ public class UserTest extends TestCase {
     public void testGenerateDayOfWeekFrequency() {
     }
 
+    //Done
     public void testDifferenceMinMax() {
+        int[][] ary = new int[][]{
+                { 0,1,2,3,4 },
+                { 0,1,2,3,4 }};
+
+        assertEquals(4, testUser.differenceMinMax(ary));
     }
 
     public void testGetColorForHeatMap() {
