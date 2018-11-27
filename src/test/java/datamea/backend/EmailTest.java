@@ -46,7 +46,7 @@ public class EmailTest extends TestCase {
         assertEquals(Email.getOverallSentimentDbl(testArray2), 62.5);
     }
 
-    //ask Andy how to test
+    //Done
     public void testAnalyzeSentiment() {
         String text = "This is a test string to be used for sentiment analysis.";
 
