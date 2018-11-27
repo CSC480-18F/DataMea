@@ -33,6 +33,10 @@ public class UserFolder {
         return false;
     }
 
+    public String toString(){
+        return folderName;
+    }
+
     public String getFolderName () {
         return this.folderName;
     }

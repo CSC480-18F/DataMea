@@ -205,22 +205,55 @@ public class UserTest extends TestCase {
 
     }
 
+    //Ask for help
     public void testGetFoldersCountForSunburst() {
     }
 
+    //Done
     public void testGetNumEmailsInFolder() {
+        assertEquals(testUser.getNumEmailsInFolder("Archiv UniDuE Adresse",testEmails), 3);
+        assertEquals(testUser.getNumEmailsInFolder("Betreute Arbeiten", testEmails), 1);
     }
 
+    //Done
     public void testGetNumEmailsInSubFolder() {
+        assertEquals(testUser.getNumEmailsInSubFolder("Archiv UniDuE Adresse","Archiv UniDuE Adresse",testEmails), 3);
+        assertEquals(testUser.getNumEmailsInSubFolder("Betreute Arbeiten","Betreute Arbeiten", testEmails), 1);
     }
-
+    //somethings wrong with compareTo for sender
     public void testGetTopSendersForFolder() {
+        ArrayList<Sender> actualTopSenders1 = new ArrayList<>();
+        for(int i = 0; i<4;i++){
+            actualTopSenders1.add(testUser.getEmails().get(i).getSender());
+        }
+        ArrayList<Sender> actualTopSenders2 = new ArrayList<>();
+        for(int i = 0; i<3;i++){
+            actualTopSenders2.add(testUser.getEmails().get(i).getSender());
+        }
+        ArrayList<Sender> actualTopSenders3 = new ArrayList<>();
+        actualTopSenders3.add(testUser.getEmails().get(3).getSender());
+
+        ArrayList<Sender> testTopSenders1 = testUser.getTopSendersForFolder("AllFolders", "AllFolders");
+        ArrayList<Sender> testTopSenders2 = testUser.getTopSendersForFolder("Archiv UniDuE Adresse", "Archiv UniDuE Adresse");
+        ArrayList<Sender> testTopSenders3 = testUser.getTopSendersForFolder("Betreute Arbeiten", "Betreute Arbeiten");
+
+        assertEquals(actualTopSenders1,testTopSenders1);
+        assertEquals(actualTopSenders2, testTopSenders2);
+        assertEquals(actualTopSenders3, testTopSenders3);
+
+
     }
 
-    public void testGetTopSendersForFilter() {
-    }
-
+    //Done
     public void testRecoverFolders() {
+        ArrayList<UserFolder> testFolders = testUser.recoverFolders();
+        ArrayList<UserFolder> actualFolders = new ArrayList<>();
+        actualFolders.add(new UserFolder("Archiv UniDuE Adresse"));
+        actualFolders.add(new UserFolder("Betreute Arbeiten"));
+
+        for(int i = 0; i<actualFolders.size();i++){
+            assertEquals(testFolders.get(i).getFolderName(), actualFolders.get(i).getFolderName());
+        }
     }
 
     public void testRecoverSerializedEmails() {
