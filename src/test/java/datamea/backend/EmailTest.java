@@ -53,11 +53,10 @@ public class EmailTest extends TestCase {
         Sentiment sentiment = Email.analyzeSentiment(text);
 
         assertFalse(sentiment == null);
-
-
     }
 
     //ask Andy what to send filter
+    //mentioned using real email body for this test
     public void testFilter() {
     }
 
@@ -126,11 +125,22 @@ public class EmailTest extends TestCase {
         assertEquals(EMAIL4.getDate(), date4);
     }
 
-    //ask for help
+    //Done
     public void testGetSender() {
-        Sender testSender1 = new Sender(User.decrypt("&Mgqigel/$Hjwpyvssl'\"AJntmvxtrm5NgpeehjEphgw1ysk2k{g2giC"));
-        boolean test_1 = EMAIL.getSender().filterName().equals(testSender1);
+        Sender testSender1 = new Sender("\"Helbach, Christoph\" <Christoph.Helbach@ibes.uni-due.de>");
+        Sender testSender2 = new Sender("Promovierendenforum <profor@uni-due.de>");
+        Sender testSender3 = new Sender("fortbildungsteam@uni-due.de");
+        Sender testSender4 = new Sender("\"Marten, Kevin\" <Kevin.Marten@paluno.uni-due.de>");
+
+        boolean test_1 = EMAIL.getSender().filterName().equals(testSender1.filterName());
+        boolean test_2 = EMAIL2.getSender().filterName().equals(testSender2.filterName());
+        boolean test_3 = EMAIL3.getSender().filterName().equals(testSender3.filterName());
+        boolean test_4 = EMAIL4.getSender().filterName().equals(testSender4.filterName());
+
         assertTrue(test_1);
+        assertTrue(test_2);
+        assertTrue(test_3);
+        assertTrue(test_4);
     }
 
     // needs to be done better
@@ -176,10 +186,17 @@ public class EmailTest extends TestCase {
         assertTrue(test_1);
         assertTrue(test_2);
     }
-    //TODO test on rest of emails
+
+    //Done
     public void testGetDomain() {
         boolean same = EMAIL.getDomain(false).get(0).trim().equals("@ibes.uni-due.de");
+        boolean same1 = EMAIL2.getDomain(false).get(0).trim().equals("@uni-due.de");
+        boolean same2 = EMAIL3.getDomain(false).get(0).trim().equals("@uni-due.de");
+        boolean same3 = EMAIL4.getDomain(false).get(0).trim().equals("@paluno.uni-due.de");
         assertTrue(same);
+        assertTrue(same1);
+        assertTrue(same2);
+        assertTrue(same3);
     }
 
 

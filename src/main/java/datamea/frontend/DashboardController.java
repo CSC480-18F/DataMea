@@ -677,7 +677,7 @@ public class DashboardController implements Initializable {
                     sentimentTimeline = new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {
                         @Override
                         public void handle(ActionEvent event) {
-                            ArrayList<Email> em = currentUser.recoverSerializedEmails();
+                            ArrayList<Email> em = currentUser.recoverSerializedEmails(false);
                             int[] sentimentScores = currentUser.getSentimentForFilteredEmails(em);
                             double score = Email.getOverallSentimentDbl(sentimentScores);
                             sentimentGauge.setValue(score);

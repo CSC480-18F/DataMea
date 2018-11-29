@@ -2,20 +2,23 @@ package datamea.backend;
 
 import junit.framework.TestCase;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Map;
 
 public class UserTest extends TestCase {
 
     User testUser = new User("tdominick.test@gmail.com", "DataMeacsc480", false);
-    private final File TEXT_FILE1 = new File("TestEmails/1239784613000.txt");
+    private final File TEXT_FILE1 = new File("TestEmails/xiqrptkgn2ygx{Fiqdmq0hvs/1239784613000.txt");
     private final Email EMAIL1 = new Email(TEXT_FILE1);
-    private final File TEXT_FILE2 = new File("TestEmails/1284278477000.txt");
+    private final File TEXT_FILE2 = new File("TestEmails/xiqrptkgn2ygx{Fiqdmq0hvs/1284278477000.txt");
     private final Email EMAIL2 = new Email(TEXT_FILE2);
-    private final File TEXT_FILE3 = new File("TestEmails/1322486502000.txt");
+    private final File TEXT_FILE3 = new File("TestEmails/xiqrptkgn2ygx{Fiqdmq0hvs/1322486502000.txt");
     private final Email EMAIL3 = new Email(TEXT_FILE3);
-    private final File TEXT_FILE4 = new File("TestEmails/1428001431000.txt");
+    private final File TEXT_FILE4 = new File("TestEmails/xiqrptkgn2ygx{Fiqdmq0hvs/1428001431000.txt");
     private final Email EMAIL4 = new Email(TEXT_FILE4);
     ArrayList<Email> testEmails = new ArrayList<>();
     public void setUp() throws Exception {
@@ -34,7 +37,14 @@ public class UserTest extends TestCase {
 
     }
 
+    //Done
     public void testGetSentimentForFilteredEmails() {
+        int[] testSentiment = testUser.getSentimentForFilteredEmails(testEmails);
+        assertEquals(testSentiment[0],2);
+        assertEquals(testSentiment[1],5);
+        assertEquals(testSentiment[2], 4);
+        assertEquals(testSentiment[3],8);
+        assertEquals(testSentiment[4],4);
 
     }
 
@@ -149,9 +159,6 @@ public class UserTest extends TestCase {
         }
     }
 
-    //not sure if ever used
-    public void testFilterByDate() {
-    }
 
     //Done
     public void testFilterByDomain() {
@@ -205,7 +212,7 @@ public class UserTest extends TestCase {
 
     }
 
-    //Ask for help
+    //Ask for help returns a treeNode
     public void testGetFoldersCountForSunburst() {
     }
 
@@ -256,21 +263,61 @@ public class UserTest extends TestCase {
         }
     }
 
-    //Recover serialized user needs to take file path as parameter, cant test currently
-    public void testRecoverSerializedEmails() {
-
+    //Done
+    public void testRecoverSerializedEmails()  {
+        ArrayList<Email> recoveredEmails = testUser.recoverSerializedEmails(true);
+        assertEquals(recoveredEmails, testUser.getEmails());
     }
 
     //ask cedric
-    public void testSerializeUser() {
+    public void testSerializeUser() throws Exception {
+        testUser.serializeUser(false,true);
+        File f = new File("TestEmails/userNames.txt");
+        BufferedReader br = new BufferedReader(new FileReader(f));
+
+        assertEquals(User.decrypt(br.readLine()), testUser.getEmail() + testUser.getLastLogin());
     }
 
-    //ask cedric
-    public void testCreateSerializedUserFolder() {
+    //Done
+    public void testCreateSerializedUserFolder() throws Exception {
+        //test case 1, subfolder not exist then create new subfolder
+        boolean sucess = false;
+        User test = new User("test@gmail.com","abcdAA",false);
+        test.createSerializedUserFolder();
+        File folder = new File("TextFiles");
+        File[] files = folder.listFiles();
+
+        for (File file : files) {
+            if (file.isDirectory()) {
+                if (file.getName().equalsIgnoreCase(User.encrypt(test.getEmail()))) {
+                    sucess = true;
+                    break;
+                }
+            }
+
+        }
+        assertEquals(true, sucess);
+
+        //test case 2, subfolder exist then not create new subfolder
+        User test1 = new User("test@gmail.com","abcdAA",false);
+        test1.createSerializedUserFolder();
+        File[] files1 = folder.listFiles();
+        int i = 0;
+
+        for (File file : files1) {
+            if (file.isDirectory()) {
+                if (file.getName().equalsIgnoreCase(User.encrypt(test.getEmail()))) {
+                    i++;
+                }
+            }
+
+        }
+        assertEquals(1, i);
     }
 
     //ask cedric reads from text files generated at runtime cant test properly
     public void testReadFolderAndSerializeEmails() {
+
     }
 
     //ask cedric
@@ -281,10 +328,15 @@ public class UserTest extends TestCase {
     public void testWriteMessages() {
     }
 
+    public void testExistingUser(){
+
+    }
+
     //ask cedric
     public void testUpdateSerializedFolders() {
     }
 
+    //Done
     public void testEncrypt() {
         String test1 = "abcdefg";
         String test2 = "mno12A";
@@ -294,7 +346,7 @@ public class UserTest extends TestCase {
         assertEquals("qsq69G", testUser.encrypt(test2));
         assertEquals("EgEoq1ceefhe", testUser.encrypt(test3));
     }
-
+    //Done
     public void testDecrypt() {
         String test1 = "egeilli";
         String test2 = "qsq69G";
@@ -304,8 +356,15 @@ public class UserTest extends TestCase {
         assertEquals("mno12A", testUser.decrypt(test2));
         assertEquals("AbCjj+aabbcc", testUser.decrypt(test3));
     }
-
+    //Done
     public void testGenerateDayOfWeekFrequency() {
+        int[][] testDays = testUser.generateDayOfWeekFrequency(testEmails,false);
+
+        assertEquals(testDays[0][4], 1);
+        assertEquals(testDays[1][8],1);
+        assertEquals(testDays[0][4],1);
+        assertEquals(testDays[4][15], 1);
+
     }
 
     //Done
@@ -317,44 +376,54 @@ public class UserTest extends TestCase {
         assertEquals(4, testUser.differenceMinMax(ary));
     }
 
+    //priority low
     public void testGetColorForHeatMap() {
     }
 
+    //priority low
     public void testGetDayOfWeekFrequency() {
     }
 
+    //priority low
     public void testGetLastLogin() {
     }
 
+    //priority low
     public void testSetLastLogin() {
     }
 
+    //priority low
     public void testGetEmail() {
     }
 
+    //priority low
     public void testSetEmail() {
     }
 
+    //priority low
     public void testGetPassword() {
     }
 
+    //priority low
     public void testSetPassword() {
     }
 
+    //priority low
     public void testGetEmails() {
     }
 
+    //priority low
     public void testGetTotalNumberOfEmails() {
     }
 
+    //priority low
     public void testGetDay() {
         int i = 0;
         assertEquals(User.getDay(i),"Sun");
     }
+
+    //priority low
     public void testGetFolders(){
-        int i = 0;
-        float h = .75f;
-        float s = 1f;
-        //float b = 1f / (float) diff * i;
+
     }
 }

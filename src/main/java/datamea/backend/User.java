@@ -45,8 +45,8 @@ public class User extends Task<Void> {
     protected Void call() throws Exception {
         numSerializedEmails = getNumberOfSerializedEmails();
         this.updateProgress(numSerializedEmails, User.getTotalNumberOfEmails());
-        serializeUser(false);
-        emails = recoverSerializedEmails();
+        serializeUser(false,false);
+        emails = recoverSerializedEmails(false);
         folders = recoverFolders();
         System.out.println("User thread is done");
         return null;
@@ -84,7 +84,7 @@ public class User extends Task<Void> {
 
     //TODO adjust for sentMail
     public int[] getOverallSentiment() {
-        ArrayList<Email> emails = recoverSerializedEmails();
+        ArrayList<Email> emails = recoverSerializedEmails(false);
         int[] sentiment = {0, 0, 0, 0, 0};
         for (Email e : emails) {
             for (int i = 0; i < sentiment.length; i++) {
@@ -438,7 +438,7 @@ public class User extends Task<Void> {
 
     public ArrayList<Email> filter(String folder, String subfolder, Date startDate, Date endDate, String sender, String domain, String attachment, String language) {
         ArrayList<Email> filteredEmails = new ArrayList<>();
-        ArrayList<Email> serializedEmails = recoverSerializedEmails();
+        ArrayList<Email> serializedEmails = recoverSerializedEmails(false);
         if (folder != null || subfolder != null)
             filteredEmails = filterByFolder(folder, subfolder, serializedEmails);
         if (startDate != null && endDate != null) {
@@ -468,7 +468,7 @@ public class User extends Task<Void> {
         }
         if (folder == null && subfolder == null && startDate == null && endDate == null && sender == null && domain == null && attachment == null && language == null) {
             //no folder was selected so just return all of the emails
-            return recoverSerializedEmails();
+            return recoverSerializedEmails(false);
         }
 
         return filteredEmails;
@@ -662,8 +662,14 @@ public class User extends Task<Void> {
     }
 
 
-    public ArrayList<Email> recoverSerializedEmails() {
-        File temp = new File("TextFiles/" + encrypt(email));
+    public ArrayList<Email> recoverSerializedEmails(boolean testing) {
+        File temp;
+        if(testing){
+             temp = new File("TestEmails/" +  encrypt(email));
+        }
+        else{
+             temp = new File("TextFiles/" + encrypt(email));
+        }
         File[] e = temp.listFiles();
         emails = new ArrayList<Email>();
         for (File f : e) {
@@ -676,10 +682,7 @@ public class User extends Task<Void> {
                     System.out.println(f.getName());
                     em.printStackTrace();
                 }
-
-
-        }
-
+            }
         return emails;
     }
 
@@ -731,9 +734,14 @@ public class User extends Task<Void> {
     }
 
 
-    public void serializeUser(boolean runSentiment) throws IOException, javax.mail.MessagingException {
-
-        File f = new File(USERNAME_FILE);
+    public void serializeUser(boolean runSentiment, boolean testing) throws IOException, javax.mail.MessagingException {
+        File f;
+        if (testing){
+            f = new File("TestEmails/userNames.txt");
+        }
+        else{
+            f = new File(USERNAME_FILE);
+        }
         boolean found = f.exists();
         if (!found) {
             f.createNewFile();
@@ -820,18 +828,20 @@ public class User extends Task<Void> {
     }
 
     public void createSerializedUserFolder() throws IOException {
-        File temp = new File("TextFiles/" + encrypt(email));
-        File[] users = (new File("TextFiles/")).listFiles();
+       File temp = new File("TextFiles/" + encrypt(email));
+       File[] users = (new File("TextFiles/")).listFiles();
         boolean exists = false;
-        for (File user : users) {
-            if (!user.getName().contains(".")) {
-                if (decrypt(user.getName()).equals(email)) {
-                    exists = true;
-                    folderName = user.getName();
-                    break;
+        if(users != null){
+            for (File user : users) {
+                if (!user.getName().contains(".")) {
+                    if (decrypt(user.getName()).equals(email)) {
+                        exists = true;
+                        folderName = user.getName();
+                        break;
+                    }
                 }
-            }
 
+            }
         }
 
         if (!exists) {
@@ -855,12 +865,19 @@ public class User extends Task<Void> {
     }
 
 
-    public void readFolderAndSerializeEmails(Folder f, boolean runSentiment) {
+    public void readFolderAndSerializeEmails(Folder f, boolean runSentiment, boolean testing) {
 
         //to do
         //create email objects to serialize
 
-        String originPath = "TextFiles/" + encrypt(email) + "/";
+        String originPath;
+        if (testing){
+            originPath = "TestEmails/" + encrypt(email) + "/";
+        }
+        else{
+            originPath = "TextFiles/" + encrypt(email) + "/";
+        }
+
 
         try {
             f.open(f.READ_ONLY);
@@ -1117,7 +1134,7 @@ public class User extends Task<Void> {
                     @Override
                     public void run() {
                         System.out.println("reading sent mail folder -- thread started");
-                        readFolderAndSerializeEmails(sentMail, runSentiment);
+                        readFolderAndSerializeEmails(sentMail, runSentiment,false);
                         latch.countDown();
                     }
                 };
@@ -1132,7 +1149,7 @@ public class User extends Task<Void> {
                     @Override
                     public void run() {
                         System.out.println("reading current folder --- thread started");
-                        readFolderAndSerializeEmails(currentFolder, runSentiment);
+                        readFolderAndSerializeEmails(currentFolder, runSentiment, false);
                         latch.countDown();
                     }
                 };

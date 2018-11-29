@@ -8,19 +8,17 @@ public class SenderTest extends TestCase {
     Sender tester1 = new Sender("glin2@oswego.edu");
     Sender tester2 = new Sender("<glin2@oswego.edu>");
 
-    public void testIncrementNumEmails() {
-    }
 
     public void testFilterName() {
         assertEquals(tester.filterName(), "glin2@oswego.edu");
         assertEquals(tester1.filterName(), "glin2@oswego.edu");
-
     }
 
     public void testFilterEmailAddress() {
         assertEquals(tester.filterEmailAddress("<glin2@oswego.edu>"), "glin2@oswego.edu");
     }
 
+    //priority low
     public void testCompareTo() {
     }
 
@@ -37,12 +35,15 @@ public class SenderTest extends TestCase {
         assertEquals(tester2.getAddress(),"<glin@oswego.edu>");
     }
 
+    //priority low
     public void testGetEmails() {
     }
 
+    //priority low
     public void testSetEmails() {
     }
 
+    //priority low
     public void testAddEmail() {
 
     }
