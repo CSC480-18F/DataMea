@@ -41,6 +41,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.Stop;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
@@ -345,10 +346,25 @@ public class DashboardController implements Initializable {
                     currentUser = Main.getCurrentUser();
 
                     //Top senders Radial Chart:
+                    VBox topSendersVBOX = new VBox();
+                    HBox topSendersTitleWithTooltip = new HBox();
+                    topSendersTitleWithTooltip.setAlignment(Pos.CENTER);
+                    Label topSendersTitle = new Label("Top Senders");
+                    topSendersTitle.setTextFill(Color.LIGHTGRAY);
+                    topSendersTitle.setStyle("-fx-font: 24 System;");
+                    FontAwesomeIconView topSendersQuestionMark = new FontAwesomeIconView();
+                    topSendersQuestionMark.setGlyphName("QUESTION_CIRCLE");
+                    topSendersQuestionMark.setSize("24");
+                    topSendersQuestionMark.setFill(Color.LIGHTGRAY);
+                    Tooltip topSendersTooltip = new Tooltip("This graph displays the user's top email senders.");
+                    topSendersTooltip.setFont(Font.font(12));
+                    Tooltip.install(topSendersQuestionMark, topSendersTooltip);
+                    topSendersTitleWithTooltip.setSpacing(10);
+                    topSendersTitleWithTooltip.getChildren().addAll(topSendersTitle,topSendersQuestionMark);
                     topSendersOrRecipientsRadialChart = TileBuilder.create()
                             .skinType(Tile.SkinType.RADIAL_CHART)
                             .backgroundColor(Color.TRANSPARENT)
-                            .title("Top Senders")
+                            //.title("Top Senders")
                             .titleAlignment(TextAlignment.LEFT)
                             .minSize(480, 480)
                             .prefSize(480, 480)
@@ -356,7 +372,12 @@ public class DashboardController implements Initializable {
                             .chartData(topSendersOrRecipientsData)
                             .build();
                     topSendersOrRecipientsRadialChart.setCursor(Cursor.HAND);
-                    masonryPane.getChildren().add(topSendersOrRecipientsRadialChart);
+                    topSendersVBOX.getChildren().addAll(topSendersTitleWithTooltip,topSendersOrRecipientsRadialChart);
+                    topSendersVBOX.setSpacing(5);
+                    topSendersVBOX.setPadding(new Insets(20));
+                    topSendersVBOX.setPrefSize(400, 480);
+                    topSendersVBOX.setMaxSize(480, 480);
+                    masonryPane.getChildren().add(topSendersVBOX);
                     //Change scenes based on top sender ChartData selected
                     topSendersOrRecipientsRadialChart.setOnTileEvent((e) -> {
                         if (e.getEventType() == TileEvent.EventType.SELECTED_CHART_DATA) {
@@ -368,6 +389,21 @@ public class DashboardController implements Initializable {
                     });
 
                     //Folders SunburstChart:
+                    VBox foldersVBOX = new VBox();
+                    HBox foldersTitleWithTooltip = new HBox();
+                    foldersTitleWithTooltip.setAlignment(Pos.CENTER);
+                    Label foldersTitle = new Label("Folder Structure");
+                    foldersTitle.setTextFill(Color.LIGHTGRAY);
+                    foldersTitle.setStyle("-fx-font: 24 System;");
+                    FontAwesomeIconView foldersQuestionMark = new FontAwesomeIconView();
+                    foldersQuestionMark.setGlyphName("QUESTION_CIRCLE");
+                    foldersQuestionMark.setSize("24");
+                    foldersQuestionMark.setFill(Color.LIGHTGRAY);
+                    Tooltip foldersTooltip = new Tooltip("This graph will provide the user with a detailed look at the folder structure within their Gmail account.");
+                    foldersTooltip.setFont(Font.font(12));
+                    Tooltip.install(foldersQuestionMark, foldersTooltip);
+                    foldersTitleWithTooltip.setSpacing(10);
+                    foldersTitleWithTooltip.getChildren().addAll(foldersTitle,foldersQuestionMark);
                     TreeNode<ChartData> folderTree = currentUser.getFoldersCountForSunburst(currentUser.getEmails());
                     folderTree.setOnTreeNodeEvent(e -> {
                         System.out.println("TreeNodeEvent");
@@ -381,12 +417,12 @@ public class DashboardController implements Initializable {
                             .skinType(Tile.SkinType.SUNBURST)
                             .backgroundColor(Color.TRANSPARENT)
                             .sunburstBackgroundColor(Color.TRANSPARENT)
-                            .title("Folder Structure")
+                            //.title("Folder Structure")
                             .textVisible(true)
                             .titleAlignment(TextAlignment.LEFT)
                             .sunburstTextOrientation(SunburstChart.TextOrientation.HORIZONTAL)
                             .minSize(400, 480)
-                            .prefSize(400, 480)
+                            .prefSize(480, 480)
                             .sunburstTree(currentUser.getFoldersCountForSunburst(currentUser.getEmails()))
                             .sunburstInteractive(true)
                             .build();
@@ -398,21 +434,40 @@ public class DashboardController implements Initializable {
                             addFilter(e.getData().getName(), false, true, false, false, false);
                         }
                     });
-                    masonryPane.getChildren().add(foldersSunburstChart);
+                    foldersVBOX.getChildren().addAll(foldersTitleWithTooltip,foldersSunburstChart);
+                    foldersVBOX.setSpacing(5);
+                    foldersVBOX.setPadding(new Insets(20));
+                    foldersVBOX.setPrefSize(400, 480);
+                    foldersVBOX.setMaxSize(480, 480);
+                    masonryPane.getChildren().add(foldersVBOX);
 
                     //Sent VS received chart
+                    VBox sentVSReceivedVBOX = new VBox();
+                    HBox sentVSReceivedTitleWithTooltip = new HBox();
+                    sentVSReceivedTitleWithTooltip.setAlignment(Pos.CENTER);
+                    Label sentVSReceivedTitle = new Label("Sent vs Received");
+                    sentVSReceivedTitle.setTextFill(Color.LIGHTGRAY);
+                    sentVSReceivedTitle.setStyle("-fx-font: 24 System;");
+                    FontAwesomeIconView sentVSReceivedQuestionMark = new FontAwesomeIconView();
+                    sentVSReceivedQuestionMark.setGlyphName("QUESTION_CIRCLE");
+                    sentVSReceivedQuestionMark.setSize("24");
+                    sentVSReceivedQuestionMark.setFill(Color.LIGHTGRAY);
+                    Tooltip sentVSReceivedTooltip = new Tooltip("This graph displays the number of emails that they have sent and received by with the user's Gmail account.");
+                    sentVSReceivedTooltip.setFont(Font.font(12));
+                    Tooltip.install(sentVSReceivedQuestionMark, sentVSReceivedTooltip);
+                    sentVSReceivedTitleWithTooltip.setSpacing(10);
+                    sentVSReceivedTitleWithTooltip.getChildren().addAll(sentVSReceivedTitle,sentVSReceivedQuestionMark);
                     PieChart.Data sent = new PieChart.Data("Sent", currentUser.numberOfSentMail);
                     PieChart.Data recevied = new PieChart.Data("Received", User.getTotalNumberOfEmails() - currentUser.numberOfSentMail);
                     ObservableList<PieChart.Data> sentReceivedData = FXCollections.observableArrayList();
                     sentReceivedData.add(recevied);
                     sentReceivedData.add(sent);
                     DonutChart sentReceivedDonutChart = new DonutChart(sentReceivedData);
-                    sentReceivedDonutChart.setPrefSize(500, 480);
-                    sentReceivedDonutChart.setMaxSize(500, 480);
-                    sentReceivedDonutChart.setTitle("Sent vs Received");
-                    sentReceivedDonutChart.setLegendVisible(true);
-                    sentReceivedDonutChart.setLegendSide(Side.BOTTOM);
+                    sentReceivedDonutChart.setPrefSize(480, 480);
+                    sentReceivedDonutChart.setMaxSize(480, 480);
+                    //sentReceivedDonutChart.setTitle("Sent vs Received");
                     sentReceivedDonutChart.setLabelsVisible(true);
+                    sentReceivedDonutChart.setLegendVisible(false);
                     sentReceivedDonutChart.getData().stream().forEach(data -> {
                         Tooltip tooltip = new Tooltip();
                         tooltip.setText((int) data.getPieValue() + " emails");
@@ -429,9 +484,29 @@ public class DashboardController implements Initializable {
                         });
                     }
                     sentReceivedDonutChart.getStylesheets().add(this.getClass().getClassLoader().getResource("donutchart.css").toExternalForm());
-                    masonryPane.getChildren().add(sentReceivedDonutChart);
+                    sentVSReceivedVBOX.getChildren().addAll(sentVSReceivedTitleWithTooltip,sentReceivedDonutChart);
+                    sentVSReceivedVBOX.setSpacing(5);
+                    sentVSReceivedVBOX.setPadding(new Insets(20));
+                    sentVSReceivedVBOX.setPrefSize(480, 480);
+                    sentVSReceivedVBOX.setMaxSize(480, 480);
+                    masonryPane.getChildren().add(sentVSReceivedVBOX);
 
                     //Domains donut chart
+                    VBox domainsVBOX = new VBox();
+                    HBox domainsTitleWithTooltip = new HBox();
+                    domainsTitleWithTooltip.setAlignment(Pos.CENTER);
+                    Label domainsTitle = new Label("Domains");
+                    domainsTitle.setTextFill(Color.LIGHTGRAY);
+                    domainsTitle.setStyle("-fx-font: 24 System;");
+                    FontAwesomeIconView domainsQuestionMark = new FontAwesomeIconView();
+                    domainsQuestionMark.setGlyphName("QUESTION_CIRCLE");
+                    domainsQuestionMark.setSize("24");
+                    domainsQuestionMark.setFill(Color.LIGHTGRAY);
+                    Tooltip domainsTooltip = new Tooltip("This graph displays the most frequent email domains that a user is in contact with (i.e. @yahoo.com, @oswego.edu, @gmail.com, etc.).");
+                    domainsTooltip.setFont(Font.font(12));
+                    Tooltip.install(domainsQuestionMark, domainsTooltip);
+                    domainsTitleWithTooltip.setSpacing(10);
+                    domainsTitleWithTooltip.getChildren().addAll(domainsTitle,domainsQuestionMark);
                     domains = currentUser.getDomainFreq(currentUser.getEmails(), false);
                     int colorCount = 0;
                     PieChart.Data domainOther = new PieChart.Data("Other", 0);
@@ -448,12 +523,12 @@ public class DashboardController implements Initializable {
                     }
                     domainsData.add(domainOther);
                     domainDonutChart = new DonutChart(domainsData);
-                    domainDonutChart.setPrefSize(500, 480);
-                    domainDonutChart.setMaxSize(500, 480);
-                    domainDonutChart.setTitle("Domains");
+                    domainDonutChart.setPrefSize(480, 480);
+                    domainDonutChart.setMaxSize(480, 480);
+                    //domainDonutChart.setTitle("Domains");
                     domainDonutChart.setLegendVisible(true);
                     domainDonutChart.setLegendSide(Side.BOTTOM);
-                    domainDonutChart.setLabelsVisible(true);
+                    domainDonutChart.setLabelsVisible(false);
                     domainDonutChart.getData().stream().forEach(data -> {
                         Tooltip tooltip = new Tooltip();
                         tooltip.setText((int) data.getPieValue() + " emails");
@@ -480,7 +555,12 @@ public class DashboardController implements Initializable {
                         });
                     }
                     domainDonutChart.getStylesheets().add(this.getClass().getClassLoader().getResource("donutchart.css").toExternalForm());
-                    masonryPane.getChildren().add(domainDonutChart);
+                    domainsVBOX.getChildren().addAll(domainsTitleWithTooltip,domainDonutChart);
+                    domainsVBOX.setSpacing(5);
+                    domainsVBOX.setPadding(new Insets(20));
+                    domainsVBOX.setPrefSize(480, 480);
+                    domainsVBOX.setMaxSize(480, 480);
+                    masonryPane.getChildren().add(domainsVBOX);
 
                     //Attachments radial chart
                     attachments = currentUser.getAttachmentFreq(currentUser.getEmails(), false);
@@ -505,11 +585,28 @@ public class DashboardController implements Initializable {
                         temp.setValue(0);
                         attachmentsData.add(temp);
                     }
+
+                    //Attachemnts Chart
+                    VBox attachmentsVBOX = new VBox();
+                    HBox attachmentsTitleWithTooltip = new HBox();
+                    attachmentsTitleWithTooltip.setAlignment(Pos.CENTER);
+                    Label attachmentsTitle = new Label("Attachments");
+                    attachmentsTitle.setTextFill(Color.LIGHTGRAY);
+                    attachmentsTitle.setStyle("-fx-font: 24 System;");
+                    FontAwesomeIconView attachmentsQuestionMark = new FontAwesomeIconView();
+                    attachmentsQuestionMark.setGlyphName("QUESTION_CIRCLE");
+                    attachmentsQuestionMark.setSize("24");
+                    attachmentsQuestionMark.setFill(Color.LIGHTGRAY);
+                    Tooltip attachmentsTooltip = new Tooltip("This graph displays the most frequent attachments found in a user's email folders.");
+                    attachmentsTooltip.setFont(Font.font(12));
+                    Tooltip.install(attachmentsQuestionMark, attachmentsTooltip);
+                    attachmentsTitleWithTooltip.setSpacing(10);
+                    attachmentsTitleWithTooltip.getChildren().addAll(attachmentsTitle,attachmentsQuestionMark);
                     attachmentsRadialChart = TileBuilder.create()
                             .animationDuration(10000)
                             .skinType(Tile.SkinType.RADIAL_CHART)
                             .backgroundColor(Color.TRANSPARENT)
-                            .title("Attachments")
+                            //.title("Attachments")
                             .titleAlignment(TextAlignment.LEFT)
                             .textVisible(true)
                             .text("Total attachments: " + attachmentsTotal)
@@ -528,12 +625,33 @@ public class DashboardController implements Initializable {
                             //addFilter(data.getName());
                         }
                     });
-                    masonryPane.getChildren().add(attachmentsRadialChart);
+                    attachmentsVBOX.getChildren().addAll(attachmentsTitleWithTooltip,attachmentsRadialChart);
+                    attachmentsVBOX.setSpacing(5);
+                    attachmentsVBOX.setPadding(new Insets(20));
+                    attachmentsVBOX.setPrefSize(400, 480);
+                    attachmentsVBOX.setMaxSize(480, 480);
+                    masonryPane.getChildren().add(attachmentsVBOX);
 
+                    //Reply Rate Gauge
+                    VBox replyRateVBOX = new VBox();
+                    HBox replyRateTitleWithTooltip = new HBox();
+                    replyRateTitleWithTooltip.setAlignment(Pos.CENTER);
+                    Label replyRateTitle = new Label("Received Email Frequency");
+                    replyRateTitle.setTextFill(Color.LIGHTGRAY);
+                    replyRateTitle.setStyle("-fx-font: 24 System;");
+                    FontAwesomeIconView replyRateQuestionMark = new FontAwesomeIconView();
+                    replyRateQuestionMark.setGlyphName("QUESTION_CIRCLE");
+                    replyRateQuestionMark.setSize("24");
+                    replyRateQuestionMark.setFill(Color.LIGHTGRAY);
+                    Tooltip replyRateTooltip = new Tooltip("This graph shows the overall interaction between the user and the user's send/receive recipients.");
+                    replyRateTooltip.setFont(Font.font(12));
+                    Tooltip.install(replyRateQuestionMark, replyRateTooltip);
+                    replyRateTitleWithTooltip.setSpacing(10);
+                    replyRateTitleWithTooltip.getChildren().addAll(replyRateTitle,replyRateQuestionMark);
                     replyRateGauge = TileBuilder.create()
                             .skinType(Tile.SkinType.BAR_GAUGE)
                             .backgroundColor(Color.TRANSPARENT)
-                            .title("Reply Rate")
+                            //.title("Reply Rate")
                             .unit("%")
                             .value(0)
                             .gradientStops(new Stop(0, Color.valueOf("#fc5c65")),
@@ -552,12 +670,20 @@ public class DashboardController implements Initializable {
                             .build();
                     double replyRate = currentUser.getReplyFrequency(currentUser.getEmails());
                     replyRateGauge.setValue(replyRate);
-                    masonryPane.getChildren().add(replyRateGauge);
+                    replyRateVBOX.getChildren().addAll(replyRateTitleWithTooltip, replyRateGauge);
+                    replyRateVBOX.setSpacing(5);
+                    replyRateVBOX.setPadding(new Insets(20));
+                    replyRateVBOX.setPrefSize(350, 350);
+                    replyRateVBOX.setMaxSize(350, 350);
+                    masonryPane.getChildren().add(replyRateVBOX);
 
 
                     //HeatMap:
                     //rather than using em here, assign the value of em to be whatever the list of emails we want
                     //aka, add filter, and then display those results
+
+
+
                     ArrayList<Email> em = Main.getCurrentUser().getEmails();
                     //ArrayList<Email> em2 = Main.getCurrentUser().getEmailsFromFolder("first year admin stuff", "testFolder");
                     int[][] heatMapData = Main.getCurrentUser().generateDayOfWeekFrequency(em, false);
@@ -566,6 +692,17 @@ public class DashboardController implements Initializable {
                     Label heatMapTitle = new Label("Received Email Frequency");
                     heatMapTitle.setTextFill(Color.LIGHTGRAY);
                     heatMapTitle.setStyle("-fx-font: 24 System;");
+                    HBox HeatMapTitleWithTooltip = new HBox();
+                    HeatMapTitleWithTooltip.setAlignment(Pos.CENTER);
+                    FontAwesomeIconView HeatMapQuestionMark = new FontAwesomeIconView();
+                    HeatMapQuestionMark.setGlyphName("QUESTION_CIRCLE");
+                    HeatMapQuestionMark.setSize("24");
+                    HeatMapQuestionMark.setFill(Color.LIGHTGRAY);
+                    Tooltip HeatMapTooltip = new Tooltip("This graph displays the frequency of emails given by day and hour. The more vibrant the color, the more emails in the respective time slot.");
+                    HeatMapTooltip.setFont(Font.font(12));
+                    Tooltip.install(HeatMapQuestionMark, HeatMapTooltip);
+                    HeatMapTitleWithTooltip.setSpacing(10);
+                    HeatMapTitleWithTooltip.getChildren().addAll(heatMapTitle,HeatMapQuestionMark);
                     heatMapPane.setPrefSize(600, 480);
                     heatMapGridPane = new GridPane();
                     heatMapGridPane.setPrefSize(600, 480);
@@ -612,19 +749,37 @@ public class DashboardController implements Initializable {
                             heatMapGridPane.add(pane, j + 1, i + 1);
                         }
                     }
+
                     heatMapGridPane.setGridLinesVisible(true);
                     heatMapPane.getChildren().add(heatMapGridPane);
-                    heatMapAndTitle.getChildren().addAll(heatMapTitle, heatMapPane);
-                    heatMapAndTitle.setSpacing(5);
+                    heatMapAndTitle.getChildren().addAll(HeatMapTitleWithTooltip, heatMapPane);
+                    heatMapAndTitle.setSpacing(10);
                     heatMapAndTitle.setPadding(new Insets(20));
                     heatMapAndTitle.setPrefSize(600, 480);
                     heatMapAndTitle.setMaxSize(600, 480);
                     masonryPane.getChildren().add(heatMapAndTitle);
+
+
                     //Sentiment Gauge:
+                    VBox sentimentVBOX = new VBox();
+                    HBox sentimentTitleWithTooltip = new HBox();
+                    sentimentTitleWithTooltip.setAlignment(Pos.CENTER);
+                    Label sentimentTitle = new Label("Sentiment");
+                    sentimentTitle.setTextFill(Color.LIGHTGRAY);
+                    sentimentTitle.setStyle("-fx-font: 24 System;");
+                    FontAwesomeIconView sentimentQuestionMark = new FontAwesomeIconView();
+                    sentimentQuestionMark.setGlyphName("QUESTION_CIRCLE");
+                    sentimentQuestionMark.setSize("24");
+                    sentimentQuestionMark.setFill(Color.LIGHTGRAY);
+                    Tooltip sentimentTooltip = new Tooltip("This graph displays the general attitude sentiment of emails whether mostly negative, neutral, or positive.");
+                    sentimentTooltip.setFont(Font.font(12));
+                    Tooltip.install(sentimentQuestionMark, sentimentTooltip);
+                    sentimentTitleWithTooltip.setSpacing(10);
+                    sentimentTitleWithTooltip.getChildren().addAll(sentimentTitle,sentimentQuestionMark);
                     sentimentGauge = TileBuilder.create()
                             .skinType(Tile.SkinType.BAR_GAUGE)
                             .backgroundColor(Color.TRANSPARENT)
-                            .title("Sentiment")
+                            //.title("Sentiment")
                             .unit("%")
                             .value(0)
                             .gradientStops(new Stop(0, Color.valueOf("#fc5c65")),
@@ -641,7 +796,12 @@ public class DashboardController implements Initializable {
                             .maxSize(350, 350)
                             .animated(true)
                             .build();
-                    masonryPane.getChildren().add(sentimentGauge);
+                    sentimentVBOX.getChildren().addAll(sentimentTitleWithTooltip, sentimentGauge);
+                    sentimentVBOX.setSpacing(5);
+                    sentimentVBOX.setPadding(new Insets(20));
+                    sentimentVBOX.setPrefSize(350, 350);
+                    sentimentVBOX.setMaxSize(350, 350);
+                    masonryPane.getChildren().add(sentimentVBOX);
 
 
                     backgroundSentiment = new BackgroundSentiment();
@@ -690,6 +850,21 @@ public class DashboardController implements Initializable {
                     sentimentTimeline.play();
 
                     //languages donut chart
+                    VBox languagesVBOX = new VBox();
+                    HBox languagesTitleWithTooltip = new HBox();
+                    languagesTitleWithTooltip.setAlignment(Pos.CENTER);
+                    Label languagesTitle = new Label("Languages");
+                    languagesTitle.setTextFill(Color.LIGHTGRAY);
+                    languagesTitle.setStyle("-fx-font: 24 System;");
+                    FontAwesomeIconView languagesQuestionMark = new FontAwesomeIconView();
+                    languagesQuestionMark.setGlyphName("QUESTION_CIRCLE");
+                    languagesQuestionMark.setSize("24");
+                    languagesQuestionMark.setFill(Color.LIGHTGRAY);
+                    Tooltip languagesTooltip = new Tooltip("This graph displays the most frequent languages that a user receives emails in.");
+                    languagesTooltip.setFont(Font.font(12));
+                    Tooltip.install(languagesQuestionMark, languagesTooltip);
+                    languagesTitleWithTooltip.setSpacing(10);
+                    languagesTitleWithTooltip.getChildren().addAll(languagesTitle,languagesQuestionMark);
                     languages = currentUser.getLanguageFreq(currentUser.getEmails(), false);
                     int languagesCount = 0;
                     for (Map.Entry<String, Long> entry : languages.entrySet()) {
@@ -700,10 +875,10 @@ public class DashboardController implements Initializable {
                         }
                     }
                     languagesDonutChart = new DonutChart(languagesData);
-                    languagesDonutChart.setPrefSize(300, 300);
-                    languagesDonutChart.setMaxSize(300, 300);
-                    languagesDonutChart.setTitle("Languages");
-                    languagesDonutChart.setLegendVisible(false);
+                    languagesDonutChart.setPrefSize(480, 480);
+                    languagesDonutChart.setMaxSize(480, 480);
+                    //languagesDonutChart.setTitle("Languages");
+                    languagesDonutChart.setLegendVisible(true);
                     languagesDonutChart.setLabelsVisible(true);
                     languagesDonutChart.getData().stream().forEach(data -> {
                         Tooltip tooltip = new Tooltip();
@@ -731,7 +906,12 @@ public class DashboardController implements Initializable {
                         });
                     }
                     languagesDonutChart.getStylesheets().add(this.getClass().getClassLoader().getResource("donutchart.css").toExternalForm());
-                    masonryPane.getChildren().add(languagesDonutChart);
+                    languagesVBOX.getChildren().addAll(languagesTitleWithTooltip,languagesDonutChart);
+                    languagesVBOX.setSpacing(5);
+                    languagesVBOX.setPadding(new Insets(20));
+                    languagesVBOX.setPrefSize(480, 480);
+                    languagesVBOX.setMaxSize(480, 480);
+                    masonryPane.getChildren().add(languagesVBOX);
 
                     //Update List of folders in drawer
                     dashboardDrawer.listView.setOnMouseClicked(new ListViewHandler() {
